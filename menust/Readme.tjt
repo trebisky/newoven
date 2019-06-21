@@ -1,0 +1,20 @@
+This directory serves two purposes.
+
+1 - It is place to run the makemenus program, since that program wants to
+  dump a bunch of template files (that we no longer need) in the current directory.
+
+2 - It also serves to hold those template files, which might be useful someday
+  if someone actually wanted to use this scheme to add stuff to the
+  menu system.  This seems highly unlikely.
+
+So someday I should make two enhancements to the makemenus program.
+
+-- one would be to make the generation of the template files optional.
+-- the other would be to ansi-fy those template files (see the *.c
+   files for the sort of thing that would be required).
+   Also add the include for protos.h and so forth.
+
+Doing this would serve no real purpose since no changes to the
+  menu system are anticipated.
+
+tjt -- 6-21-2019

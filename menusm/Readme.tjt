@@ -1,0 +1,11 @@
+Notes by Tom T  6-21-2019
+
+The only thing that gets compiled in here is
+menus.c (yielding menus.o).
+
+The files menus.ext and menus.vc are generated automatically whenever
+the pieces of the menu system are regenerated.
+
+menus.i and menus.m never change, they are included by menus.vc
+
+menus.vc and menus.ext are included by menus.c

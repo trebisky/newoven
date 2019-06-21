@@ -1,7 +1,9 @@
 oven
+makemenus
 *.o
 database
-database.*
+menust/*.tc
+mkpkg
 z
 zz
 zzz

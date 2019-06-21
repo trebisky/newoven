@@ -1,0 +1,18 @@
+TODO list
+
+6-21-2019
+
+*** Put this under GIT
+
+** Finish importing all files, fulfil all externals, get clean link
+** Full ANSI code revision and check.
+** List files NOT imported for the oven-GUI
+** verify database structure OK with 64 bit compiler.
+** curses replacement for IRAF sys/libc and other spp stuff.
+
+** ovend using CFITSIO
+** ovend runs b and p via pthreads
+
+** oven documents as html.
+** multiple imtool displays.
+** try DS9, also with multiple displays.
