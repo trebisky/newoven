@@ -41,6 +41,12 @@ hclgst_ ( XCHAR *a, XCHAR *b, XINT *c )
 {
 }
 
+/* XXX - important */
+void
+backup_ ( void )
+{
+}
+
 /* From IRAF sys/libc */
 
 /*

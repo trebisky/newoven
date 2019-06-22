@@ -169,6 +169,7 @@ void thgkey_ ( XINT * );
 void hpageh_ ( void );
 void flgkey_ ( int * );
 void hclgst_ ( XCHAR *, XCHAR *, XINT * );
+void backup_ ( void );
 
 /* Stuff from IRAF sys/libc */
 
