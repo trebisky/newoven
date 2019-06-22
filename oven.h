@@ -151,6 +151,16 @@ typedef	int	TIMESTAMP;
 typedef	int	UTIME;
 typedef	unsigned int	ITIME;
 
+/* This was introduced when porting to a 64 bit compiler.
+ * Pointers were the only issue (once longs were sorted out)
+ * and these appear only in the I-database.
+ * We don't need them to be valid except in the V computers.
+ * The entire I-database is just "filler" outside of the V computers.
+ * Any kind of 4 byte object will thus do.
+ */
+// typedef	int *	POINT;
+typedef	int 	POINT;
+
 #define	INDEFT	(1.6e38)	/* indefinite (NO) temperature		*/
 #define	IS_INDEFT(x)		( (x) > 1.0e38 )
 
@@ -703,13 +713,13 @@ typedef	struct	{
 	int	tclock;		/* temperature clock 0-9 500ms units	*/
 	int	cclock;		/* control clock 0-9 6000ms units	*/
 	int	pclock;		/* power clock 0-239 250ms units	*/
-	int	*tsem;		/* t semaphore (really vxWorks SEM_ID)	*/
-	int	*csem;		/* c semaphore				*/
-	int	*psem;		/* k semaphore (clock sync)		*/
-	int	*ksem;		/* p semaphore				*/
-	int	*rsem;		/* r semaphore				*/
-	int	*dcusem;	/* dcu semaphore			*/
-	int	*adcsem;	/* adc semaphore			*/
+	POINT	tsem;		/* t semaphore (really vxWorks SEM_ID)	*/
+	POINT	csem;		/* c semaphore				*/
+	POINT	psem;		/* k semaphore (clock sync)		*/
+	POINT	ksem;		/* p semaphore				*/
+	POINT	rsem;		/* r semaphore				*/
+	POINT	dcusem;		/* dcu semaphore			*/
+	POINT	adcsem;		/* adc semaphore			*/
 	BOOL	horn;		/* priority error horn			*/
 	int	gong;		/* priority error gong			*/
 	int	ncomp;		/* my comp number			*/

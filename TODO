@@ -4,10 +4,12 @@ TODO list
 
 *** Put this under GIT -- DONE
 
-** Finish importing all files, fulfil all externals, get clean link
+** verify database structure is OK with 64 bit compiler. -- DONE, fixed
+** get something to link and run, despite warnings -- DONE
+
+** eliminate all compiler warnings.
 ** Full ANSI code revision and check.
 ** List files NOT imported for the oven-GUI
-** verify database structure is OK with 64 bit compiler.
 ** curses replacement for IRAF sys/libc and other spp stuff.
 
 ** ovend using CFITSIO
