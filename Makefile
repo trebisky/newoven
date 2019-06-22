@@ -3,8 +3,8 @@
 OBJS = oven.o menus.o domenus.o prints.o scans.o init.o \
 	errorreport.o stale.o automkey.o \
 	context.o cache.o menusc.o \
-	shmalloc.o database.o ipportrw.o \
-	util.o glue.o
+	shmalloc.o database.o databasc.o \
+	ipportrw.o util.o glue.o
 
 all: oven $(OBJS)
 
@@ -23,6 +23,7 @@ cache.o:	cache.c
 errorreport.o:	errorreport.c
 stale.o:	stale.c
 database.o:	database.c
+databasc.o:	databasc.c
 ipportrw.o:	ipportrw.c
 shmalloc.o:	shmalloc.c
 util.o:		util.c

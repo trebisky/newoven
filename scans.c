@@ -372,7 +372,7 @@ scpower ( char *s, POWER *power )
 }
 
 int
-sctime ( char *s, long *ptime )
+sctime ( char *s, TIME *ptime )
 {
 	int	mm, hh, dd;
 

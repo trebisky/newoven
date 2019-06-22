@@ -103,6 +103,7 @@ db_pwrite_oven ( void )
 
 /* db_bwrite_oven - database biparameters write to  oven
  */
+void
 db_bwrite_oven ( void )
 {
 	int	ncomp, ip;
@@ -116,6 +117,7 @@ db_bwrite_oven ( void )
 
 /* db_pread_oven - database parameters read to  oven
  */
+void
 db_pread_oven ( void )
 {
 	int	ip;
@@ -128,6 +130,7 @@ db_pread_oven ( void )
 
 /* db_bread_oven - database biparameters read to  oven
  */
+void
 db_bread_oven ( void )
 {
 	int	ip;
@@ -140,6 +143,7 @@ db_bread_oven ( void )
 
 /* db_dread_oven - database data read from  oven
  */
+int
 db_dread_oven ( void )
 {
 	int	ip;
@@ -159,6 +163,7 @@ db_dread_oven ( void )
 
 /* db_eread_oven - database error read from  oven
  */
+int
 db_eread_oven ( void )
 {
 	int	ip;
@@ -176,6 +181,7 @@ db_eread_oven ( void )
 
 /* db_gread_oven - database gong read from  oven
  */
+int
 db_gread_oven ( void )
 {
 	int	ip;

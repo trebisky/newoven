@@ -108,7 +108,7 @@ int scvnumb ( char *, int * );
 int scvportd ( char *, int * );
 int scvportp ( char *, int * );
 int scpower ( char *, POWER * );
-int sctime ( char *, long * );
+int sctime ( char *, TIME * );
 int screfv ( char *, float * );
 int scpoly ( char *, float * );
 int sccoef ( char *, float * );
