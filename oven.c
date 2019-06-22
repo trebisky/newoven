@@ -2,6 +2,7 @@
 #include <time.h>
 
 #include "oven.h"
+#include "protos.h"
 
 /*
 HOVEN (noven, ncomp, readonly, remove, period, offset)
@@ -49,6 +50,9 @@ oven ( void )
 	int oven = 0;
 	int comp = 0;
 	int readonly = 0;
+	int period = 60;
+	int offset = 0;
+
 	int status;
 
         status = init_globals ( oven, comp );
@@ -66,7 +70,19 @@ oven ( void )
 	    printf ( "Cannot init database (%d)\n", status );
 	    return 1;
 	}
-	// init_menus ();
+        status = init_menus ();
+	if ( status ) {
+	    printf ( "Cannot init menus (%d)\n", status );
+	    return 1;
+	}
+
+	printf ( "Running menus.\n" );
+        status = do_menus ( period, offset );
+	if ( status ) {
+	    printf ( "Cannot run menus (%d)\n", status );
+	    return 1;
+	}
+	return 0;
 }
 
 void
@@ -85,12 +101,15 @@ show_sizes ( void )
 int
 main ()
 {
+	int s;
+
 	if ( sizeof(database) != CORRECT_DB_SIZE ) {
 	    show_sizes ();
 	    printf ( "ERROR - bad compile, database size wrong\n" );
 	    return 1;
 	}
-	oven ();
+
+	s = oven ();
 	printf ( "Game over.\n" );
 	return 0;
 }

@@ -128,6 +128,26 @@ int sczone ( char *, int * );
 int sczonea ( char *, int * );
 int sctctype ( char *, int * );
 
+/* domenus.c */
+int do_menus(int period, int offset);
+int nmline(void);
+// static int doline(int tty_fd, int tty, ITEM *ip, int itime, int nline, BOOL repaint, BOOL refresh);
+int dostline(int tty_fd, int tty, int nlines, int top, int bot, int total, int autom);
+int statusline(int tty_fd, int tty, int nlines, char *string);
+int ring(void);
+int domgoto(int tty_fd, int tty, int nlines, int eswitch);
+int domwritep(int tty_fd, int tty, int nlines);
+int domeditp(int tty_fd, int tty, int nlines);
+int domeditb(int tty_fd, int tty, int nlines);
+int menugoto(char *id);
+int domreturn(int tty_fd, int tty, int nlines);
+int domenter(int tty_fd, int tty, int nlines, int ncols, int iswitch);
+int dopcur(int tty_fd, int tty);
+void updateitem(void);
+int domkey(int tty_fd, int tty, int nlines, int mlines, int top, int bot, int ncols, int period, int offset, int oldstatus);
+int mkey(int autom, int period, int offset);
+// static int clgstr(char *param, char *outstr, int maxch);
+
 /* from errorreport.c */
 int eunseen ( void );
 
@@ -151,6 +171,19 @@ int pop_context ( void );
 /* From automkey.c */
 int automkey ( int, int );
 
+/* cproto: init.c */
+int init_globals(int noven, int ncomp);
+int init_context(void);
+int init_databases(int noven, int ncomp, int readonly);
+int init_database(int noven, int ncomp, int readonly);
+int init_menus(void);
+int free_globals(void);
+int free_context(void);
+int free_databases(int noven, int ncomp, int remove);
+int free_database(int noven, int ncomp, int remove);
+int free_menus(void);
+int iamthepilot(void);
+
 /* ---------------------------------- */
 /* ---------------------------------- */
 /* ---------------------------------- */
@@ -166,9 +199,11 @@ typedef long	XINT;
 
 void hgkey_ ( int *, int *, int * );
 void thgkey_ ( XINT * );
-void hpageh_ ( void );
 void flgkey_ ( int * );
+
 void hclgst_ ( XCHAR *, XCHAR *, XINT * );
+
+void hpageh_ ( void );
 void backup_ ( void );
 
 /* Stuff from IRAF sys/libc */

@@ -23,16 +23,28 @@
 #define	DOER_ERROR	(-1)
 
 /* Prototypes 6-21-2019 */
+/* from cproto: domenus.c */
 /* XXX - this file is not yet fully ANSI */
-int domkey ( int, int, int, int, int, int, int, int, int, int );
-int mkey ( int,  int,  int );
-int doline ( int, int, ITEM *, int, int, BOOL, BOOL );
-int dostline ( int, int, int, int, int, int, int );
-void updateitem ( void );
-int dopcur ( int, int );
-int statusline ( int,  int,  int, char * );
+int do_menus(int period, int offset);
+int nmline(void);
+int dostline(int tty_fd, int tty, int nlines, int top, int bot, int total, int autom);
+int statusline(int tty_fd, int tty, int nlines, char *string);
+int ring(void);
+int domgoto(int tty_fd, int tty, int nlines, int eswitch);
+int domwritep(int tty_fd, int tty, int nlines);
+int domeditp(int tty_fd, int tty, int nlines);
+int domeditb(int tty_fd, int tty, int nlines);
+int menugoto(char *id);
+int domreturn(int tty_fd, int tty, int nlines);
+int domenter(int tty_fd, int tty, int nlines, int ncols, int iswitch);
+int dopcur(int tty_fd, int tty);
+void updateitem(void);
+int domkey(int tty_fd, int tty, int nlines, int mlines, int top, int bot, int ncols, int period, int offset, int oldstatus);
+int mkey(int autom, int period, int offset);
 
-int clgstr ( char *, char *, int );
+static int doline(int tty_fd, int tty, ITEM *ip, int itime, int nline, BOOL repaint, BOOL refresh);
+
+static int clgstr(char *param, char *outstr, int maxch);
 
 int
 do_menus ( int period, int offset)
@@ -52,6 +64,7 @@ do_menus ( int period, int offset)
 	int	key;
 
 	while (Gmenu >= 0) {
+	    printf ( "Loop 1\n" );
 	    c_xttysize (&ncols, &nlines);
 	    mp = Menus[Gmenu];
 	    repaint = status & M_REPAINT;
@@ -71,6 +84,7 @@ do_menus ( int period, int offset)
 		    mp->mlines += ip->mtimes;
 		}
 	    }
+	    printf ( "Loop 2\n" );
 
 	    /* calculate the scrolling region
 	     */
@@ -82,6 +96,7 @@ do_menus ( int period, int offset)
 	    nline = top_nline;
 	    mline = 0;
 	    Gnline = MAX (top_mline, MIN (bot_mline, Gnline));
+	    printf ( "Loop 3\n" );
 
 	    /* repaint or refresh the scrolling region
 	     */
@@ -99,6 +114,7 @@ do_menus ( int period, int offset)
 		if (mline > bot_mline)
 		    break;
 	    }
+	    printf ( "Loop 4\n" );
 
 	    /* now do the ID line and the status line
 	     */
@@ -113,6 +129,7 @@ do_menus ( int period, int offset)
 	    dostline (tty_fd, tty, nlines, top_mline, bot_mline, mp->mlines,
 	      status & M_AUTO);
 	    FLGKEY (&key);
+	    printf ( "Loop 5\n" );
 
 	    /* now get the cursor mode key
 	     */
@@ -120,7 +137,9 @@ do_menus ( int period, int offset)
 	    status = domkey (tty_fd,tty,nlines,mp->mlines,top_mline,bot_mline
 	        ,ncols, period, offset, status);
 	    THGKEY (&one);
+	    printf ( "Loop 6\n" );
 	}
+
 	THGKEY (&one);
 	c_ttygoto (tty_fd, tty, 1, nlines);
 	c_ttyclearln (tty_fd, tty);
@@ -595,9 +614,11 @@ domkey ( int tty_fd, int tty, int nlines, int mlines, int top, int bot, int ncol
 	XINT	three = 3;
 
 	do {
+	    printf ( "Loop - domkey 1\n" );
 	    dopcur (tty_fd, tty);
 	    mcode = mkey (oldstatus & M_AUTO, period, offset);
 	    oldstatus &= ~M_AUTO;
+	    printf ( "Loop - domkey 2 %d\n", mcode );
 	    switch (mcode) {
 	    case SCR_U0:
 		Gmline = 0;
@@ -849,7 +870,7 @@ mkey ( int autom,  int period,  int offset)
 
 /* clgstr - CL get string parameter
  */
-int
+static int
 clgstr ( char *param, char *outstr, int maxch )
 {
 	XCHAR	x_param[256];

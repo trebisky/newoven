@@ -4,7 +4,7 @@ OBJS = oven.o menus.o domenus.o prints.o scans.o init.o \
 	errorreport.o stale.o automkey.o \
 	context.o cache.o menusc.o \
 	shmalloc.o database.o databasc.o \
-	ipportrw.o util.o glue.o
+	ipportrw.o util.o console.o
 
 all: oven $(OBJS)
 
@@ -27,7 +27,7 @@ databasc.o:	databasc.c
 ipportrw.o:	ipportrw.c
 shmalloc.o:	shmalloc.c
 util.o:		util.c
-glue.o:		glue.c
+console.o:	console.c
 
 menus.o:	menusm/menus.o
 	cp menusm/menus.o menus.o
