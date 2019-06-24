@@ -6,7 +6,10 @@ OBJS = oven.o menus.o domenus.o prints.o scans.o init.o \
 	shmalloc.o database.o databasc.o \
 	ipportrw.o util.o console.o
 
-all: oven $(OBJS)
+all: oven
+
+.c.o:
+	cc -g -o $@ -c $<
 
 #oven: oven.c
 #	cc -o oven oven.c
@@ -32,15 +35,16 @@ console.o:	console.c
 menus.o:	menusm/menus.o
 	cp menusm/menus.o menus.o
 
-menusc.o:	menusc/menusc.o
-	cp menusc/menusc.o menusc.o
+#menusc.o:	menusc/menusc.o
+#	cp menusc/menusc.o menusc.o
 
 menusm/menus.o:
-	make -C menust
+	make -C menusc
 	make -C menusm
 
 pieces:
-	make -C menust
+	make -C menusc
+	make -C menusm
 
 makemenus: makemenus.c
 	cc -o makemenus makemenus.c
@@ -49,6 +53,6 @@ makemenus: makemenus.c
 clean:
 	rm -f $(OBJS)
 	make -C menusm clean
-	make -C menust clean
+	make -C menusc clean
 
 # THE END

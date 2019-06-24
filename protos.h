@@ -148,6 +148,28 @@ int domkey(int tty_fd, int tty, int nlines, int mlines, int top, int bot, int nc
 int mkey(int autom, int period, int offset);
 // static int clgstr(char *param, char *outstr, int maxch);
 
+/* console.c */
+void con_init(void);
+void con_close(void);
+void con_size(int *ncols, int *nlines);
+void con_clear(void);
+void con_clear_line(void);
+void con_clear_toeol (void);
+void con_move(int col, int line);
+void con_str(char *text);
+void con_mvstr(int col, int line, char *text);
+void con_bell(void);
+void con_flush(void);
+void con_debug(char *msg);
+void con_raw(void);
+void con_noraw(void);
+void con_raw2(void);
+int con_key(int period, int offset);
+void con_get_param(char *param, char *val, int max);
+void con_help(void);
+void backup_(void);
+int c_timcur(char *string, int num);
+
 /* from errorreport.c */
 int eunseen ( void );
 

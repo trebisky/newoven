@@ -1,11 +1,16 @@
 #include "oven.h"
 #include "menus.h"
 #include "context.h"
+
 #define	GLOBALS
 #include "global.h"
 
-extern	char	*calloc();
+#include <stdlib.h>
+#include <string.h>
 
+// extern	char	*calloc();
+
+int
 init_globals (noven, ncomp)
 int	noven;
 int	ncomp;
@@ -16,6 +21,13 @@ int	ncomp;
 	if (globalp)
 	    return (-1);
 	gp = (GLOBAL *)calloc (1, sizeof(GLOBAL));
+
+	/* 6-23-2019 */
+	if ( ! gp )
+	    return 10;
+	status = 0;
+
+	/*
 	status = (int)gp;
 	switch (status) {
 	case 0:
@@ -25,18 +37,27 @@ int	ncomp;
 	    status = 0;
 	    break;
 	}
+	*/
 	gp->noven = noven;
 	gp->ncomp = ncomp;
 	globalp = gp;
 	return (status);
 }
 
+int
 init_context ()
 {
 	CONTEXT	*cp;
 	int	status;
 
 	cp = (CONTEXT *)calloc (1, sizeof(CONTEXT));
+
+	/* 6-23-2019 */
+	if ( ! cp )
+	    return 20;
+	status = 0;
+
+	/*
 	status = (int)cp;
 	switch (status) {
 	case 0:
@@ -46,10 +67,12 @@ init_context ()
 	    status = 0;
 	    break;
 	}
+	*/
 	globalp->contextp = cp;
 	return (status);
 }
 
+void
 init_databases (noven, ncomp, readonly)
 int	noven;
 int	ncomp;
@@ -62,6 +85,7 @@ int	readonly;
 	    status = init_database (oven, ncomp, readonly);
 }
 
+int
 init_database (noven, ncomp, readonly)
 int	noven;
 int	ncomp;
@@ -74,6 +98,13 @@ int	readonly;
 	if (!iamthepilot())
 	    readonly = 1;
 	db = (database *)shmalloc (sizeof(database), noven, ncomp, readonly);
+
+	/* 6-23-2019 */
+	if ( ! db )
+	    return 30;
+	status = 0;
+
+	/*
 	status = (int)db;
 	switch (status) {
 	case 0:
@@ -83,6 +114,8 @@ int	readonly;
 	    status = 0;
 	    break;
 	}
+	*/
+
 	Gdb = db;
 	Bdb = &db->biparameter;
 	Pdb = &db->parameter;
@@ -97,14 +130,20 @@ int	readonly;
 	return (status);
 }
 
+/* in menusm/menus.c */
+MENUS	*menus ( void );
+
+int
 init_menus ()
 {
 	MENUS	*msp;
-	MENUS	*menus();
 	int	status;
 
 	msp = menus();
+
+	/* XXX - The 64 bit compiler doesn't like this */
 	status = (int)msp;
+
 	switch (status) {
 	case 0:
 	case 1:
@@ -115,22 +154,26 @@ init_menus ()
 	    status = 0;
 	    break;
 	}
+
 	globalp->msp = msp;
 	return (status);
 }
 
+void
 free_globals ()
 {
 	free ((char *)globalp);
 	globalp = (GLOBAL *)0;
 }
 
+void
 free_context ()
 {
 	free ((char *)globalp->contextp);
 	globalp->contextp = (CONTEXT *)0;
 }
 
+void
 free_databases (noven, ncomp, remove)
 int	noven;
 int	ncomp;
@@ -142,6 +185,7 @@ int	remove;
 	    free_database (oven, ncomp, remove);
 }
 
+void
 free_database (noven, ncomp, remove)
 int	noven;
 int	ncomp;
@@ -157,12 +201,14 @@ int	remove;
 	}
 }
 
+void
 free_menus ()
 {
 	free ((char *)globalp->msp);
 	globalp->msp = (MENUS *)0;
 }
 
+int
 iamthepilot ()
 {
 	char	*getenv ();

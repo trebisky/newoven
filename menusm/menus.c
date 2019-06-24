@@ -3,9 +3,10 @@
 #include "menus.ext"
 
 /* menus - initialize the menus database
+ * called from menus_init() in init.c
  */
 MENUS *
-menus ()
+menus ( void )
 {
 	MENUS	*msp;
 	MENU	*mp;

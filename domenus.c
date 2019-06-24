@@ -44,6 +44,7 @@ int mkey(int autom, int period, int offset);
 
 static int doline(int tty_fd, int tty, ITEM *ip, int itime, int nline, BOOL repaint, BOOL refresh);
 
+/* The show starts here */
 int
 do_menus ( int period, int offset)
 {
@@ -116,7 +117,8 @@ do_menus ( int period, int offset)
 		    break;
 	    }
 
-	    /* now do the ID line and the status line
+	    /* now do the ID line - not part of the scrolling region,
+	     * so it gets skipped above.
 	     */
 	    nline = 0;
 	    mline = 0;
@@ -127,6 +129,9 @@ do_menus ( int period, int offset)
 		con_flush ();
 		// FLGKEY (&key);
 	    }
+
+	    /* now do the status line
+	     */
 	    dostline (tty_fd, tty, nlines, top_mline, bot_mline, mp->mlines,
 	      status & M_AUTO);
 	    con_flush ();
@@ -149,12 +154,14 @@ do_menus ( int period, int offset)
 }
 
 /* nmline - return the number of visible menu lines
+ * (called from er.c)
  */
 int
-nmline ()
+nmline ( void )
 {
 	int	ncols, nlines;			/* screen size		*/
 
+	/* Subtract 2 (title line and status line). */
 	con_size ( &ncols, &nlines );
 	return (nlines-2);
 }
@@ -171,6 +178,7 @@ doline ( int tty_fd, int tty, ITEM *ip, int itime, int nline, BOOL repaint, BOOL
 	if ((repaint) && ip->text) {
 	    con_mvstr ( ip->text_start+1, nline+1, ip->text );
 	}
+
 	if ((repaint || refresh) && ip->ofunc) {
 	    string[0] = 0;
 	    if (ip->ntimes)
@@ -184,7 +192,8 @@ doline ( int tty_fd, int tty, ITEM *ip, int itime, int nline, BOOL repaint, BOOL
 	    con_mvstr ( ip->func_start+1, nline+1, string );
 #else
 	    con_mvstr ( ip->func_start+1, nline+1, string );
-	    c_ttyctrl (tty_fd, tty, "ce", 1);
+	    // c_ttyctrl (tty_fd, tty, "ce", 1);
+	    con_clear_toeol ();
 #endif
 	}
 }
@@ -490,7 +499,8 @@ int	iswitch;
 	    clear_string[n] = 0;
 	    con_str ( clear_string );
 #else
-	    c_ttyctrl (tty_fd, tty, "ce", 1);
+	    // c_ttyctrl (tty_fd, tty, "ce", 1);
+	    con_clear_toeol ();
 #endif
 	    dopcur (tty_fd, tty);
 	    string[0] = 0;
@@ -508,7 +518,8 @@ int	iswitch;
 		clear_string[n] = 0;
 		con_str ( clear_string );
 #else
-		c_ttyctrl (tty_fd, tty, "ce", 1);
+		// c_ttyctrl (tty_fd, tty, "ce", 1);
+		con_clear_toeol ();
 #endif
 		dopcur (tty_fd, tty);
 		con_str ( string );
@@ -731,7 +742,8 @@ domkey ( int tty_fd, int tty, int nlines, int mlines, int top, int bot, int ncol
 		}
 		break;
 	    case HELP:
-		HPAGEH ();
+		// HPAGEH ();
+		con_help ();
 		status |= M_REPAINT;
 		break;
 	    default:
@@ -870,35 +882,5 @@ mkey ( int autom,  int period,  int offset)
 	}
 	return (mcode);
 }
-
-#ifdef IRAF_SPP
-/* timcur - Translate image cursor
- */
-int
-c_timcur (outstr, maxch)
-char	*outstr;
-int	maxch;
-{
-	XCHAR	x_outstr[256];
-	XINT	x_maxch = maxch;
-	XINT	status;
-
-	c_strupk (outstr, x_outstr, strlen (outstr)+1);
-	status = TIMCUR (x_outstr, &x_maxch);
-	c_strpak (x_outstr, outstr, maxch);
-	return (status == XYES);
-}
-
-void
-DECISLEEP ()
-{
-	struct timespec rqt;
-
-	rqt.tv_sec = 0;
-	rqt.tv_nsec = 100000000;
-	nanosleep (&rqt, NULL);
-}
-
-#endif /* IRAF_SPP */
 
 /* THE END */

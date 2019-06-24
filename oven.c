@@ -76,8 +76,9 @@ oven ( void )
 	    return 1;
 	}
 
-	printf ( "Running menus.\n" );
+	/* Run the menus! */
         status = do_menus ( period, offset );
+
 	if ( status ) {
 	    printf ( "Cannot run menus (%d)\n", status );
 	    return 1;

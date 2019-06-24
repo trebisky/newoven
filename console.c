@@ -32,11 +32,15 @@ trap ( char *s, int stop )
 void
 con_init ( void )
 {
+	/* This version of ncurses seems
+	 * to start up in cbreak mode.
+	 */
 	initscr ();
 	/*
         cbreak();
         noecho();
 	*/
+        noecho();
 }
 
 void
@@ -56,13 +60,20 @@ void
 con_clear ( void )
 {
         clear ();
-	getch ();
+	refresh ();
+	// getch ();
 }
 
 void
 con_clear_line ( void )
 {
-        /* XXX */
+	clrtoeol ();
+}
+
+void
+con_clear_toeol ( void )
+{
+	clrtoeol ();
 }
 
 /* Curses uses a zero indexed system.
@@ -80,6 +91,7 @@ void
 con_str ( char *text )
 {
 	addstr ( text );
+	refresh ();
 }
 
 /* Combines the above */
@@ -87,12 +99,14 @@ void
 con_mvstr ( int col, int line, char *text )
 {
 	mvaddstr ( line-1, col-1, text );
+	refresh ();
 }
 
 void
 con_bell ( void )
 {
 	addch ( 007 );
+	fflush ( stdout );
 }
 
 /* Flush stderr and stdout */
@@ -143,6 +157,13 @@ con_get_param ( char *param, char *val, int max )
 	strcpy ( val, "0" );
 }
 
+void
+con_help ( void )
+{
+	/* In SPP code */
+	// call pagefiles ("oven$cm.hlp")
+}
+
 #endif
 
 #ifdef OLD_IRAF
@@ -180,17 +201,23 @@ con_clear ( void )
 	c_ttyclear ( tty_fd, tty );
 }
 
+void
+con_clear_line ( void )
+{
+	c_ttyclearln ( tty_fd, tty );
+}
+
+void
+con_clear_toeol ( void )
+{
+	c_ttyctrl (tty_fd, tty, "ce", 1);
+}
+
 /* oddly enough, needs no handle */
 void
 con_size ( int *ncols, int *nlines )
 {
 	c_xttysize ( ncols, nlines );
-}
-
-void
-con_clear_line ( void )
-{
-	c_ttyclearln ( tty_fd, tty );
 }
 
 void
@@ -297,6 +324,18 @@ clgstr ( char *param, char *outstr, int maxch )
         c_strupk (param, x_param, strlen (param)+1);
         HCLGST (x_param, x_outstr, &x_maxch);
         c_strpak (x_outstr, outstr, maxch);
+}
+
+void
+con_help ( void )
+{
+	/* In SPP code */
+	/* HPAGEH ();
+	/*
+	call thgkey(1)
+	call pagefiles ("oven$cm.hlp")
+	call thgkey(2)
+	*/
 }
 
 #endif
@@ -437,6 +476,7 @@ begin
 end
 */
 
+#ifdef not_here
 /* Some kind of raw mode interface to the console.
  * hgkey calls thgkey.
  * reads a key into *key
@@ -461,6 +501,7 @@ hpageh_ ( void )
 {
 	trap ( "hpageh", 1 );
 }
+#endif
 
 
 /* XXX - important */
@@ -493,47 +534,46 @@ backup_ ( void )
   864 |  c_strpak (x_outstr, outstr, maxch);
 */
 
-void
-c_xttysize ( int *c, int* l )
-{
-	trap ( "c_xttysize", 0 );
-}
-
-void
-c_ttyclear ( int tty_fd, int tty )
-{
-	trap ( "c_ttyclear", 0 );
-}
-
-void
-c_ttyctrl ( int tty_fd, int tty, char *cmd, int xyz )
-{
-	trap ( "c_ttyctrl", 0 );
-}
-
 /* --------------------------------------------------------------------- */
 /* Mysterious image cursor stuff */
 
 int
 c_timcur ( char *string, int num )
 {
-	trap ( "c_timcur", 0 );
 }
 
-/* --------------------------------------------------------------------- */
-/* unpack and pack XCHAR strings as per SPP */
+#ifdef IRAF_SPP
+/* timcur - Translate image cursor
+ */
+int
+c_timcur (outstr, maxch)
+char	*outstr;
+int	maxch;
+{
+	XCHAR	x_outstr[256];
+	XINT	x_maxch = maxch;
+	XINT	status;
+
+	/* Convert C to SPP string */
+	c_strupk (outstr, x_outstr, strlen (outstr)+1);
+
+	status = TIMCUR (x_outstr, &x_maxch);
+
+	/* Convert SPP to C string */
+	c_strpak (x_outstr, outstr, maxch);
+	return (status == XYES);
+}
 
 void
-c_strupk ( char *param, XCHAR *x_param, int num )
+DECISLEEP ()
 {
-	trap ( "c_strupk", 0 );
+	struct timespec rqt;
+
+	rqt.tv_sec = 0;
+	rqt.tv_nsec = 100000000;
+	nanosleep (&rqt, NULL);
 }
 
-void
-c_strpak ( XCHAR *x_outstr, char *outstr, int max)
-{
-	printf ( "c_strpak: %s\n", outstr );
-	trap ( "c_strpak", 0 );
-}
+#endif /* IRAF_SPP */
 
 /* THE END */

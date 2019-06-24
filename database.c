@@ -7,6 +7,8 @@
 #include "global.h"
 #include "oxnames.h"
 
+#include "protos.h"
+
 /* db_bpwrite_disk - database parameters write to  disk
  */
 void
