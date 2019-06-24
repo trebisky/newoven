@@ -3,6 +3,7 @@
 #include <setjmp.h>
 #include <signal.h>
 
+/* pointer to function returning integer */
 typedef	int	(*PFI)();
 
 jmp_buf	keybuf;

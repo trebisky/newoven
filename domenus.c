@@ -44,13 +44,11 @@ int mkey(int autom, int period, int offset);
 
 static int doline(int tty_fd, int tty, ITEM *ip, int itime, int nline, BOOL repaint, BOOL refresh);
 
-static int clgstr(char *param, char *outstr, int maxch);
-
 int
 do_menus ( int period, int offset)
 {
-	int	tty_fd = fileno (stdout);
-	int	tty = c_ttyodes ("terminal");
+	int	tty_fd;
+	int	tty;
 	MENU	*mp;
 	ITEM	*ip;
 	int	iitems, itime;
@@ -60,18 +58,22 @@ do_menus ( int period, int offset)
 	BOOL	repaint;
 	BOOL	refresh;
 	int	status = M_REPAINT;
-	XINT	one = 1, two = 2;
-	int	key;
+	// XINT	one = 1, two = 2;
+	// int	key;
+
+	con_init ();
+	// tty = 999;
+	// tty_fd = fileno (stdout);
 
 	while (Gmenu >= 0) {
-	    printf ( "Loop 1\n" );
-	    c_xttysize (&ncols, &nlines);
+	    con_size ( &ncols, &nlines );
+
 	    mp = Menus[Gmenu];
 	    repaint = status & M_REPAINT;
 	    refresh = status & M_REFRESH;
 
 	    if (repaint)
-		c_ttyclear (tty_fd, tty);
+		con_clear ();
 
 	    if (repaint || !strcmp (mp->id, "er")) {
 
@@ -84,7 +86,6 @@ do_menus ( int period, int offset)
 		    mp->mlines += ip->mtimes;
 		}
 	    }
-	    printf ( "Loop 2\n" );
 
 	    /* calculate the scrolling region
 	     */
@@ -96,7 +97,6 @@ do_menus ( int period, int offset)
 	    nline = top_nline;
 	    mline = 0;
 	    Gnline = MAX (top_mline, MIN (bot_mline, Gnline));
-	    printf ( "Loop 3\n" );
 
 	    /* repaint or refresh the scrolling region
 	     */
@@ -109,12 +109,12 @@ do_menus ( int period, int offset)
 			break;
 		    doline (tty_fd, tty, ip, itime, nline, repaint, refresh);
 		    nline++;
-		    FLGKEY (&key);
+		    con_flush ();
+		    // FLGKEY (&key);
 		}
 		if (mline > bot_mline)
 		    break;
 	    }
-	    printf ( "Loop 4\n" );
 
 	    /* now do the ID line and the status line
 	     */
@@ -124,26 +124,27 @@ do_menus ( int period, int offset)
 	    for (itime = 0; itime < ip->mtimes; mline++, itime++) {
 		doline (tty_fd, tty, ip, itime, nline, repaint, refresh);
 		nline++;
-		FLGKEY (&key);
+		con_flush ();
+		// FLGKEY (&key);
 	    }
 	    dostline (tty_fd, tty, nlines, top_mline, bot_mline, mp->mlines,
 	      status & M_AUTO);
-	    FLGKEY (&key);
-	    printf ( "Loop 5\n" );
+	    con_flush ();
+	    // FLGKEY (&key);
 
 	    /* now get the cursor mode key
 	     */
-	    THGKEY (&two);
+	    con_raw ();
 	    status = domkey (tty_fd,tty,nlines,mp->mlines,top_mline,bot_mline
 	        ,ncols, period, offset, status);
-	    THGKEY (&one);
-	    printf ( "Loop 6\n" );
+	    con_noraw ();
+	    // con_debug ( "Loop 6\n" );
 	}
 
-	THGKEY (&one);
-	c_ttygoto (tty_fd, tty, 1, nlines);
-	c_ttyclearln (tty_fd, tty);
-	c_ttycdes (tty);
+	con_noraw ();
+	con_move ( 1, nlines );
+	con_clear_line ();
+	con_close ();
 	return (0);
 }
 
@@ -154,7 +155,7 @@ nmline ()
 {
 	int	ncols, nlines;			/* screen size		*/
 
-	c_xttysize (&ncols, &nlines);
+	con_size ( &ncols, &nlines );
 	return (nlines-2);
 }
 
@@ -168,8 +169,7 @@ doline ( int tty_fd, int tty, ITEM *ip, int itime, int nline, BOOL repaint, BOOL
 	char	string[256];
 
 	if ((repaint) && ip->text) {
-	    c_ttygoto (tty_fd, tty, ip->text_start+1, nline+1);
-	    c_ttyputline (tty_fd, tty, ip->text, map_cc);
+	    con_mvstr ( ip->text_start+1, nline+1, ip->text );
 	}
 	if ((repaint || refresh) && ip->ofunc) {
 	    string[0] = 0;
@@ -181,11 +181,9 @@ doline ( int tty_fd, int tty, ITEM *ip, int itime, int nline, BOOL repaint, BOOL
 	    for (n = strlen (string); n < ip->func_end - ip->func_start+1; n++)
 		string[n] = ' ';
 	    string[n] = 0;
-	    c_ttygoto (tty_fd, tty, ip->func_start+1, nline+1);
-	    c_ttyputline (tty_fd, tty, string, map_cc);
+	    con_mvstr ( ip->func_start+1, nline+1, string );
 #else
-	    c_ttygoto (tty_fd, tty, ip->func_start+1, nline+1);
-	    c_ttyputline (tty_fd, tty, string, map_cc);
+	    con_mvstr ( ip->func_start+1, nline+1, string );
 	    c_ttyctrl (tty_fd, tty, "ce", 1);
 #endif
 	}
@@ -214,24 +212,21 @@ statusline ( int tty_fd,  int tty,  int nlines, char *string )
 {
 	int	map_cc = 0;
 
-	c_ttygoto (tty_fd, tty, 1, nlines);
-	c_ttyclearln (tty_fd, tty);
-	c_ttyputline (tty_fd, tty, string, map_cc);
+	con_move ( 1, nlines );
+	con_clear_line ();
+	con_str ( string );
 }
 
+#ifdef notyet
+/* XXX - probably for oveng */
 /* ring -- ring the bell
  */
 int
 ring ()
 {
-	int	tty_fd = fileno (stdout);
-	int	tty = c_ttyodes ("terminal");
-	int	map_cc = 0;
-	int	key;
-
-	c_ttyputline (tty_fd, tty, "\007", map_cc);
-	FLGKEY (&key);
+	con_bell ();
 }
+#endif
 
 /* domgoto - do menu goto
  */
@@ -246,7 +241,7 @@ int	eswitch;
 	ITEM	*ip = mp->item[Gitem];
 	int	itime = Gtime;
 	int	status = GOER_OK;
-	int	key;
+	// int	key;
 
 	if (eswitch == 0 && ip->gfunc == 0) {
 	    statusline (tty_fd, tty, nlines,
@@ -258,8 +253,10 @@ int	eswitch;
 		"\007could not push context");
 	    return (DOER_ERROR);
 	}
-	c_ttyputline (tty_fd, tty, "Executing", 0);
-	FLGKEY (&key);
+
+	con_str ( "Executing" );
+	con_flush ();
+	// FLGKEY (&key);
 
 	if (eswitch)
 	    status = menugoto ("er");
@@ -470,8 +467,8 @@ int	iswitch;
 	int	n, nmax;
 	char	string[256];
 	char	clear_string[256];
-	XINT	one = 1;
-	XINT	two = 2;
+	// XINT	one = 1;
+	// XINT	two = 2;
 
 	if (ip->ifunc == 0 && ip->tfunc == 0) {
 	    statusline (tty_fd, tty, nlines,
@@ -491,7 +488,7 @@ int	iswitch;
 	    for (n = 0; n < nmax; n++)
 		clear_string[n] = ' ';
 	    clear_string[n] = 0;
-	    c_ttyputline (tty_fd, tty, clear_string, map_cc);
+	    con_str ( clear_string );
 #else
 	    c_ttyctrl (tty_fd, tty, "ce", 1);
 #endif
@@ -500,21 +497,21 @@ int	iswitch;
 	    if (iswitch) {
 		strcpy (string, "imcur");
 	    } else {
-		THGKEY (&one);
-		clgstr ("input", string, sizeof(string));
-		THGKEY (&two);
+		con_noraw ();
+		con_get_param ( "input", string, sizeof(string) );
+		con_raw ();
 	    }
 	    if (c_timcur (string, sizeof(string))) {
 #ifdef	OLD_CLEARLINE
 		for (n = 0; n < nmax; n++)
 		    clear_string[n] = ' ';
 		clear_string[n] = 0;
-		c_ttyputline (tty_fd, tty, clear_string, map_cc);
+		con_str ( clear_string );
 #else
 		c_ttyctrl (tty_fd, tty, "ce", 1);
 #endif
 		dopcur (tty_fd, tty);
-		c_ttyputline (tty_fd, tty, string, map_cc);
+		con_str ( string );
 		dopcur (tty_fd, tty);
 	    }
 	}
@@ -582,7 +579,7 @@ dopcur ( int tty_fd, int tty )
 	else
 	    ncol = 0;
 
-	c_ttygoto (tty_fd, tty, ncol+1, nline+1);
+	con_move ( ncol+1, nline+1 );
 }
 
 /* updateitem -- update the item pointers (Gitem & Gtime) from Gnline
@@ -611,14 +608,15 @@ domkey ( int tty_fd, int tty, int nlines, int mlines, int top, int bot, int ncol
 	int	mcode;
 	int	status = 0;
 	int	gmline = Gmline;
-	XINT	three = 3;
+	// XINT	three = 3;
 
 	do {
-	    printf ( "Loop - domkey 1\n" );
+	    // con_debug ( "Loop - domkey 1\n" );
 	    dopcur (tty_fd, tty);
 	    mcode = mkey (oldstatus & M_AUTO, period, offset);
 	    oldstatus &= ~M_AUTO;
-	    printf ( "Loop - domkey 2 %d\n", mcode );
+	    // con_debug ( "Loop - domkey 2 %d\n", mcode );
+
 	    switch (mcode) {
 	    case SCR_U0:
 		Gmline = 0;
@@ -750,8 +748,10 @@ domkey ( int tty_fd, int tty, int nlines, int mlines, int top, int bot, int ncol
 	    if (Gmline != gmline)
 	        status |= M_REPAINT;
 	}
+
 	if (status & M_REPAINT || status & M_REFRESH)
-	    THGKEY (&three);
+	    con_raw2 ();
+	    // THGKEY (&three);
 	return (status);
 }
 
@@ -764,12 +764,15 @@ mkey ( int autom,  int period,  int offset)
 	int	mcode;
 
 	if (autom) {
-	    FLGKEY (&key);
+	    con_flush ();
+	    // FLGKEY (&key);
+	    /* Always returns 'q' these days */
 	    if (!(key = automkey (period, offset)))
 		return (AUTO);
 	} else {
 	    forever {
-		HGKEY (&key, &period, &offset);
+		// HGKEY (&key, &period, &offset);
+		key = con_key ( period, offset );
 		if (key == '\033')
 		    ;
 		else if (key == '[')
@@ -866,20 +869,6 @@ mkey ( int autom,  int period,  int offset)
 	    break;
 	}
 	return (mcode);
-}
-
-/* clgstr - CL get string parameter
- */
-static int
-clgstr ( char *param, char *outstr, int maxch )
-{
-	XCHAR	x_param[256];
-	XCHAR	x_outstr[256];
-	XINT	x_maxch = maxch;
-
-	c_strupk (param, x_param, strlen (param)+1);
-	HCLGST (x_param, x_outstr, &x_maxch);
-	c_strpak (x_outstr, outstr, maxch);
 }
 
 #ifdef IRAF_SPP

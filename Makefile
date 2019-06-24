@@ -12,7 +12,7 @@ all: oven $(OBJS)
 #	cc -o oven oven.c
 
 oven: $(OBJS)
-	cc -o oven $(OBJS) -lm
+	cc -o oven $(OBJS) -lm -lncurses
 
 init.o:	init.c
 domenus.o:	domenus.c
