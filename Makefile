@@ -35,8 +35,8 @@ console.o:	console.c
 menus.o:	menusm/menus.o
 	cp menusm/menus.o menus.o
 
-#menusc.o:	menusc/menusc.o
-#	cp menusc/menusc.o menusc.o
+menusc.o:	menusc/menusc.o
+	cp menusc/menusc.o menusc.o
 
 menusm/menus.o:
 	make -C menusc

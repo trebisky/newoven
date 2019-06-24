@@ -132,7 +132,7 @@ int sctctype ( char *, int * );
 int do_menus(int period, int offset);
 int nmline(void);
 // static int doline(int tty_fd, int tty, ITEM *ip, int itime, int nline, BOOL repaint, BOOL refresh);
-int dostline(int tty_fd, int tty, int nlines, int top, int bot, int total, int autom);
+// static int dostline(int tty_fd, int tty, int nlines, int top, int bot, int total, int autom);
 int statusline(int tty_fd, int tty, int nlines, char *string);
 int ring(void);
 int domgoto(int tty_fd, int tty, int nlines, int eswitch);
@@ -174,9 +174,7 @@ int c_timcur(char *string, int num);
 int eunseen ( void );
 
 /* from stale.c */
-void staleadc ( database * );
-void stalejtmp ( database * );
-static void staleall ( database * );
+void stalereport ( void );
 
 /* from cache.c */
 int cache_parameter ( void );

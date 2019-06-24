@@ -27,7 +27,7 @@
 /* XXX - this file is not yet fully ANSI */
 int do_menus(int period, int offset);
 int nmline(void);
-int dostline(int tty_fd, int tty, int nlines, int top, int bot, int total, int autom);
+static int dostline(int tty_fd, int tty, int nlines, int top, int bot, int total, int autom);
 int statusline(int tty_fd, int tty, int nlines, char *string);
 int ring(void);
 int domgoto(int tty_fd, int tty, int nlines, int eswitch);
@@ -126,7 +126,7 @@ do_menus ( int period, int offset)
 	    for (itime = 0; itime < ip->mtimes; mline++, itime++) {
 		doline (tty_fd, tty, ip, itime, nline, repaint, refresh);
 		nline++;
-		con_flush ();
+		// con_flush ();
 		// FLGKEY (&key);
 	    }
 
@@ -134,21 +134,25 @@ do_menus ( int period, int offset)
 	     */
 	    dostline (tty_fd, tty, nlines, top_mline, bot_mline, mp->mlines,
 	      status & M_AUTO);
-	    con_flush ();
+	    // con_flush ();
 	    // FLGKEY (&key);
 
 	    /* now get the cursor mode key
 	     */
-	    con_raw ();
+	    // con_raw ();
 	    status = domkey (tty_fd,tty,nlines,mp->mlines,top_mline,bot_mline
 	        ,ncols, period, offset, status);
-	    con_noraw ();
+	    // con_noraw ();
 	    // con_debug ( "Loop 6\n" );
 	}
 
-	con_noraw ();
-	con_move ( 1, nlines );
-	con_clear_line ();
+	/* This is just going to return and exit,
+	 * so all of this is really unnecessary
+	 */
+	// con_noraw ();
+	// con_move ( 1, nlines );
+	// con_clear_line ();
+
 	con_close ();
 	return (0);
 }
@@ -168,7 +172,7 @@ nmline ( void )
 
 /* doline - do a line out of the menu
  */
-int
+static int
 doline ( int tty_fd, int tty, ITEM *ip, int itime, int nline, BOOL repaint, BOOL refresh)
 {
 	int	map_cc = 0;
@@ -200,7 +204,7 @@ doline ( int tty_fd, int tty, ITEM *ip, int itime, int nline, BOOL repaint, BOOL
 
 /* dostline - do status line: print %done info
  */
-int
+static int
 dostline ( int tty_fd,  int tty,  int nlines,  int top,  int bot,  int total,  int autom )
 {
 	char	string[80];
@@ -210,11 +214,14 @@ dostline ( int tty_fd,  int tty,  int nlines,  int top,  int bot,  int total,  i
 	  eunseen() ? 'E' : ' ',
 	  autom ? 'A' : ' ',
 	  top+1, bot+1, total);
+
 	statusline (tty_fd, tty, nlines, string);
+
 	dopcur (tty_fd, tty);
 }
 
 /* statusline - write the status line
+ * called from nay places
  */
 int
 statusline ( int tty_fd,  int tty,  int nlines, char *string )
@@ -622,11 +629,9 @@ domkey ( int tty_fd, int tty, int nlines, int mlines, int top, int bot, int ncol
 	// XINT	three = 3;
 
 	do {
-	    // con_debug ( "Loop - domkey 1\n" );
 	    dopcur (tty_fd, tty);
 	    mcode = mkey (oldstatus & M_AUTO, period, offset);
 	    oldstatus &= ~M_AUTO;
-	    // con_debug ( "Loop - domkey 2 %d\n", mcode );
 
 	    switch (mcode) {
 	    case SCR_U0:
@@ -880,6 +885,7 @@ mkey ( int autom,  int period,  int offset)
 	    mcode = UNKNOWN;
 	    break;
 	}
+
 	return (mcode);
 }
 

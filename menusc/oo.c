@@ -4,15 +4,36 @@
 #include "../global.h"
 #include "../protos.h"
 
+#include <stdio.h>
+#include <unistd.h>
+
 int
 ooido (s)
 char	*s;
 {
-	int	t = 0;
+	char host[64];
+	int t = 0;
+	int i;
+
+	/* 6-24-2019 */
+	gethostname ( host, 64 );
+	host[63] = '\0';
+	for ( i=0; i<64; i++ )
+	    if ( host[i] == '.' ) {
+		host[i] = '\0';
+		break;
+	    }
+	    
 
 	sprintf (s, "oven%dv%d ", globalp->noven, globalp->ncomp);
 	s += strlen (s);
 	s += prrtime (s, 0);
+
+	/* 6-24-2019 */
+	s += prspace (s, 1);
+	sprintf (s, "(On %s)", host );
+	s += strlen (s);
+
 	return (t);
 }
 

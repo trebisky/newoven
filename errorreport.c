@@ -35,15 +35,6 @@ void adcereport ( database *, FILE * );
 void miscereport ( database *, FILE * );
 void ereport ( database *, FILE * );
 
-/* stalereport - do stale reporting
- */
-void
-stalereport ( void )
-{
-	stalejtmp (globalp->db);
-	staleadc (globalp->db);
-}
-
 /* timeoutreport - do timeout reporting
  */
 void

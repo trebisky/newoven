@@ -1,13 +1,33 @@
-#include "oven.h"
+/* stale.c
+ * Called only by ovend -- immediately after it fetches
+ *  new data from the oven.
+ */
 
 #include <time.h>
+
+#include "oven.h"
+#include "context.h"
+#include "menus.h"
+#include "global.h"
 #include "protos.h"
 
 static void staleall ( database * );
+static void stalejtmp ( database * );
+static void staleadc ( database * );
+
+/* stalereport - do stale reporting
+ */
+void
+stalereport ( void )
+{
+	stalejtmp (globalp->db);
+	staleadc (globalp->db);
+}
+
 
 /* stalejtmp - stale junction temperatures
  */
-void
+static void
 stalejtmp ( database *db )
 {
 	p_database	*pdb = &db->parameter;
@@ -20,7 +40,8 @@ stalejtmp ( database *db )
 
 	time (&tnow);
 	now = tnow;
-	allstale = (now - ddb->misc.uclock) > 120;
+
+	allstale = (now - ddb->misc.uclock) > STALE_DELTA;
 
 	// time (&ddb->misc.uclock);
 	time (&tnow);
@@ -58,7 +79,7 @@ stalejtmp ( database *db )
 
 /* staleadc - stale ADC values
  */
-void
+static void
 staleadc ( database *db )
 {
 	p_database	*pdb = &db->parameter;

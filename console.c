@@ -10,22 +10,6 @@
 #include <stdlib.h>
 #include <curses.h>
 
-static void
-trap ( char *s, int stop )
-{
-
-	if ( stop ) {
-	    refresh ();
-	    getch ();
-	    endwin ();
-	    printf ( "TRAP: %s\n", s );
-	    printf ( "TRAP: stopping execution\n" );
-	    exit ( 2 );
-	} else {
-	    printf ( "TRAP: %s\n", s );
-	}
-}
-
 #define NEW_CURSES
 
 #ifdef NEW_CURSES
@@ -40,6 +24,9 @@ con_init ( void )
         cbreak();
         noecho();
 	*/
+	/* This makes getch() "wake up"
+	 * every 100 ms and return -1 */
+	timeout ( 100 );        /* milliseconds */
         noecho();
 }
 
@@ -144,16 +131,49 @@ con_raw2 ( void )
 	con_raw ();
 }
 
+/* If we didn't want to do the auto-update thing,
+ * this could simply call getch().
+ * This returns 'q' to indicate that an update is
+ * needed (this maps to REFRESH in the menu code).
+ * Note that the user can type 'q' himself just to
+ * trigger an update "right now"
+ */
+
+static int first = 1;
+static int update_wait;
+
 int
 con_key ( int period, int offset )
 {
-	return getch ();
+	int cc;
+
+	if ( first ) {
+	    update_wait = 10 * period;
+	    first = 0;
+	}
+
+	for ( ;; ) {
+	    cc = getch ();
+	    if ( cc != -1 )
+		break;
+
+	    --update_wait;
+
+	    if ( update_wait <=0 ) {
+		update_wait = 10 * period;
+		cc = 'q';
+		break;
+	    }
+	}
+
+	return cc;
 }
 
 /* Called to get "input" */
 void
 con_get_param ( char *param, char *val, int max )
 {
+	/* XXX */
 	strcpy ( val, "0" );
 }
 
@@ -166,7 +186,36 @@ con_help ( void )
 
 #endif
 
+/* =============================================================================== */
+/* =============================================================================== */
+/* =============================================================================== */
+/* Everthing below here could be thrown out.
+ * It is from the old IRAF based code and gives
+ * a hint that this could be recompiled to run under
+ * IRAF with SPP, but that would take some work and
+ * has never been tested.  All this is here just as
+ * reference information.
+ */
+
 #ifdef OLD_IRAF
+
+/* This was here to be called from stubs during initial debugging */
+static void
+trap ( char *s, int stop )
+{
+
+	if ( stop ) {
+	    refresh ();
+	    getch ();
+	    endwin ();
+	    printf ( "TRAP: %s\n", s );
+	    printf ( "TRAP: stopping execution\n" );
+	    exit ( 2 );
+	} else {
+	    printf ( "TRAP: %s\n", s );
+	}
+}
+
 
 /* For some crazy reason the API to the IRAF library calls
  * requires you to keep track of both tty and tty_fd and
@@ -340,6 +389,22 @@ con_help ( void )
 
 #endif
 
+/* Mysterious image cursor stuff */
+int
+c_timcur ( char *string, int num )
+{
+}
+
+/* XXX - important */
+void
+backup_ ( void )
+{
+	printf ( "backup_ called XXX\n" );
+	endwin ();
+	printf ( "TRAP: stopping execution\n" );
+	exit ( 2 );
+}
+
 /* ----------------------------------------------- */
 /* ----------------------------------------------- */
 /* ----------------------------------------------- */
@@ -503,14 +568,6 @@ hpageh_ ( void )
 }
 #endif
 
-
-/* XXX - important */
-void
-backup_ ( void )
-{
-	trap ( "backup", 1 );
-}
-
 /* From IRAF sys/libc */
 /* As an example, on my system, I can find source
  * in two places:
@@ -536,11 +593,6 @@ backup_ ( void )
 
 /* --------------------------------------------------------------------- */
 /* Mysterious image cursor stuff */
-
-int
-c_timcur ( char *string, int num )
-{
-}
 
 #ifdef IRAF_SPP
 /* timcur - Translate image cursor
