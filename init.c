@@ -10,6 +10,8 @@
 
 // extern	char	*calloc();
 
+static int iamthepilot ( void );
+
 int
 init_globals (noven, ncomp)
 int	noven;
@@ -130,35 +132,6 @@ int	readonly;
 	return (status);
 }
 
-/* in menusm/menus.c */
-MENUS	*menus ( void );
-
-int
-init_menus ()
-{
-	MENUS	*msp;
-	int	status;
-
-	msp = menus();
-
-	/* XXX - The 64 bit compiler doesn't like this */
-	status = (int)msp;
-
-	switch (status) {
-	case 0:
-	case 1:
-	case 2:
-	    return (status+40);
-	    break;
-	default:
-	    status = 0;
-	    break;
-	}
-
-	globalp->msp = msp;
-	return (status);
-}
-
 void
 free_globals ()
 {
@@ -201,15 +174,8 @@ int	remove;
 	}
 }
 
-void
-free_menus ()
-{
-	free ((char *)globalp->msp);
-	globalp->msp = (MENUS *)0;
-}
-
-int
-iamthepilot ()
+static int
+iamthepilot ( void )
 {
 	char	*getenv ();
 	char	*user = getenv ("USER");

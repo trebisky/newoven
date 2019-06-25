@@ -129,6 +129,8 @@ int sczonea ( char *, int * );
 int sctctype ( char *, int * );
 
 /* domenus.c */
+int init_menus(void);
+void free_menus(void);
 int do_menus(int period, int offset);
 int nmline(void);
 // static int doline(int tty_fd, int tty, ITEM *ip, int itime, int nline, BOOL repaint, BOOL refresh);
@@ -196,12 +198,10 @@ int init_globals(int noven, int ncomp);
 int init_context(void);
 int init_databases(int noven, int ncomp, int readonly);
 int init_database(int noven, int ncomp, int readonly);
-int init_menus(void);
 int free_globals(void);
 int free_context(void);
 int free_databases(int noven, int ncomp, int remove);
 int free_database(int noven, int ncomp, int remove);
-int free_menus(void);
 int iamthepilot(void);
 
 /* ---------------------------------- */

@@ -13,6 +13,7 @@
 #include "mcodes.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 #include "protos.h"
 
@@ -43,6 +44,45 @@ int domkey(int tty_fd, int tty, int nlines, int mlines, int top, int bot, int nc
 int mkey(int autom, int period, int offset);
 
 static int doline(int tty_fd, int tty, ITEM *ip, int itime, int nline, BOOL repaint, BOOL refresh);
+
+/* The init and free calls used to be in init.c
+ */
+
+/* in menusm/menus.c */
+MENUS	*menus ( void );
+
+int
+init_menus ( void )
+{
+	MENUS	*msp;
+	int	status;
+
+	msp = menus();
+
+	/* XXX - The 64 bit compiler doesn't like this */
+	status = (int)msp;
+
+	switch (status) {
+	case 0:
+	case 1:
+	case 2:
+	    return (status+40);
+	    break;
+	default:
+	    status = 0;
+	    break;
+	}
+
+	globalp->msp = msp;
+	return (status);
+}
+
+void
+free_menus ( void )
+{
+	free ((char *)globalp->msp);
+	globalp->msp = (MENUS *)0;
+}
 
 /* The show starts here */
 int
@@ -436,6 +476,7 @@ int	nlines;
 }
 
 /* menugoto - set the global menu number according to the id string
+ * (can be called from errorreport.c)
  */
 int
 menugoto ( char * id )

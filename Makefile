@@ -6,13 +6,20 @@ OBJS = oven.o menus.o domenus.o prints.o scans.o init.o \
 	shmalloc.o database.o databasc.o \
 	ipportrw.o util.o console.o
 
-all: oven
+# Most of these things aren't truly needed
+# I don't think we need context, and from errorreport on are stuff
+# hauled in by the gong routine database.c
+DOBJS = ovend.o init.o shmalloc.o context.o stale.o database.o ipportrw.o \
+	errorreport.o prints.o scans.o util.o domenus.o console.o cache.o \
+	automkey.o menus.o menusc.o databasc.o
+
+all: oven ovend
 
 .c.o:
 	cc -g -o $@ -c $<
 
-#oven: oven.c
-#	cc -o oven oven.c
+ovend: $(DOBJS)
+	cc -o ovend $(DOBJS) -lm -lncurses
 
 oven: $(OBJS)
 	cc -o oven $(OBJS) -lm -lncurses
