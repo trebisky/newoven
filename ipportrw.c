@@ -20,6 +20,27 @@
 // #define bzero(a,n)      memset(a,0,n)
 // #define bcopy(a,b,n)    memmove(b,a,n)
 
+/* long is not 4 bytes on a 64 bit machine.
+ * and htonl() no longer works with longs either.
+ * temp is used, just in case htonl() is buggy and has side effects.
+ */
+static inline void
+endian_fix ( char *b, int n )
+{
+	int n32 = n / sizeof(uint32_t);
+	u_int32_t *p32;
+	int i;
+
+	p32 = ( u_int32_t * ) b;
+	for ( i=0; i < n32; i++ ) {
+	    u_int32_t temp;
+
+	    temp = *p32;
+	    *p32++ = htonl ( temp );
+
+	}
+}
+
 /* ipportwrite - write to   an IP port.
  */
 int
@@ -59,6 +80,11 @@ int	nbytes;
 		close (s);
 		return (-1);
 	    }
+
+	    memcpy ( buffer, buf, nbytes );
+	    endian_fix ( buffer, nbytes );
+
+#ifdef notdef
 	    long *lbuf = (long *)buf;
 	    long *lbuffer = (long *)buffer;
 	    int nlongs = nbytes/sizeof(long);
@@ -67,7 +93,9 @@ int	nbytes;
 		long temp = *lbuf++;
 	        *lbuffer++ = htonl(temp);
 	    }
+#endif
 	}
+
 	for (n = 0; n < nbytes; n += nxfer) {
 	    if ((nxfer = write (s, buffer+n, MIN (MAXNBYTES, nbytes-n))) < 0) {
 		perror ("write");
@@ -115,10 +143,12 @@ int	nbytes;
 /*	    perror ("connect");						*/
 	    return (-1);
 	}
+
 	if ((buffer = malloc (nbytes)) == 0) {
 	    close (s);
 	    return (-1);
 	}
+
 	for (n = 0; n < nbytes; n += nxfer) {
 	    if ((nxfer = read (s, buffer+n, MIN (MAXNBYTES, nbytes-n))) < 0) {
 		perror ("read");
@@ -132,9 +162,12 @@ int	nbytes;
 		return (-1);
 	    }
 	}
+
+#ifdef notdef
 	if (ntohl(1) == 1) {
 	    bcopy (buffer, buf, nbytes);
 	} else {
+
 	    long *lbuffer = (long *)buffer;
 	    long *lbuf = (long *)buf;
 	    int nlongs = nbytes/sizeof(long);
@@ -144,6 +177,12 @@ int	nbytes;
 	        *lbuf++ = ntohl(temp);
 	    }
 	}
+#endif
+
+	if (ntohl(1) != 1)
+	    endian_fix ( buffer, nbytes );
+
+	memcpy ( buf, buffer, nbytes );
 	free (buffer);
 	close (s);
 	return (0);
@@ -164,16 +203,20 @@ int	ncomp;
 	/* ovens #3 to #8 not implemented yet */
 	if (noven >= 3 && noven <= 8)
 	    return (0);
+
 	sprintf (hostname, "oven%dv%d", noven, ncomp);
 	if ((hp = gethostbyname (hostname)) == 0)
 	    return (0);
+
 	bcopy ((char *)hp->h_addr, (char *)&ipnumber,
 	    MIN (hp->h_length, sizeof(ipnumber)));
+
 	ip = ntohl (ipnumber);
 	return (ip);
 }
 
 /* tportwrite - listen for connections and write data from buffer
+ * (i.e. this implements a server).
  */
 int
 tportwrite (noven, ncomp, port, buf, nbytes)
@@ -230,6 +273,12 @@ int	nbytes;
 				if ((buffer = malloc (nbytes)) == 0) {
 				    break;
 				}
+
+				memcpy ( buffer, buf[oven], nbytes );
+				endian_fix ( buffer, nbytes );
+
+
+#ifdef notdef
 				long *lbuf = (long *)buf[oven];
 				long *lbuffer = (long *)buffer;
 				int nlongs = nbytes/sizeof(long);
@@ -238,6 +287,7 @@ int	nbytes;
 				    long temp = *lbuf++;
 				    *lbuffer++ = htonl(temp);
 				}
+#endif
 			    }
 
 			    for (n = 0; n < nbytes; n += nxfer) {
