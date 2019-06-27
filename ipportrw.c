@@ -291,13 +291,13 @@ int	nbytes;
 			    }
 
 			    for (n = 0; n < nbytes; n += nxfer) {
-				if ((nxfer = write(r, buffer+n,
-				  MIN (MAXNBYTES, nbytes-n))) < 0)
+				if ((nxfer = write(r, buffer+n, MIN (MAXNBYTES, nbytes-n))) < 0)
 				    break;
 			    }
+
+			    if (htonl(1) != 1)
+				free (buffer);
 			}
-			if (htonl(1) != 1)
-			    free (buffer);
 			break;
 		    }
 		}

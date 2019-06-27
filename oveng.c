@@ -5,22 +5,55 @@
 #include <unistd.h>
 
 #include "oven.h"
+#include "menus.h"
+#include "context.h"
+#include "global.h"
 #include "protos.h"
 
-int db_dread_oven ( void );
+/* db_gread_oven - database gong read from  oven
+ */
+int
+db_gread_oven ( void )
+{
+	int	ip;
+	int	ncomp;
+	int	gong;
+	int	maxgong = 0;
+	int	status;
+	int	result = 0;
+
+	for (ncomp = 0; ncomp < N_COMP; ncomp++) {
+	    if (!Pdb->misc.vup[ncomp])
+		continue;
+	    globalp->ncomp = ncomp;
+	    if (ip = getovenip (globalp->noven, globalp->ncomp)) {
+		status = ipportread (ip, PORTGN, (char *)&gong, sizeof(gong));
+		if (status == -1) {
+		    gong = 0;
+		    timeoutreport ();
+		}
+	    } else {
+		continue;
+	    }
+	    maxgong = MAX (maxgong, gong);
+	    result += (status != 0);
+	}
+	return (result + maxgong);
+}
 
 int
-ovend ( void )
+oveng ( void )
 {
 	int oven = 0;
 	int comp = 0;
 	int readonly = 0;
 	int period = 60;
 	int offset = 0;
-	int log_data = 0;
 
 	time_t now;
 	int status;
+        int     gong;
+        int     n;
 
         status = init_globals ( oven, comp );
 	if ( status < 0 ) {
@@ -41,23 +74,18 @@ ovend ( void )
 	}
 
 	for ( ;; ) {
-	    // printf ( "Sleeping\n" );
             if (period) {
                 time (&now);
                 sleep (period - now%period + offset);
             }
 
-	    // printf ( "Getting data\n" );
-            status = db_dread_oven ();
-	    // ( returns 1 if OK )
-	    // printf ( "Got data: %d\n", status );
-
-            stalereport ();
-
-	    /*
-            if (status && log_data)
-                datalogger ();
-	    */
+            gong = db_gread_oven ();
+            gong = (gong+7)/8;                  /* sunview */
+            for (n = 0; n < gong; n++) {
+                sleep (2);                      /* sunview */
+                // ring ();
+		con_bell ();
+            }
         }
 
 	return 0;
@@ -87,8 +115,8 @@ main ()
 	    return 1;
 	}
 
-	s = ovend ();
-	printf ( "Game over.\n" );
+	s = oveng ();
+	// printf ( "Game over.\n" );
 	return s;
 }
 

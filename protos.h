@@ -190,6 +190,19 @@ int flcache_biparameter ( void );
 int push_context ( void );
 int pop_context ( void );
 
+/* database.c */
+void db_bpwrite_disk(void);
+void db_bpread_disk(void);
+void db_bpwrite_oven(void);
+void db_bpread_oven(void);
+void db_pwrite_oven(void);
+void db_bwrite_oven(void);
+void db_pread_oven(void);
+void db_bread_oven(void);
+int db_dread_oven(void);
+int db_eread_oven(void);
+void ncompperror(int noven, int ncomp);
+
 /* From automkey.c */
 int automkey ( int, int );
 
@@ -203,6 +216,29 @@ int free_context(void);
 int free_databases(int noven, int ncomp, int remove);
 int free_database(int noven, int ncomp, int remove);
 int iamthepilot(void);
+
+/* ipportrw.c */
+int ipportwrite(int ip, int port, char *buf, int nbytes);
+int ipportread(int ip, int port, char *buf, int nbytes);
+int getovenip(int noven, int ncomp);
+int tportwrite(int noven, int ncomp, int port, char *buf[], int nbytes);
+
+/* errorreport.c */
+void timeoutreport(void);
+void errorreport(void);
+// void ereport(database *db, FILE *fp);
+// void miscereport(database *db, FILE *fp);
+// void adcereport(database *db, FILE *fp);
+// void dcuereport(database *db, FILE *fp);
+// void pripanelereport(database *db, FILE *fp);
+// void panelereport(database *db, FILE *fp);
+// void zoneereport(database *db, FILE *fp);
+// void elogger(database *db, FILE *fp, int *count, int errnum, int addr);
+// void timestamp(char *string);
+// int nelogline(void);
+// int eunseen(void);
+// void elogline(int n, char *s);
+// int eloggoto(char *s);
 
 /* ---------------------------------- */
 /* ---------------------------------- */

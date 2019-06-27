@@ -9,6 +9,11 @@
 
 #include "protos.h"
 
+static void
+backup ( void )
+{
+}
+
 /* db_bpwrite_disk - database parameters write to  disk
  */
 void
@@ -52,7 +57,8 @@ db_bpwrite_disk ( void )
 	    }
 	}
 #else
-	BACKUP ();
+	// BACKUP ();
+	backup ();
 #endif
 }
 
@@ -181,6 +187,9 @@ db_eread_oven ( void )
 	return (YES);
 }
 
+#ifdef notdef
+/* -- moved to oveng.c */
+
 /* db_gread_oven - database gong read from  oven
  */
 int
@@ -211,22 +220,19 @@ db_gread_oven ( void )
 	}
 	return (result + maxgong);
 }
+#endif
 
 #ifdef notyet
 /* do_ovenp - setup listener for parameter requests
  */
-do_ovenp (noven, ncomp)
-int	noven;
-int	ncomp;
+do_ovenp ( int noven,  int ncomp)
 {
     return (tportwrite(N_OVEN,N_COMP,PORTRP,globalp->pdbn,sizeof(p_database)));
 }
 
 /* do_ovenb - setup listener for biparameter requests
  */
-do_ovenb (noven, ncomp)
-int	noven;
-int	ncomp;
+do_ovenb ( int noven, int ncomp)
 {
     return (tportwrite(N_OVEN,N_COMP,PORTRB,globalp->bdbn,sizeof(b_database)));
 }

@@ -16,17 +16,27 @@ OBJS = oven.o menus.o domenus.o prints.o scans.o init.o \
 # can be stripped out.
 # A call to menugoto in errorreport.c will need to be looked at hard
 # at that point.
-DOBJS = ovend.o init.o shmalloc.o context.o stale.o database.o ipportrw.o \
+DOBJS = ovend.o init.o shmalloc.o context.o stale.o database.o ipportrw.o
+
+#	console.o
+#	errorreport.o prints.o scans.o util.o domenus.o console.o cache.o \
+#	automkey.o menus.o menusc.o databasc.o
+
+# These can probably be pruned too.
+GOBJS = oveng.o init.o shmalloc.o context.o stale.o database.o ipportrw.o \
 	errorreport.o prints.o scans.o util.o domenus.o console.o cache.o \
 	automkey.o menus.o menusc.o databasc.o
 
-all: oven ovend
+all: oven ovend oveng
 
 .c.o:
 	cc -g -o $@ -c $<
 
+oveng: $(GOBJS)
+	cc -o oveng $(GOBJS) -lm -lncurses
+
 ovend: $(DOBJS)
-	cc -o ovend $(DOBJS) -lm -lncurses
+	cc -o ovend $(DOBJS) -lm
 
 oven: $(OBJS)
 	cc -o oven $(OBJS) -lm -lncurses
