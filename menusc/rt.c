@@ -4,6 +4,11 @@
 #include "../global.h"
 #include "../protos.h"
 
+int tsna ( void );
+int tsaig ( int );
+int tszao ( char * );
+int tszai ( char * );
+
 int
 rtido (s)
 char	*s;

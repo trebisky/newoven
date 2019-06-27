@@ -128,6 +128,10 @@ int sczone ( char *, int * );
 int sczonea ( char *, int * );
 int sctctype ( char *, int * );
 
+/* shmalloc.c */
+char *shmalloc(int nbytes, int noven, int ncomp, int readonly);
+void shmfree(char *shmptr, int noven, int ncomp, int remove);
+
 /* domenus.c */
 int init_menus(void);
 void free_menus(void);
@@ -136,7 +140,6 @@ int nmline(void);
 // static int doline(int tty_fd, int tty, ITEM *ip, int itime, int nline, BOOL repaint, BOOL refresh);
 // static int dostline(int tty_fd, int tty, int nlines, int top, int bot, int total, int autom);
 int statusline(int tty_fd, int tty, int nlines, char *string);
-int ring(void);
 int domgoto(int tty_fd, int tty, int nlines, int eswitch);
 int domwritep(int tty_fd, int tty, int nlines);
 int domeditp(int tty_fd, int tty, int nlines);
@@ -208,14 +211,15 @@ int automkey ( int, int );
 
 /* cproto: init.c */
 int init_globals(int noven, int ncomp);
-int init_context(void);
-int init_databases(int noven, int ncomp, int readonly);
+void free_globals(void);
+// int init_context(void);
+// int free_context(void);
+void init_databases(int noven, int ncomp, int readonly);
 int init_database(int noven, int ncomp, int readonly);
-int free_globals(void);
-int free_context(void);
-int free_databases(int noven, int ncomp, int remove);
-int free_database(int noven, int ncomp, int remove);
-int iamthepilot(void);
+void free_databases(int noven, int ncomp, int remove);
+void free_database(int noven, int ncomp, int remove);
+
+// int iamthepilot(void);
 
 /* ipportrw.c */
 int ipportwrite(int ip, int port, char *buf, int nbytes);
@@ -224,7 +228,7 @@ int getovenip(int noven, int ncomp);
 int tportwrite(int noven, int ncomp, int port, char *buf[], int nbytes);
 
 /* errorreport.c */
-void timeoutreport(void);
+// void timeoutreport(void);
 void errorreport(void);
 // void ereport(database *db, FILE *fp);
 // void miscereport(database *db, FILE *fp);
@@ -234,7 +238,7 @@ void errorreport(void);
 // void panelereport(database *db, FILE *fp);
 // void zoneereport(database *db, FILE *fp);
 // void elogger(database *db, FILE *fp, int *count, int errnum, int addr);
-// void timestamp(char *string);
+void timestamp(char *string);
 // int nelogline(void);
 // int eunseen(void);
 // void elogline(int n, char *s);

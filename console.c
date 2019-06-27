@@ -10,9 +10,7 @@
 #include <stdlib.h>
 #include <curses.h>
 
-#define NEW_CURSES
 
-#ifdef NEW_CURSES
 void
 con_init ( void )
 {
@@ -89,12 +87,15 @@ con_mvstr ( int col, int line, char *text )
 	refresh ();
 }
 
+#ifdef notdef
+/* moved to oveng.c */
 void
 con_bell ( void )
 {
 	addch ( 007 );
 	fflush ( stdout );
 }
+#endif
 
 /* Flush stderr and stdout */
 void
@@ -183,8 +184,6 @@ con_help ( void )
 	/* In SPP code */
 	// call pagefiles ("oven$cm.hlp")
 }
-
-#endif
 
 /* =============================================================================== */
 /* =============================================================================== */

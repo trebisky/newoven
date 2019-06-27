@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <string.h>
+
 #include "oven.h"
 #include "menus.h"
 #include "context.h"
@@ -5,17 +8,14 @@
 #define	GLOBALS
 #include "global.h"
 
-#include <stdlib.h>
-#include <string.h>
+#include "protos.h"
 
 // extern	char	*calloc();
 
 static int iamthepilot ( void );
 
 int
-init_globals (noven, ncomp)
-int	noven;
-int	ncomp;
+init_globals ( int noven, int ncomp)
 {
 	GLOBAL	*gp;
 	int	status;
@@ -46,8 +46,11 @@ int	ncomp;
 	return (status);
 }
 
+#ifdef notdef
+/* Moved to oven.c */
+
 int
-init_context ()
+init_context ( void )
 {
 	CONTEXT	*cp;
 	int	status;
@@ -75,10 +78,15 @@ init_context ()
 }
 
 void
-init_databases (noven, ncomp, readonly)
-int	noven;
-int	ncomp;
-int	readonly;
+free_context ( void )
+{
+	free ((char *)globalp->contextp);
+	globalp->contextp = (CONTEXT *)0;
+}
+#endif
+
+void
+init_databases ( int noven, int ncomp, int readonly)
 {
 	int	oven;
 	int	status;
@@ -88,10 +96,7 @@ int	readonly;
 }
 
 int
-init_database (noven, ncomp, readonly)
-int	noven;
-int	ncomp;
-int	readonly;
+init_database ( int noven, int ncomp, int readonly)
 {
 	database	*db;
 	int	status;
@@ -133,24 +138,14 @@ int	readonly;
 }
 
 void
-free_globals ()
+free_globals ( void )
 {
 	free ((char *)globalp);
 	globalp = (GLOBAL *)0;
 }
 
 void
-free_context ()
-{
-	free ((char *)globalp->contextp);
-	globalp->contextp = (CONTEXT *)0;
-}
-
-void
-free_databases (noven, ncomp, remove)
-int	noven;
-int	ncomp;
-int	remove;
+free_databases ( int noven, int ncomp, int remove )
 {
 	int	oven;
 
@@ -159,10 +154,7 @@ int	remove;
 }
 
 void
-free_database (noven, ncomp, remove)
-int	noven;
-int	ncomp;
-int	remove;
+free_database ( int noven, int ncomp, int remove )
 {
 	database	*db;
 
@@ -195,3 +187,5 @@ iamthepilot ( void )
 	// return 1;
 #endif
 }
+
+/* THE END */

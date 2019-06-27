@@ -7,6 +7,11 @@
 #include <stdio.h>
 #include <unistd.h>
 
+int n_schedule ( p_database * );
+int nth_schedule ( p_database *, int );
+int adna ( void );
+int adaao ( int, char * );
+
 int
 ooido (s)
 char	*s;

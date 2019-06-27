@@ -4,6 +4,10 @@
 #include "../global.h"
 #include "../protos.h"
 
+void elogline ( int, char * );
+int eloggoto ( char * );
+int nelogline ( void );
+
 int
 erelg (n)
 int	n;

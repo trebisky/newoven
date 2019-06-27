@@ -1,7 +1,11 @@
 #include <stdio.h>
 #include <time.h>
+#include <stdlib.h>
 
 #include "oven.h"
+#include "menus.h"
+#include "context.h"
+#include "global.h"
 #include "protos.h"
 
 /*
@@ -43,6 +47,43 @@ int     *offset;
         return (status);
 }
 */
+
+static int
+init_context ( void )
+{
+	CONTEXT	*cp;
+	int	status;
+
+	cp = (CONTEXT *)calloc (1, sizeof(CONTEXT));
+
+	/* 6-23-2019 */
+	if ( ! cp )
+	    return 20;
+	status = 0;
+
+	/*
+	status = (int)cp;
+	switch (status) {
+	case 0:
+	    return (status+20);
+	    break;
+	default:
+	    status = 0;
+	    break;
+	}
+	*/
+	globalp->contextp = cp;
+	return (status);
+}
+
+#ifdef notdef
+static void
+free_context ( void )
+{
+	free ((char *)globalp->contextp);
+	globalp->contextp = (CONTEXT *)0;
+}
+#endif
 
 int
 oven ( void )

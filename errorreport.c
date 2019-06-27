@@ -35,6 +35,9 @@ void adcereport ( database *, FILE * );
 void miscereport ( database *, FILE * );
 void ereport ( database *, FILE * );
 
+#ifdef notdef
+/* Moved to oveng.c */
+
 /* timeoutreport - do timeout reporting
  */
 void
@@ -55,6 +58,7 @@ timeoutreport ( void )
 	fclose (fp);
 	unlink ("errors.lok");
 }
+#endif
 
 /* errorreport - do error reporting
  */
@@ -326,6 +330,7 @@ elogger ( database *db, FILE *fp, int *count, int errnum, int addr)
 	    strcpy (sloc, saddr);
 
 	timestamp (string);
+
 #ifdef	VERBOSE_ERRORS
 	fprintf (fp, "%s %s\n", string, errmes[errnum]);
 	fprintf (fp, "oven%dv%d %3d error count = %6d @ %-5s<%s %s>\n",
@@ -360,8 +365,12 @@ void
 timestamp ( char *string)
 {
 	time_t	now;
-	char	*ctime();
-	char	*strchr ();
+
+	// char	*ctime();
+	// char	*strchr ();
+	/* ctime yields something like:
+	 * Wed Jun 30 21:49:08 1993\n
+	 */
 
 	time (&now);
 	strcpy (string, ctime (&now));

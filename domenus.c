@@ -55,12 +55,12 @@ int
 init_menus ( void )
 {
 	MENUS	*msp;
-	int	status;
+	long	status;
 
 	msp = menus();
 
-	/* XXX - The 64 bit compiler doesn't like this */
-	status = (int)msp;
+	/* move this to a long to satisfy the 64 bit compiler */
+	status = (long) msp;
 
 	switch (status) {
 	case 0:

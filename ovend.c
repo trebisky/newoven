@@ -28,11 +28,13 @@ ovend ( void )
 	    return 1;
 	}
 
+#ifdef notdef
         status = init_context ();
 	if ( status ) {
 	    printf ( "Cannot init context (%d)\n", status );
 	    return 1;
 	}
+#endif
 
         status = init_database ( oven, comp, readonly );
 	if ( status ) {

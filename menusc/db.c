@@ -4,6 +4,9 @@
 #include "../global.h"
 #include "../protos.h"
 
+void databascw ( void );
+void databascr ( void );
+
 int
 dbrfg ()
 {

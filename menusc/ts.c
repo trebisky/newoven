@@ -21,8 +21,7 @@ char	*s;
 }
 
 int
-tszai (s)
-char	*s;
+tszai ( char *s )
 {
 	int	tt, t = -1;
 	int	zone;
@@ -38,8 +37,7 @@ char	*s;
 }
 
 int
-tszao (s)
-char	*s;
+tszao ( char *s)
 {
 	int	t = 0;
 
@@ -47,8 +45,7 @@ char	*s;
 }
 
 int
-tsaig (n)
-int	n;
+tsaig ( int n)
 {
 	int	t = 0;
 
@@ -117,7 +114,7 @@ char	*s;
 }
 
 int
-tsna ()
+tsna ( void )
 {
 	int	n = 0;
 
@@ -136,8 +133,7 @@ char	*s;
 }
 
 int
-tszbo (s)
-char	*s;
+tszbo ( char *s )
 {
 	int	t = 0;
 

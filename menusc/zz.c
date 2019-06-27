@@ -4,14 +4,21 @@
 #include "../global.h"
 #include "../protos.h"
 
+#include <time.h>
+
 int
 zzung ()
 {
 	int	t = 0;
+	time_t now;
 
 	if (!Geditp)
 	    return (GOER_NOEDITP);
-	time (&Pdb->misc.timestamp);
+
+	// time (&Pdb->misc.timestamp);
+	time ( &now );
+	Pdb->misc.timestamp = now;
+
 	uncache_parameter ();
 	if (Geditb) {
 	    uncache_biparameter ();
