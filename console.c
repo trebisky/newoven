@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <curses.h>
 
+/* milliseconds */
+#define CURSES_TIMEOUT	100
 
 void
 con_init ( void )
@@ -22,9 +24,10 @@ con_init ( void )
         cbreak();
         noecho();
 	*/
+
 	/* This makes getch() "wake up"
 	 * every 100 ms and return -1 */
-	timeout ( 100 );        /* milliseconds */
+	timeout ( CURSES_TIMEOUT );        /* milliseconds */
         noecho();
 }
 
@@ -188,11 +191,17 @@ con_getstr ( char *buf )
 {
 	nocbreak ();
 	echo ();
+	timeout ( -1 );
+
+	/* Prompt */
+	addstr ( " ? : " );
 
 	getstr ( buf );
-	/* XXX */
-	strcpy ( buf, "Z1" );
 
+	/* XXX */
+	// strcpy ( buf, "Z1" );
+
+	timeout ( CURSES_TIMEOUT );
 	noecho ();
 	cbreak ();
 }
@@ -229,7 +238,8 @@ static char *help_str[] = {
 	"o		Enter new data from image cursor and go to",
 	"P		Enable parameter edit and cache",
 	"K		Enable clock parameter edit and cache",
-	"W		Flush parameter cache"
+	"W		Flush parameter cache",
+	" Press any key to exit"
 };
 
 
@@ -257,64 +267,12 @@ con_help ( void )
 	    if ( x != -1 )
 		break;
 	}
-	con_pushb ( 'l' );
 
-	// sprintf ( buf, "DONE %d", n_help );
-	// addstr ( buf );
+	con_pushb ( 'l' );	/* This triggers repaint */
 
 	/* In SPP code this was ... */
 	// call pagefiles ("oven$cm.hlp")
 }
-
-#ifdef notdef
-?		Help for cursor mode
-j, CR		Cursor down one line
-d		Scroll down half page
-f, SP		Scroll down full page
-g		Scroll down to end of page
-k		Cursor up   one line
-u		Scroll up   half page
-b		Scroll up   full page
-.		Scroll up   to top of page
-n		Go     to related  menu
-!		Go directly to error menu
-p		Return to previous menu
-l		Repaint page
-q		Refresh page
-a		Auto-refresh page
-e		Enter new data
-i		Enter new data from image cursor
-m		Enter new data and go to related menu
-o		Enter new data from image cursor and go to
-P		Enable parameter edit and cache
-K		Enable clock parameter edit and cache
-W		Flush parameter cache
-#endif
-
-/*
-?		Help for cursor mode
-j, CR		Cursor down one line
-d		Scroll down half page
-f, SP		Scroll down full page
-g		Scroll down to end of page
-k		Cursor up   one line
-u		Scroll up   half page
-b		Scroll up   full page
-.		Scroll up   to top of page
-n		Go     to related  menu
-!		Go directly to error menu
-p		Return to previous menu
-l		Repaint page
-q		Refresh page
-a		Auto-refresh page
-e		Enter new data
-i		Enter new data from image cursor
-m		Enter new data and go to related menu
-o		Enter new data from image cursor and go to
-P		Enable parameter edit and cache
-K		Enable clock parameter edit and cache
-W		Flush parameter cache
-*/
 
 /* =============================================================================== */
 /* =============================================================================== */

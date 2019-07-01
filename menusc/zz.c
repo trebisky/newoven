@@ -39,6 +39,7 @@ zzflg ()
 
 	if (!Geditp)
 	    return (GOER_NOEDITP);
+
 	flcache_parameter ();
 	if (Geditb)
 	    flcache_biparameter ();

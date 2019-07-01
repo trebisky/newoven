@@ -555,9 +555,9 @@ int	iswitch;
 	    con_clear_toeol ();
 
 	    dopcur (tty_fd, tty);
-	    string[0] = 0;
+	    // string[0] = 0;
 
-	    /* In progress */
+	    /* XXX - in progress */
 	    con_getstr ( string ); 
 
 #ifdef notdef
