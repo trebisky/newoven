@@ -85,13 +85,16 @@ free_context ( void )
 }
 #endif
 
+// #define DEFAULT_PERIOD	60
+#define DEFAULT_PERIOD	10
+
 int
 oven ( void )
 {
 	int oven = 0;
 	int comp = 0;
 	int readonly = 0;
-	int period = 60;
+	int period = DEFAULT_PERIOD;
 	int offset = 0;
 
 	int status;
