@@ -4,6 +4,7 @@
 #include "../global.h"
 #include "../protos.h"
 
+/* This does the ultimate exit */
 int
 aaexg ( void )
 {

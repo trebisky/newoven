@@ -27,6 +27,9 @@
 /* from cproto: domenus.c */
 /* XXX - this file is not yet fully ANSI */
 int do_menus(int period, int offset);
+
+static int doline(int tty_fd, int tty, ITEM *ip, int itime, int nline, BOOL repaint, BOOL refresh);
+
 int nmline(void);
 static int dostline(int tty_fd, int tty, int nlines, int top, int bot, int total, int autom);
 int statusline(int tty_fd, int tty, int nlines, char *string);
@@ -40,10 +43,10 @@ int domreturn(int tty_fd, int tty, int nlines);
 int domenter(int tty_fd, int tty, int nlines, int ncols, int iswitch);
 int dopcur(int tty_fd, int tty);
 void updateitem(void);
-int domkey(int tty_fd, int tty, int nlines, int mlines, int top, int bot, int ncols, int period, int offset, int oldstatus);
-int mkey(int autom, int period, int offset);
 
-static int doline(int tty_fd, int tty, ITEM *ip, int itime, int nline, BOOL repaint, BOOL refresh);
+static int domkey(int tty_fd, int tty, int nlines, int mlines, int top, int bot, int ncols, int period, int offset, int oldstatus);
+static int mkey(int autom, int period, int offset);
+
 
 /* The init and free calls used to be in init.c
  */
@@ -106,10 +109,15 @@ do_menus ( int period, int offset)
 	// tty = 999;
 	// tty_fd = fileno (stdout);
 
+	/* loop until the user selects Exit, which will
+	 * set this index negative.
+	 * until then, Gmenu indexes the current menu.
+	 */
 	while (Gmenu >= 0) {
 	    con_size ( &ncols, &nlines );
 
 	    mp = Menus[Gmenu];
+
 	    repaint = status & M_REPAINT;
 	    refresh = status & M_REFRESH;
 
@@ -180,8 +188,11 @@ do_menus ( int period, int offset)
 	    /* now get the cursor mode key
 	     */
 	    // con_raw ();
-	    status = domkey (tty_fd,tty,nlines,mp->mlines,top_mline,bot_mline
-	        ,ncols, period, offset, status);
+
+	    status = domkey ( tty_fd,tty, nlines,mp->mlines,
+		top_mline,bot_mline,
+	        ncols, period, offset, status );
+
 	    // con_noraw ();
 	    // con_debug ( "Loop 6\n" );
 	}
@@ -229,16 +240,10 @@ doline ( int tty_fd, int tty, ITEM *ip, int itime, int nline, BOOL repaint, BOOL
 		(*(ip->ofunc))(itime, string);
 	    else
 		(*(ip->ofunc))(string);
-#ifdef	OLD_CLEARLINE
-	    for (n = strlen (string); n < ip->func_end - ip->func_start+1; n++)
-		string[n] = ' ';
-	    string[n] = 0;
-	    con_mvstr ( ip->func_start+1, nline+1, string );
-#else
+
 	    con_mvstr ( ip->func_start+1, nline+1, string );
 	    // c_ttyctrl (tty_fd, tty, "ce", 1);
 	    con_clear_toeol ();
-#endif
 	}
 }
 
@@ -261,7 +266,7 @@ dostline ( int tty_fd,  int tty,  int nlines,  int top,  int bot,  int total,  i
 }
 
 /* statusline - write the status line
- * called from nay places
+ * called from many places
  */
 int
 statusline ( int tty_fd,  int tty,  int nlines, char *string )
@@ -338,7 +343,7 @@ int	eswitch;
 		break;
 	    case GOER_NOEDITP:
 	        statusline (tty_fd, tty, nlines,
-		  "\007parameter editting not enabled");
+		  "\007parameter editing not enabled");
 		break;
 	    default:
 	        statusline (tty_fd, tty, nlines, "\007unknown goto  error");
@@ -361,7 +366,7 @@ int	nlines;
 
 	if (!Geditp) {
 	    statusline (tty_fd, tty, nlines,
-		"\007parameter editting not enabled");
+		"\007parameter editing not enabled");
 	    return (DOER_ERROR);
 	}
 
@@ -390,7 +395,7 @@ int	nlines;
 		break;
 	    case GOER_NOEDITP:
 	        statusline (tty_fd, tty, nlines,
-		  "\007parameter editting not enabled");
+		  "\007parameter editing not enabled");
 		break;
 	    default:
 	        statusline (tty_fd, tty, nlines, "\007unknown goto  error");
@@ -448,7 +453,7 @@ int	nlines;
 
 	if (!Geditp) {
 	    statusline (tty_fd, tty, nlines,
-		"\007parameter editting not enabled");
+		"\007parameter editing not enabled");
 	    return (DOER_ERROR);
 	}
 	if (globalp->readonly) {
@@ -508,6 +513,8 @@ int	nlines;
 }
 
 /* domenter - do menu enter
+ * Called w/ iswitch = 0 when user types "e" to enter a value
+ * Called w/ iswitch = 1 when mcode == IMCUR || mcode == IMCURG
  */
 int
 domenter (tty_fd, tty, nlines, ncols, iswitch)
@@ -535,23 +542,29 @@ int	iswitch;
 
 	if (!Geditp && strcmp (mp->id, "cs")) {
 	    statusline (tty_fd, tty, nlines,
-		"\007parameter editting not enabled");
+		"\007parameter editing not enabled");
 	    return (DOER_ERROR);
 	}
 
+	/* Is there an input function, if so,
+	 *  get the necessary input
+	 */
 	if (ip->ifunc) {
-#ifdef	OLD_CLEARLINE
-	    nmax = MIN(ip->func_end+1 - ip->func_start, ncols-1 - ip->func_end);
-	    for (n = 0; n < nmax; n++)
-		clear_string[n] = ' ';
-	    clear_string[n] = 0;
-	    con_str ( clear_string );
-#else
+
 	    // c_ttyctrl (tty_fd, tty, "ce", 1);
 	    con_clear_toeol ();
-#endif
+
 	    dopcur (tty_fd, tty);
 	    string[0] = 0;
+
+	    /* In progress */
+	    con_getstr ( string ); 
+
+#ifdef notdef
+	    /* XXX - This is the old logic that handles image cursor
+	     * input (if iswitch == 1 )  This involves fancy
+	     * interfacing with IRAF SPP.
+	     */
 	    if (iswitch) {
 		strcpy (string, "imcur");
 	    } else {
@@ -559,20 +572,18 @@ int	iswitch;
 		con_get_param ( "input", string, sizeof(string) );
 		con_raw ();
 	    }
+
+	    /* This translates the image cursor to oven RTZ coordinates */
 	    if (c_timcur (string, sizeof(string))) {
-#ifdef	OLD_CLEARLINE
-		for (n = 0; n < nmax; n++)
-		    clear_string[n] = ' ';
-		clear_string[n] = 0;
-		con_str ( clear_string );
-#else
+
 		// c_ttyctrl (tty_fd, tty, "ce", 1);
 		con_clear_toeol ();
-#endif
+
 		dopcur (tty_fd, tty);
 		con_str ( string );
 		dopcur (tty_fd, tty);
 	    }
+#endif
 	}
 
 	if (ip->ifunc)
@@ -602,7 +613,7 @@ int	iswitch;
 		break;
 	    case SCER_NOEDITB:
 	        statusline (tty_fd, tty, nlines,
-		  "\007clock parameter editting not enabled");
+		  "\007clock parameter editing not enabled");
 		break;
 	    default:
 	        statusline (tty_fd, tty, nlines, "\007unknown enter error");
@@ -661,7 +672,7 @@ updateitem ( void )
 
 /* domkey - do menu key
  */
-int
+static int
 domkey ( int tty_fd, int tty, int nlines, int mlines, int top, int bot, int ncols, int period, int offset, int oldstatus )
 {
 	int	mcode;
@@ -671,7 +682,9 @@ domkey ( int tty_fd, int tty, int nlines, int mlines, int top, int bot, int ncol
 
 	do {
 	    dopcur (tty_fd, tty);
+
 	    mcode = mkey (oldstatus & M_AUTO, period, offset);
+
 	    oldstatus &= ~M_AUTO;
 
 	    switch (mcode) {
@@ -810,18 +823,20 @@ domkey ( int tty_fd, int tty, int nlines, int mlines, int top, int bot, int ncol
 	if (status & M_REPAINT || status & M_REFRESH)
 	    con_raw2 ();
 	    // THGKEY (&three);
+
 	return (status);
 }
 
 /* mkey - return a menu encoded key
  */
-int
+static int
 mkey ( int autom,  int period,  int offset)
 {
 	int	key;
 	int	mcode;
 
 	if (autom) {
+	    /* XXX - this is a mystery */
 	    con_flush ();
 	    // FLGKEY (&key);
 	    /* Always returns 'q' these days */

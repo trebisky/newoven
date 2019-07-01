@@ -149,8 +149,8 @@ int domreturn(int tty_fd, int tty, int nlines);
 int domenter(int tty_fd, int tty, int nlines, int ncols, int iswitch);
 int dopcur(int tty_fd, int tty);
 void updateitem(void);
-int domkey(int tty_fd, int tty, int nlines, int mlines, int top, int bot, int ncols, int period, int offset, int oldstatus);
-int mkey(int autom, int period, int offset);
+static int domkey(int tty_fd, int tty, int nlines, int mlines, int top, int bot, int ncols, int period, int offset, int oldstatus);
+static int mkey(int autom, int period, int offset);
 // static int clgstr(char *param, char *outstr, int maxch);
 
 /* console.c */
@@ -170,7 +170,8 @@ void con_raw(void);
 void con_noraw(void);
 void con_raw2(void);
 int con_key(int period, int offset);
-void con_get_param(char *param, char *val, int max);
+// void con_get_param(char *param, char *val, int max);
+void con_getstr ( char *buf );
 void con_help(void);
 void backup_(void);
 int c_timcur(char *string, int num);

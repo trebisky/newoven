@@ -46,7 +46,6 @@ con_clear ( void )
 {
         clear ();
 	refresh ();
-	// getch ();
 }
 
 void
@@ -142,11 +141,25 @@ con_raw2 ( void )
 
 static int first = 1;
 static int update_wait;
+static int push_ch = -1;
+
+/* Hack to get correct behaviour after help screen */
+static void
+con_pushb ( int cc )
+{
+	push_ch = cc;
+}
 
 int
 con_key ( int period, int offset )
 {
 	int cc;
+
+	if ( push_ch != -1 ) {
+	    cc = push_ch;
+	    push_ch = -1;
+	    return cc;
+	}
 
 	if ( first ) {
 	    update_wait = 10 * period;
@@ -170,6 +183,21 @@ con_key ( int period, int offset )
 	return cc;
 }
 
+void
+con_getstr ( char *buf )
+{
+	nocbreak ();
+	echo ();
+
+	getstr ( buf );
+	/* XXX */
+	strcpy ( buf, "Z1" );
+
+	noecho ();
+	cbreak ();
+}
+
+#ifdef notdef
 /* Called to get "input" */
 void
 con_get_param ( char *param, char *val, int max )
@@ -177,13 +205,116 @@ con_get_param ( char *param, char *val, int max )
 	/* XXX */
 	strcpy ( val, "0" );
 }
+#endif
 
+static char *help_str[] = {
+	"?		Help for cursor mode",
+	"j, CR		Cursor down one line",
+	"d		Scroll down half page",
+	"f, SP		Scroll down full page",
+	"g		Scroll down to end of page",
+	"k		Cursor up   one line",
+	"u		Scroll up   half page",
+	"b		Scroll up   full page",
+	".		Scroll up   to top of page",
+	"n		Go     to related  menu",
+	"!		Go directly to error menu",
+	"p		Return to previous menu",
+	"l		Repaint page",
+	"q		Refresh page",
+	"a		Auto-refresh page",
+	"e		Enter new data",
+	"i		Enter new data from image cursor",
+	"m		Enter new data and go to related menu",
+	"o		Enter new data from image cursor and go to",
+	"P		Enable parameter edit and cache",
+	"K		Enable clock parameter edit and cache",
+	"W		Flush parameter cache"
+};
+
+
+/* We should clear the screen, then fill it with help,
+ * then wait.  When we return, a REPAINT is scheduled
+ * and the help screen will vanish.
+ */
 void
 con_help ( void )
 {
-	/* In SPP code */
+	int x;
+	char buf[64];
+	int n_help;
+	int i;
+
+	n_help = sizeof(help_str) / sizeof(char *);
+
+        clear ();
+	for ( i=0; i<n_help; i++ )
+	    mvaddstr ( i, 0, help_str[i] );
+	refresh ();
+
+	for ( ;; ) {
+	    x = getch ();
+	    if ( x != -1 )
+		break;
+	}
+	con_pushb ( 'l' );
+
+	// sprintf ( buf, "DONE %d", n_help );
+	// addstr ( buf );
+
+	/* In SPP code this was ... */
 	// call pagefiles ("oven$cm.hlp")
 }
+
+#ifdef notdef
+?		Help for cursor mode
+j, CR		Cursor down one line
+d		Scroll down half page
+f, SP		Scroll down full page
+g		Scroll down to end of page
+k		Cursor up   one line
+u		Scroll up   half page
+b		Scroll up   full page
+.		Scroll up   to top of page
+n		Go     to related  menu
+!		Go directly to error menu
+p		Return to previous menu
+l		Repaint page
+q		Refresh page
+a		Auto-refresh page
+e		Enter new data
+i		Enter new data from image cursor
+m		Enter new data and go to related menu
+o		Enter new data from image cursor and go to
+P		Enable parameter edit and cache
+K		Enable clock parameter edit and cache
+W		Flush parameter cache
+#endif
+
+/*
+?		Help for cursor mode
+j, CR		Cursor down one line
+d		Scroll down half page
+f, SP		Scroll down full page
+g		Scroll down to end of page
+k		Cursor up   one line
+u		Scroll up   half page
+b		Scroll up   full page
+.		Scroll up   to top of page
+n		Go     to related  menu
+!		Go directly to error menu
+p		Return to previous menu
+l		Repaint page
+q		Refresh page
+a		Auto-refresh page
+e		Enter new data
+i		Enter new data from image cursor
+m		Enter new data and go to related menu
+o		Enter new data from image cursor and go to
+P		Enable parameter edit and cache
+K		Enable clock parameter edit and cache
+W		Flush parameter cache
+*/
 
 /* =============================================================================== */
 /* =============================================================================== */
