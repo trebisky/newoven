@@ -17,6 +17,12 @@
 #include <time.h>
 #include "protos.h"
 
+/* tjt - here is a use note that is dangerous and important to know if you want
+ * to either test the software, or to do dangerous things.
+ * type P to enable parameter editing
+ * type PK to enable biparameter editing (namely clock run/stop state).
+ */
+
 #define	XINTCHAR	'\003'
 
 #define	DOER_OK		0
@@ -428,7 +434,7 @@ int	nlines;
 	}
 	if (Geditp) {
 	    statusline (tty_fd, tty, nlines,
-		"\007parameter database cacheing is not necessary");
+		"\007parameter database caching is not necessary");
 	    return (DOER_ERROR);
 	}
 	if (cache_parameter ()) {
@@ -468,7 +474,7 @@ int	nlines;
 	}
 	if (Geditb) {
 	    statusline (tty_fd, tty, nlines,
-		"\007clock parameter database cacheing is not necessary");
+		"\007clock parameter database caching is not necessary");
 	    return (DOER_ERROR);
 	}
 	if (cache_biparameter ()) {

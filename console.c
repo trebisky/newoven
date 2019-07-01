@@ -186,6 +186,7 @@ con_key ( int period, int offset )
 	return cc;
 }
 
+/* This is used to enter values when the user types "e" */
 void
 con_getstr ( char *buf )
 {
