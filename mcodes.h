@@ -21,6 +21,7 @@
 #define	GOERR	20	/* go to error   menu	*/
 #define	ENTERG	21	/* enter new data /goto	*/
 #define	IMCURG	22	/* enter imcur /goto   r*/
+#define	DATA	23	/* get fresh oven data  */
 
 #define	M_REPAINT	1
 #define	M_REFRESH	2

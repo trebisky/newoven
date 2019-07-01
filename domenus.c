@@ -694,6 +694,10 @@ domkey ( int tty_fd, int tty, int nlines, int mlines, int top, int bot, int ncol
 	    oldstatus &= ~M_AUTO;
 
 	    switch (mcode) {
+	    case DATA:
+		/* tjt added 6-30-2019 */
+		db_dread_oven ();
+		break;
 	    case SCR_U0:
 		Gmline = 0;
 		break;
@@ -922,8 +926,13 @@ mkey ( int autom,  int period,  int offset)
 	case 'a':
 	    mcode = AUTO;
 	    break;
+	/* tjt added E next to e to match documentation */
 	case 'e':
+	case 'E':
 	    mcode = ENTER;
+	    break;
+	case 'r':
+	    mcode = DATA;
 	    break;
 	case 'i':
 	    mcode = IMCUR;
