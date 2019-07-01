@@ -6,7 +6,7 @@ OBJS = oven.o menus.o domenus.o prints.o scans.o init.o \
 	shmalloc.o database.o databasc.o \
 	ipportrw.o util.o console.o
 
-DOBJS = ovend.o init.o shmalloc.o stale.o database.o ipportrw.o
+DOBJS = ovend.o init.o shmalloc.o stale.o datalogger.o logdata.o database.o ipportrw.o
 
 GOBJS = oveng.o init.o shmalloc.o database.o ipportrw.o
 
@@ -34,6 +34,8 @@ errorreport.o:	errorreport.c
 stale.o:	stale.c
 database.o:	database.c
 databasc.o:	databasc.c
+datalogger.o:	datalogger.c
+logdata.o:	logdata.c
 ipportrw.o:	ipportrw.c
 shmalloc.o:	shmalloc.c
 util.o:		util.c

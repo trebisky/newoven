@@ -931,6 +931,9 @@ mkey ( int autom,  int period,  int offset)
 	case 'E':
 	    mcode = ENTER;
 	    break;
+	/* tjt - added this too, but it accomplishes little
+	 * if ovend is already running.
+	 */
 	case 'r':
 	    mcode = DATA;
 	    break;

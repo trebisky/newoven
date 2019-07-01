@@ -132,6 +132,9 @@ int sctctype ( char *, int * );
 char *shmalloc(int nbytes, int noven, int ncomp, int readonly);
 void shmfree(char *shmptr, int noven, int ncomp, int remove);
 
+/* datalogger.c */
+void datalogger(void);
+
 /* domenus.c */
 int init_menus(void);
 void free_menus(void);

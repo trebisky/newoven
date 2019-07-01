@@ -17,7 +17,7 @@ ovend ( void )
 	int readonly = 0;
 	int period = 60;
 	int offset = 0;
-	int log_data = 0;
+	int log_data = 1;
 
 	time_t now;
 	int status;
@@ -56,10 +56,8 @@ ovend ( void )
 
             stalereport ();
 
-	    /*
             if (status && log_data)
                 datalogger ();
-	    */
         }
 
 	return 0;
