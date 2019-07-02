@@ -19,7 +19,7 @@ oveng: $(GOBJS)
 	cc -o oveng $(GOBJS) -lm
 
 ovend: $(DOBJS)
-	cc -o ovend $(DOBJS) -lm
+	cc -o ovend $(DOBJS) -lm -lcfitsio
 
 oven: $(OBJS)
 	cc -o oven $(OBJS) -lm -lncurses
