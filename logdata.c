@@ -30,7 +30,11 @@ static float array [MAX_ARRAY];
 
 static void mkname ( char *buf, char *prefix );
 static fitsfile * mk_new_file ( char *filename, int nvals );
-static void insert_record ( fitsfile *fptr, float *data, int num );
+static void insert_record ( fitsfile *fptr, int index, float *data, int num );
+
+static int mkindex ( void );
+static void set_first_record ( fitsfile *, int );
+static void set_last_record ( fitsfile *, int );
 
 void
 logdata ( char *prefix, float *data, int num )
@@ -40,6 +44,7 @@ logdata ( char *prefix, float *data, int num )
 	fitsfile *fptr;
 	int anynul;
 	int n = MPD * num;
+	int index;
 
 	if ( num > MAX_COLS ) {
 	    fprintf ( stderr, "Panic, data logging row too long: %d\n", num );
@@ -47,6 +52,7 @@ logdata ( char *prefix, float *data, int num )
 	}
 
         mkname ( filename, prefix );
+	index = mkindex ();
 
 	if ( fits_open_file ( &fptr, filename, READWRITE, &status ) ) {
 	    printf ( "Open fails: %d\n", status );
@@ -56,6 +62,7 @@ logdata ( char *prefix, float *data, int num )
 		return;
 	    }
 	    status = 0;
+	    set_first_record ( fptr, index + 1 );
 	} else {
 	    if ( fits_read_img ( fptr, TFLOAT, 1, n, 0, array, &anynul, &status) ) {
 		fprintf ( stderr, "Cannot read %s for logging\n", filename );
@@ -63,7 +70,8 @@ logdata ( char *prefix, float *data, int num )
 	    }
 	}
 
-	insert_record ( fptr, data, num );
+	insert_record ( fptr, index, data, num );
+	set_last_record ( fptr, index + 1 );
 
 	if ( fits_write_img ( fptr, TFLOAT, 1, n, array, &status) ) {
 	    fprintf ( stderr, "Cannot write %s for logging\n", filename );
@@ -101,6 +109,113 @@ mkindex ( void )
 	return tp->tm_hour * 60 + tp->tm_min;
 }
 
+static void
+upd_long_key ( fitsfile *fptr, char *name, int val, char *comment )
+{
+	long lval = val;
+	int status = 0;
+
+	(void) fits_update_key ( fptr, TLONG, name, &lval, comment, &status);
+}
+
+static void
+add_long_key ( fitsfile *fptr, char *name, int val, char *comment )
+{
+	long lval = val;
+	int status = 0;
+
+	(void) fits_write_key ( fptr, TLONG, name, &lval, comment, &status);
+}
+
+static void
+add_str_key ( fitsfile *fptr, char *name, char *val, char *comment )
+{
+	int status = 0;
+
+	(void) fits_write_key ( fptr, TLONG, name, val, comment, &status);
+}
+
+static void
+add_float_key ( fitsfile *fptr, char *name, float val, char *comment )
+{
+	int status = 0;
+	float fval = val;
+
+	(void) fits_write_key ( fptr, TLONG, name, &fval, comment, &status);
+}
+
+/*
+SIMPLE  =                    T  /  FITS STANDARD
+BITPIX  =                  -32  /  FITS BITS/PIXEL
+NAXIS   =                    2  /  NUMBER OF AXES
+NAXIS1  =                   66  /
+NAXIS2  =                 1440  /
+
+OBJECT  = 'adcv181001'          /
+ORIGIN  = 'KPNO-IRAF'           /
+DATE    = '2019-06-03T18:31:35'
+IRAFNAME= 'adcv181001'          /  NAME OF IRAF IMAGE FILE
+IRAF-MAX=           0.000000E0  /  DATA MAX
+IRAF-MIN=           0.000000E0  /  DATA MIN
+IRAF-BPX=                   32  /  DATA BITS/PIXEL
+IRAFTYPE= 'REAL    '            /  PIXEL TYPE
+FIRSTCOL=                    1
+LASTCOL =                 1440
+END
+ */
+
+static void
+mk_iraf_date ( char *buf )
+{
+        struct tm *tp;
+        time_t now;
+
+        (void) time ( &now );
+        tp = localtime ( &now );
+
+        sprintf ( buf, "%04d-%02d-%02dT%2d:%02d:%02d",
+            tp->tm_year + 1900,
+            tp->tm_mon + 1,
+            tp->tm_mday,
+	    tp->tm_hour,
+	    tp->tm_min,
+	    tp->tm_sec );
+}
+
+static void
+add_keys ( fitsfile *fptr, char *fname )
+{
+    // static char *d_str = "2019-06-03T18:31:35";
+    char d_buf[80];
+
+    mk_iraf_date ( d_buf );
+
+    add_str_key ( fptr, "OBJECT", fname, NULL );
+    add_str_key ( fptr, "ORIGIN", "SOML OVEN", NULL );
+    // add_str_key ( fptr, "DATE", d_str, NULL );
+    add_str_key ( fptr, "DATE", d_buf, NULL );
+    add_str_key ( fptr, "IRAFNAME", fname, NULL );
+    add_float_key ( fptr, "IRAF-MAX", 0.0, NULL );
+    add_float_key ( fptr, "IRAF-MIN", 0.0, NULL );
+    add_long_key ( fptr, "IRAF-BPX", 32, NULL );
+    add_str_key ( fptr, "IRAFTYPE", "REAL    ", NULL );
+
+    // add_long_key ( fptr, "EXPOSURE", 1500, "Exposure Time" );
+}
+
+static void
+set_first_record ( fitsfile *fptr, int rec )
+{
+    add_long_key ( fptr, "FIRSTCOL", rec, NULL );
+    add_long_key ( fptr, "LASTCOL", rec, NULL );
+}
+
+static void
+set_last_record ( fitsfile *fptr, int rec )
+{
+    upd_long_key ( fptr, "LASTCOL", rec, NULL );
+}
+
 static fitsfile *
 mk_new_file ( char *filename, int nvals )
 {
@@ -123,6 +238,8 @@ mk_new_file ( char *filename, int nvals )
 	    return ( (fitsfile *) 0 );
 	}
 
+	add_keys ( fptr, filename );
+
 	for ( i=0; i<n; i++ )
 	    array[i] = INDEFR;
 
@@ -140,9 +257,8 @@ mk_new_file ( char *filename, int nvals )
 }
 
 static void
-insert_record ( fitsfile *fptr, float *data, int num )
+insert_record ( fitsfile *fptr, int index, float *data, int num )
 {
-	int index = mkindex ();
 	int offset = index * num;
 
 	memcpy ( &array[offset], data, num * sizeof(float) );
