@@ -55,7 +55,6 @@ logdata ( char *prefix, float *data, int num )
 	index = mkindex ();
 
 	if ( fits_open_file ( &fptr, filename, READWRITE, &status ) ) {
-	    printf ( "Open fails: %d\n", status );
 	    fptr = mk_new_file ( filename, num );
 	    if ( ! fptr ) {
 		fprintf ( stderr, "Cannot open %s for logging\n", filename );
@@ -132,7 +131,7 @@ add_str_key ( fitsfile *fptr, char *name, char *val, char *comment )
 {
 	int status = 0;
 
-	(void) fits_write_key ( fptr, TLONG, name, val, comment, &status);
+	(void) fits_write_key ( fptr, TSTRING, name, val, comment, &status);
 }
 
 static void
@@ -141,7 +140,7 @@ add_float_key ( fitsfile *fptr, char *name, float val, char *comment )
 	int status = 0;
 	float fval = val;
 
-	(void) fits_write_key ( fptr, TLONG, name, &fval, comment, &status);
+	(void) fits_write_key ( fptr, TFLOAT, name, &fval, comment, &status);
 }
 
 /*
