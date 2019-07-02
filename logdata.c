@@ -4,6 +4,7 @@
  */
 
 #include <time.h>
+#include <string.h>
 #include <cfitsio/fitsio.h>
 
 /* typical call:
@@ -21,6 +22,10 @@ logdata ("htmp", htmp, sizeof(htmp)/sizeof(htmp[0]));
 /* Big enough for anything we know about at this time */
 #define MAX_ARRAY	(MAX_ROWS*MAX_COLS)
 
+/* We use a single static array for the image buffer.
+ * this is fine because only ovend calls this routine, and
+ * the calls are serial.  This code does not need to be reentrant.
+ */
 static float array [MAX_ARRAY];
 
 static void mkname ( char *buf, char *prefix );
@@ -138,6 +143,9 @@ static void
 insert_record ( fitsfile *fptr, float *data, int num )
 {
 	int index = mkindex ();
+	int offset = index * num;
+
+	memcpy ( &array[offset], data, num * sizeof(float) );
 }
 
 /* THE END */
