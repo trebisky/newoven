@@ -229,8 +229,12 @@ mk_new_file ( char *filename, int nvals )
 	    return ( (fitsfile *) 0 );
 	}
 
+	/* Fixed 7-5-2019
 	naxes[0] = MPD;
 	naxes[1] = nvals;
+	*/
+	naxes[0] = nvals;
+	naxes[1] = MPD;
 	n = MPD * nvals;
 
 	if ( fits_create_img ( fptr,  FLOAT_IMG, NDIM, naxes, &status) ) {
