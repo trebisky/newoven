@@ -97,8 +97,6 @@ get_ovenip ( int noven, int ncomp )
         return (ip);
 }
 
-#define	MAXNBYTES	4096
-
 /* Returns a socket */
 int
 ip_connect ( int ip, int port )
@@ -132,54 +130,12 @@ ip_read ( int s, char *buf, int nbytes )
 	int nxfer;
 
 	for (n = 0; n < nbytes; n += nxfer) {
-	    if ((nxfer = read (s, buf+n, MIN (MAXNBYTES, nbytes-n))) <= 0) {
+	    if ((nxfer = read (s, buf+n, nbytes-n) ) <= 0) {
 		return -1;
 	    }
 	}
 
 	return (0);
 }
-
-#ifdef notdef
-int
-speed_read ( int ip, int port, char *buf, int nbytes )
-{
-	struct	sockaddr_in	sockaddr;
-	unsigned short	portnumber = port;
-	long	ipnumber = ip;
-	int	s;
-	int	nxfer;
-	int	n;
-
-	if ((s = socket (AF_INET, SOCK_STREAM, 0)) < 0) {
-	    perror ("socket");
-	    return (s);
-	}
-
-	bzero ((char *)(&sockaddr), sizeof(sockaddr));
-	sockaddr.sin_family	= AF_INET;
-	sockaddr.sin_port	= htons (portnumber);
-	sockaddr.sin_addr.s_addr= htonl (ipnumber);
-
-	if (connect (s, (struct sockaddr *)&sockaddr, sizeof (sockaddr)) < 0) {
-	    return (-1);
-	}
-
-	for (n = 0; n < nbytes; n += nxfer) {
-	    if ((nxfer = read (s, buf+n, MIN (MAXNBYTES, nbytes-n))) < 0) {
-		perror ("read");
-		close (s);
-		return (nxfer);
-	    }
-	    if (nxfer == 0) {
-		close (s);
-		return (-1);
-	    }
-	}
-
-	close (s);
-	return (0);
-}
-#endif
 
 /* The END */
