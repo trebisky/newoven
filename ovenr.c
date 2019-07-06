@@ -2,6 +2,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <arpa/inet.h>
 #include <netdb.h>
 
@@ -18,10 +19,14 @@
  * Because of this only one instance of ovenr should ever be run.
  */
 
-/* Two 4 byte objects are read */
+/* Two 4 byte objects are read.
+ * The first is a clock.
+ * The second is speed as rpm * 1000
+ */
 static int buf[2];
 
 int get_ovenip ( int noven, int ncomp );
+int speed_read ( int ip, int port, char *buf, int nbytes );
 
 void
 ovenr ( void )
@@ -35,8 +40,7 @@ ovenr ( void )
 	int clock, speed;
 
 	n = sizeof ( buf );
-	// oven_ip = get_ovenip ( noven, ncomp );
-	oven_ip = getovenip ( noven, ncomp );
+	oven_ip = get_ovenip ( noven, ncomp );
 	if ( oven_ip == 0 ) {
 	    printf ( "Cannot resolve oven IP\n" );
 	    exit ( 1 );
@@ -45,11 +49,9 @@ ovenr ( void )
 	printf ( "Oven IP = %08x\n", oven_ip );
 
 	for ( ;; ) {
-	    ipportread ( oven_ip, port, (char *) buf, n );
-	    // clock = ntohl ( buf[0] );
-	    // speed = ntohl ( buf[1] );
-	    clock = buf[0];
-	    speed = buf[1];
+	    speed_read ( oven_ip, port, (char *) buf, n );
+	    clock = ntohl ( buf[0] );
+	    speed = ntohl ( buf[1] );
 	    printf ( "%d %d\n", clock, speed );
 	    break;
 	}
@@ -88,6 +90,61 @@ get_ovenip ( int noven, int ncomp )
 
         ip = ntohl (ipnumber);
         return (ip);
+}
+
+#define	MAXNBYTES	4096
+
+int
+speed_read ( int ip, int port, char *buf, int nbytes )
+{
+	struct	sockaddr_in	sockaddr;
+	unsigned short	portnumber = port;
+	long	ipnumber = ip;
+	int	s;
+	int	nxfer;
+	int	n;
+	// char	*buffer;
+
+	if ((s = socket (AF_INET, SOCK_STREAM, 0)) < 0) {
+	    perror ("socket");
+	    return (s);
+	}
+
+	bzero ((char *)(&sockaddr), sizeof(sockaddr));
+	sockaddr.sin_family	= AF_INET;
+	sockaddr.sin_port	= htons (portnumber);
+	sockaddr.sin_addr.s_addr= htonl (ipnumber);
+
+	if (connect (s, (struct sockaddr *)&sockaddr, sizeof (sockaddr)) < 0) {
+/*	    perror ("connect");						*/
+	    return (-1);
+	}
+
+	/*
+	if ((buffer = malloc (nbytes)) == 0) {
+	    close (s);
+	    return (-1);
+	}
+	*/
+
+	for (n = 0; n < nbytes; n += nxfer) {
+	    if ((nxfer = read (s, buf+n, MIN (MAXNBYTES, nbytes-n))) < 0) {
+		perror ("read");
+		// free (buffer);
+		close (s);
+		return (nxfer);
+	    }
+	    if (nxfer == 0) {
+		// free (buffer);
+		close (s);
+		return (-1);
+	    }
+	}
+
+	// memcpy ( buf, buffer, nbytes );
+	// free (buffer);
+	close (s);
+	return (0);
 }
 
 /* The END */

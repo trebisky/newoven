@@ -68,7 +68,6 @@ getovenip ( int noven, int ncomp )
 	return (ip);
 }
 
-
 /* ipportwrite - write to   an IP port.
  */
 int
