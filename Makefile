@@ -13,7 +13,8 @@ GOBJS = oveng.o init.o shmalloc.o database.o ipportrw.o
 BOBJS = ovenb.o init.o shmalloc.o ipportrw.o
 POBJS = ovenp.o init.o shmalloc.o ipportrw.o
 
-ROBJS = ovenr.o ipportrw.o
+#ROBJS = ovenr.o ipportrw.o
+ROBJS = ovenr.o
 
 all: oven ovend oveng ovenb ovenp ovenr
 
