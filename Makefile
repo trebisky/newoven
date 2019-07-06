@@ -13,10 +13,15 @@ GOBJS = oveng.o init.o shmalloc.o database.o ipportrw.o
 BOBJS = ovenb.o init.o shmalloc.o ipportrw.o
 POBJS = ovenp.o init.o shmalloc.o ipportrw.o
 
-all: oven ovend oveng ovenb ovenp
+ROBJS = ovenr.o ipportrw.o
+
+all: oven ovend oveng ovenb ovenp ovenr
 
 .c.o:
 	cc -g -o $@ -c $<
+
+ovenr: $(ROBJS)
+	cc -o ovenr $(ROBJS) -lm
 
 ovenp: $(POBJS)
 	cc -o ovenp $(POBJS) -lm

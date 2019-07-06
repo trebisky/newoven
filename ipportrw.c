@@ -41,6 +41,34 @@ endian_fix ( char *b, int n )
 	}
 }
 
+/* getovenip - get the oven computer's ip number.
+ * Note that ntohl() is no longer defined to work on long types
+ * it works on 32 bit objects, which are uint32_t or u_int32_t
+ */
+int
+getovenip ( int noven, int ncomp )
+{
+	char	hostname[33];
+	struct	hostent	*hp;
+	uint32_t	ipnumber;
+	uint32_t	ip;
+
+	/* ovens #3 to #8 not implemented yet */
+	if (noven >= 3 && noven <= 8)
+	    return (0);
+
+	sprintf (hostname, "oven%dv%d", noven, ncomp);
+	if ((hp = gethostbyname (hostname)) == 0)
+	    return (0);
+
+	bcopy ((char *)hp->h_addr, (char *)&ipnumber,
+	    MIN (hp->h_length, sizeof(ipnumber)));
+
+	ip = ntohl (ipnumber);
+	return (ip);
+}
+
+
 /* ipportwrite - write to   an IP port.
  */
 int
@@ -186,33 +214,6 @@ int	nbytes;
 	free (buffer);
 	close (s);
 	return (0);
-}
-
-/* getovenip - get the oven computer's ip number.
- */
-int
-getovenip (noven, ncomp)
-int	noven;
-int	ncomp;
-{
-	char	hostname[33];
-	struct	hostent	*hp;
-	long	ipnumber;
-	int	ip;
-
-	/* ovens #3 to #8 not implemented yet */
-	if (noven >= 3 && noven <= 8)
-	    return (0);
-
-	sprintf (hostname, "oven%dv%d", noven, ncomp);
-	if ((hp = gethostbyname (hostname)) == 0)
-	    return (0);
-
-	bcopy ((char *)hp->h_addr, (char *)&ipnumber,
-	    MIN (hp->h_length, sizeof(ipnumber)));
-
-	ip = ntohl (ipnumber);
-	return (ip);
 }
 
 /* tportwrite - listen for connections and write data from buffer
