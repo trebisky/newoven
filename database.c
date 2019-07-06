@@ -5,7 +5,7 @@
 #include "menus.h"
 #include "context.h"
 #include "global.h"
-#include "oxnames.h"
+// #include "oxnames.h"
 
 #include "protos.h"
 
@@ -219,22 +219,6 @@ db_gread_oven ( void )
 	    result += (status != 0);
 	}
 	return (result + maxgong);
-}
-#endif
-
-#ifdef notyet
-/* do_ovenp - setup listener for parameter requests
- */
-do_ovenp ( int noven,  int ncomp)
-{
-    return (tportwrite(N_OVEN,N_COMP,PORTRP,globalp->pdbn,sizeof(p_database)));
-}
-
-/* do_ovenb - setup listener for biparameter requests
- */
-do_ovenb ( int noven, int ncomp)
-{
-    return (tportwrite(N_OVEN,N_COMP,PORTRB,globalp->bdbn,sizeof(b_database)));
 }
 #endif
 

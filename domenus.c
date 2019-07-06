@@ -9,7 +9,7 @@
 #include "menus.h"
 #include "context.h"
 #include "global.h"
-#include "oxnames.h"
+//#include "oxnames.h"
 #include "mcodes.h"
 
 #include <stdio.h>
