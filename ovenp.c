@@ -27,8 +27,7 @@ ovenp ( void )
 	    return 1;
 	}
 
-	/* XXX - note plural */
-        init_databases ( oven, comp, readonly );
+        init_all_databases ( oven, comp, readonly );
 
 	status = tportwrite(N_OVEN,N_COMP,PORTRP,globalp->pdbn,sizeof(p_database));
 	if ( status ) {

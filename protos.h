@@ -218,7 +218,7 @@ int init_globals(int noven, int ncomp);
 void free_globals(void);
 // int init_context(void);
 // int free_context(void);
-void init_databases(int noven, int ncomp, int readonly);
+void init_all_databases(int noven, int ncomp, int readonly);
 int init_database(int noven, int ncomp, int readonly);
 void free_databases(int noven, int ncomp, int remove);
 void free_database(int noven, int ncomp, int remove);

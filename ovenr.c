@@ -26,7 +26,8 @@
 static int buf[2];
 
 int get_ovenip ( int noven, int ncomp );
-int speed_read ( int ip, int port, char *buf, int nbytes );
+int ip_connect ( int ip, int port );
+int ip_read ( int s, char *buf, int nbytes );
 
 void
 ovenr ( void )
@@ -36,26 +37,30 @@ ovenr ( void )
 	int ncomp = 0;
 	int port = 5107;
 	int oven_ip;
-	int n;
 	int clock, speed;
+	int sock;
 
-	n = sizeof ( buf );
+	// n = sizeof ( buf );
 	oven_ip = get_ovenip ( noven, ncomp );
 	if ( oven_ip == 0 ) {
 	    printf ( "Cannot resolve oven IP\n" );
 	    exit ( 1 );
 	}
+	// printf ( "Oven IP = %08x\n", oven_ip );
 
-	printf ( "Oven IP = %08x\n", oven_ip );
+	sock = ip_connect ( oven_ip, port );
+	if ( sock < 0 ) {
+	    printf ( "Connect to oven fails\n" );
+	    exit ( 1 );
+	}
 
 	for ( ;; ) {
-	    speed_read ( oven_ip, port, (char *) buf, n );
+	    ip_read ( sock, (char *) buf, sizeof(buf) );
+	    // speed_read ( oven_ip, port, (char *) buf, n );
 	    clock = ntohl ( buf[0] );
 	    speed = ntohl ( buf[1] );
 	    printf ( "%d %d\n", clock, speed );
-	    break;
 	}
-
 }
 
 int
@@ -94,6 +99,48 @@ get_ovenip ( int noven, int ncomp )
 
 #define	MAXNBYTES	4096
 
+/* Returns a socket */
+int
+ip_connect ( int ip, int port )
+{
+	struct	sockaddr_in	sockaddr;
+	unsigned short	portnumber = port;
+	int	s;
+
+	if ((s = socket (AF_INET, SOCK_STREAM, 0)) < 0) {
+	    printf ( "Cannot allocate a socket\n" );
+	    return -1;
+	}
+
+	bzero ((char *)(&sockaddr), sizeof(sockaddr));
+	sockaddr.sin_family	= AF_INET;
+	sockaddr.sin_port	= htons (portnumber);
+	sockaddr.sin_addr.s_addr= htonl (ip);
+
+	if (connect (s, (struct sockaddr *)&sockaddr, sizeof (sockaddr)) < 0) {
+	    printf ( "Connect fails\n" );
+	    return -1;
+	}
+
+	return s;
+}
+
+int
+ip_read ( int s, char *buf, int nbytes )
+{
+	int n;
+	int nxfer;
+
+	for (n = 0; n < nbytes; n += nxfer) {
+	    if ((nxfer = read (s, buf+n, MIN (MAXNBYTES, nbytes-n))) <= 0) {
+		return -1;
+	    }
+	}
+
+	return (0);
+}
+
+#ifdef notdef
 int
 speed_read ( int ip, int port, char *buf, int nbytes )
 {
@@ -103,7 +150,6 @@ speed_read ( int ip, int port, char *buf, int nbytes )
 	int	s;
 	int	nxfer;
 	int	n;
-	// char	*buffer;
 
 	if ((s = socket (AF_INET, SOCK_STREAM, 0)) < 0) {
 	    perror ("socket");
@@ -116,35 +162,24 @@ speed_read ( int ip, int port, char *buf, int nbytes )
 	sockaddr.sin_addr.s_addr= htonl (ipnumber);
 
 	if (connect (s, (struct sockaddr *)&sockaddr, sizeof (sockaddr)) < 0) {
-/*	    perror ("connect");						*/
 	    return (-1);
 	}
-
-	/*
-	if ((buffer = malloc (nbytes)) == 0) {
-	    close (s);
-	    return (-1);
-	}
-	*/
 
 	for (n = 0; n < nbytes; n += nxfer) {
 	    if ((nxfer = read (s, buf+n, MIN (MAXNBYTES, nbytes-n))) < 0) {
 		perror ("read");
-		// free (buffer);
 		close (s);
 		return (nxfer);
 	    }
 	    if (nxfer == 0) {
-		// free (buffer);
 		close (s);
 		return (-1);
 	    }
 	}
 
-	// memcpy ( buf, buffer, nbytes );
-	// free (buffer);
 	close (s);
 	return (0);
 }
+#endif
 
 /* The END */

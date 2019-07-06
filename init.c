@@ -86,7 +86,7 @@ free_context ( void )
 #endif
 
 void
-init_databases ( int noven, int ncomp, int readonly)
+init_all_databases ( int noven, int ncomp, int readonly)
 {
 	int	oven;
 	int	status;
@@ -145,7 +145,7 @@ free_globals ( void )
 }
 
 void
-free_databases ( int noven, int ncomp, int remove )
+free_all_databases ( int noven, int ncomp, int remove )
 {
 	int	oven;
 
