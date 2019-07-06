@@ -32,24 +32,25 @@ ovenr ( void )
 	int port = 5107;
 	int oven_ip;
 	int n;
-	int speed1, speed2;
+	int clock, speed;
 
 	n = sizeof ( buf );
-	oven_ip = get_ovenip ( noven, ncomp );
-	printf ( "Oven IP = %08x\n", oven_ip );
+	// oven_ip = get_ovenip ( noven, ncomp );
+	oven_ip = getovenip ( noven, ncomp );
 	if ( oven_ip == 0 ) {
-	    printf ( "Trouble\n" );
+	    printf ( "Cannot resolve oven IP\n" );
 	    exit ( 1 );
 	}
 
-	buf[0] = 999;
-	buf[1] = 999;
+	printf ( "Oven IP = %08x\n", oven_ip );
 
 	for ( ;; ) {
 	    ipportread ( oven_ip, port, (char *) buf, n );
-	    speed1 = ntohl ( buf[0] );
-	    speed2 = ntohl ( buf[1] );
-	    printf ( "%d %d\n", speed1, speed2 );
+	    // clock = ntohl ( buf[0] );
+	    // speed = ntohl ( buf[1] );
+	    clock = buf[0];
+	    speed = buf[1];
+	    printf ( "%d %d\n", clock, speed );
 	    break;
 	}
 
