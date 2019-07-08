@@ -26,6 +26,8 @@ all: $(TARGETS)
 
 install:	all
 	cp $(TARGETS) /usr/local/bin
+	cp train.au /usr/local/bin
+	cp watch.pl /usr/local/bin/watch
 
 .c.o:
 	cc -g -o $@ -c $<
