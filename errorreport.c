@@ -470,9 +470,11 @@ eloggoto ( char *s )
 	if (t)
 	    return (GOER_NOWHERE);
 
+#ifdef notyet
 	t = menugoto (mm);
 	if (t)
 	    return (GOER_NOWHERE);
+#endif
 
 	     if (!strcmp (mm, "zo")) Gzone = zone;
 	else if (!strcmp (mm, "he")) Gpfe  = pfe;

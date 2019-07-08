@@ -16,10 +16,22 @@ POBJS = ovenp.o init.o shmalloc.o ipportrw.o
 #ROBJS = ovenr.o ipportrw.o
 ROBJS = ovenr.o
 
-all: oven ovend oveng ovenb ovenp ovenr
+EOBJS = ovene.o errorreport.o prints.o scans.o util.o init.o shmalloc.o database.o ipportrw.o
+
+# ----
+
+TARGETS = oven ovend oveng ovenb ovenp ovenr ovene
+
+all: $(TARGETS)
+
+install:	all
+	cp $(TARGETS) /usr/local/bin
 
 .c.o:
 	cc -g -o $@ -c $<
+
+ovene: $(EOBJS)
+	cc -o ovene $(EOBJS) -lm
 
 ovenr: $(ROBJS)
 	cc -o ovenr $(ROBJS) -lm
@@ -75,6 +87,7 @@ makemenus: makemenus.c
 
 
 clean:
+	rm -f $(TARGETS)
 	rm -f $(OBJS)
 	make -C menusm clean
 	make -C menusc clean

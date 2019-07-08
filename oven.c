@@ -88,12 +88,13 @@ free_context ( void )
 // #define DEFAULT_PERIOD	60
 #define DEFAULT_PERIOD	10
 
+int oven = 0;
+int comp = 0;
+int readonly = 0;
+
 int
-oven ( void )
+oven_gui ( void )
 {
-	int oven = 0;
-	int comp = 0;
-	int readonly = 0;
 	int period = DEFAULT_PERIOD;
 	int offset = 0;
 
@@ -143,8 +144,37 @@ show_sizes ( void )
 
 #define CORRECT_DB_SIZE 263748
 
+void
+set_args ( int argc, char **argv )
+{
+	int x_oven, x_comp;
+	char *p;
+
+	--argc;
+	++argv;
+
+	while ( argc ) {
+	    p = *argv;
+	    printf ( "ARG: %s\n", p );
+	    if ( p[0] == '-' && p[1] == 'o' ) {
+		x_oven = atoi ( &p[2] );
+		printf ( "Oven: %d\n", x_oven );
+		if ( x_oven >=0 && x_oven <= 1 )
+		    oven = x_oven;
+	    }
+	    if ( p[0] == '-' && p[1] == 'c' ) {
+		x_comp = atoi ( &p[2] );
+		printf ( "Comp: %d\n", x_comp );
+		if ( x_comp >=0 && x_comp <= 2 )
+		    comp = x_comp;
+	    }
+	    --argc;
+	    ++argv;
+	}
+}
+
 int
-main ()
+main ( int argc, char **argv )
 {
 	int s;
 
@@ -154,7 +184,9 @@ main ()
 	    return 1;
 	}
 
-	s = oven ();
+	set_args ( argc, argv );
+
+	s = oven_gui ();
 	printf ( "Game over.\n" );
 	return 0;
 }

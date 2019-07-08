@@ -9,6 +9,11 @@ ovenr
 makemenus
 *.o
 database
+database_BAD
+database_GOOD
+databasc
+databasc_BAD
+databasc_GOOD
 menust/*.tc
 mkpkg
 z
