@@ -8,6 +8,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "oven.h"
+#include "protos.h"
+
 /* XXX - replace perror with better messages */
 
 #define	MAXNBYTES	4096

@@ -20,7 +20,8 @@ EOBJS = ovene.o errorreport.o prints.o scans.o util.o init.o shmalloc.o database
 
 #CC = cc -g
 #CC = cc -pedantic -Wstrict-prototypes -Wmissing-prototypes
-CC = cc -Wold-style-definition
+#CC = cc -Wold-style-definition -Wmissing-prototypes
+CC = cc -Wold-style-definition -pedantic
 
 # ----
 

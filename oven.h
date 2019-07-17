@@ -928,9 +928,8 @@ typedef	struct	{
 	e_database	error;
 } database;			/* total database			*/
 
-#define OLD_EXTERN
 #ifdef OLD_EXTERN
-/* protos.h should handles this */
+/* protos.h now handles this in an ANSI way */
 #ifndef	UTIL
 extern	p_buss	*pbuss_dsb();
 extern	i_buss	*ibuss_dsb();

@@ -132,6 +132,10 @@ int sctctype ( char *, int * );
 char *shmalloc(int nbytes, int noven, int ncomp, int readonly);
 void shmfree(char *shmptr, int noven, int ncomp, int remove);
 
+/* databasc.c */
+void databascw(void);
+void databascr(void);
+
 /* datalogger.c */
 void datalogger(void);
 
@@ -179,8 +183,7 @@ void con_help(void);
 void backup_(void);
 int c_timcur(char *string, int num);
 
-/* from errorreport.c */
-int eunseen ( void );
+// int eunseen ( void );
 
 /* from stale.c */
 void stalereport ( void );
@@ -244,9 +247,46 @@ void errorreport(void);
 // void elogger(database *db, FILE *fp, int *count, int errnum, int addr);
 void timestamp(char *string);
 int nelogline(void);
+
 // int eunseen(void);
-// void elogline(int n, char *s);
-// int eloggoto(char *s);
+void elogline(int n, char *s);
+int eloggoto(char *s);
+
+/* util.c */
+p_buss *pbuss_dsb(p_database *pdb, DSB addr);
+i_buss *ibuss_dsb(i_database *idb, DSB addr);
+p_tc *ptc_dntx(p_database *pdb, DNTX addr);
+i_tc *itc_dntx(i_database *idb, DNTX addr);
+d_tc *dtc_dntx(d_database *ddb, DNTX addr);
+p_tic *ptic_dntx(p_database *pdb, DNTX addr);
+i_tic *itic_dntx(i_database *idb, DNTX addr);
+d_tic *dtic_dntx(d_database *ddb, DNTX addr);
+p_dcu *pdcu_dntx(p_database *pdb, DNTX addr);
+i_dcu *idcu_dntx(i_database *idb, DNTX addr);
+d_dcu *ddcu_dntx(d_database *ddb, DNTX addr);
+p_element *phe_pfe(p_database *pdb, PFE addr);
+i_element *ihe_pfe(i_database *idb, PFE addr);
+d_element *dhe_pfe(d_database *ddb, PFE addr);
+p_fase *pfase_pfe(p_database *pdb, PFE addr);
+pa_fase *pafase_pfe(p_database *pdb, PFE addr);
+i_fase *ifase_pfe(i_database *idb, PFE addr);
+d_fase *dfase_pfe(d_database *ddb, PFE addr);
+da_fase *dafase_pfe(d_database *ddb, PFE addr);
+p_panel *ppanel_pfe(p_database *pdb, PFE addr);
+pa_panel *papanel_pfe(p_database *pdb, PFE addr);
+i_panel *ipanel_pfe(i_database *idb, PFE addr);
+d_panel *dpanel_pfe(d_database *ddb, PFE addr);
+da_panel *dapanel_pfe(d_database *ddb, PFE addr);
+int n_nneigh(p_database *pdb, DNTX dntx);
+PFE nneigh(p_database *pdb, DNTX dntx, int num);
+int n_fneigh(p_database *pdb, DNTX dntx);
+PFE fneigh(p_database *pdb, DNTX dntx, int num);
+DNTX adjtic(p_database *pdb, DNTX addr);
+TEMP adjtmp(p_database *pdb, d_database *ddb, DNTX addr);
+int n_dntx_dsb(p_database *pdb, DSB select);
+DNTX dntx_dsb(p_database *pdb, DSB select, int num);
+int n_schedule(p_database *pdb);
+int nth_schedule(p_database *pdb, int num);
 
 /* ---------------------------------- */
 /* ---------------------------------- */

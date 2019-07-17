@@ -1,5 +1,7 @@
-#define	UTIL
+// #define	UTIL
+
 #include "oven.h"
+#include "protos.h"
 
 /* address to pointer utility routines
  */

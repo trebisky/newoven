@@ -5,6 +5,9 @@
 // TJT
 #include <stdio.h>
 
+#include "oven.h"
+#include "protos.h"
+
 /* shmalloc - shared memory allocator
  */
 char	*

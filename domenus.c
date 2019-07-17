@@ -57,6 +57,7 @@ static int domreturn(int tty_fd, int tty, int nlines);
 static int domenter(int tty_fd, int tty, int nlines, int ncols, int iswitch);
 int dopcur(int tty_fd, int tty);
 void updateitem(void);
+static int eunseen ( void );
 
 static int domkey(int tty_fd, int tty, int nlines, int mlines, int top, int bot, int ncols, int period, int offset, int oldstatus);
 static int mkey(int autom, int period, int offset);
@@ -975,7 +976,7 @@ nelogline ( void )
 
 /* eunseen - check for unseen errors
  */
-int
+static int
 eunseen ( void )
 {
 	return ( nelogline () > NSEEN );
