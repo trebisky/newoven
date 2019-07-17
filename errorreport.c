@@ -2,7 +2,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/file.h>
-#include <sys/stat.h>
+// #include <sys/stat.h>
 
 #include <time.h>
 #include <unistd.h>
@@ -19,9 +19,7 @@
 
 #include "protos.h"
 
-#define	NSEEN	( globalp->db->intermediate.misc.msclock )
 #define	ELOG(count,errnum,addr)	if (count) elogger (db,fp,&count,errnum,addr);
-#define	LEN_ELOGLINE	79
 
 /* Prototypes - 6-21-2019 */
 /* XXX - many could probably be static */
@@ -342,7 +340,7 @@ elogger ( database *db, FILE *fp, int *count, int errnum, int addr)
 	  errmenu[errnum],
 	  sloc);
 #else
-	/* should be LEN_ELOGLINE long
+	/* should be LEN_ELOGLINE (79) characters long
 	 */
 	fprintf (fp,
 	  "%16.16s %1.1dv%1.1d#%6.6d@%-4.4s<%2.2s %-11.11s>%2.2d %-27.27s\n",
@@ -378,116 +376,6 @@ timestamp ( char *string)
 	if (strchr (string, '\n'))
 	    *(strchr (string, '\n')) = 0;
 	string[strlen(string)-5] = 0;
-}
-
-/* nelogline - return the number of lines in the error log
- */
-int
-nelogline ( void )
-{
-	struct	stat st;
-	int	nlines;
-
-	nlines = stat ("errors.log", &st) ? 0 : st.st_size/LEN_ELOGLINE;
-	if (NSEEN > nlines)
-	    if (!globalp->readonly)
-		NSEEN = 0;
-	return (nlines);
-}
-
-/* eunseen - check for unseen errors
- */
-int
-eunseen ( void )
-{
-	return ( nelogline () > NSEEN );
-}
-
-/* elogline - return the n'th line of the error log
- */
-void
-elogline ( int n, char *s)
-{
-	int	fd;
-	off_t	offset = n * LEN_ELOGLINE;
-	int	nlines = nelogline ();
-
-	if ((n < nlines) && ((fd = open ("errors.log", O_RDONLY)) >= 0)) {
-	    lseek (fd, offset, L_SET);
-	    if (read (fd, s, LEN_ELOGLINE) == LEN_ELOGLINE) {
-		s[LEN_ELOGLINE-1] = 0;
-		if (n == nlines-1)
-		    if (!globalp->readonly)
-			NSEEN = MAX (n+1, NSEEN);
-	    } else {
-		*s = 0;
-	    }
-	    close (fd);
-	}
-}
-
-/* eloggoto - go to a menu based on where we are in the error log
- */
-int
-eloggoto ( char *s )
-{
-	char	mm[3];
-	char	sa[5];
-	char	*cp;
-	char	*strchr();
-	int	t;
-	int	zone;
-	DNTX	dntx;
-	DSB	dsb;
-	PFE	pfe;
-
-	if ((cp = strchr (s, '<')) == 0)
-	    return (GOER_NOWHERE);
-	cp++;
-	mm[0] = *cp++;
-	mm[1] = *cp++;
-	mm[2] = 0;
-
-	if ((cp = strchr (s, '@')) == 0)
-	    return (GOER_NOWHERE);
-	cp++;
-	sa[0] = *cp++;
-	sa[1] = *cp++;
-	sa[2] = *cp++;
-	sa[3] = *cp++;
-	sa[4] = 0;
-
-	     if (!strcmp (mm, "zo")) t = sczone (sa, &zone);
-	else if (!strcmp (mm, "he")) t = scpfe  (sa, &pfe);
-	else if (!strcmp (mm, "pp")) t = scpfe  (sa, &pfe);
-	else if (!strcmp (mm, "tc")) t = scdntx (sa, &dntx);
-	else if (!strcmp (mm, "sb")) t = scdsb  (sa, &dsb);
-	else if (!strcmp (mm, "dc")) t = scdntx (sa, &dntx);
-	else if (!strcmp (mm, "ti")) t = scdntx (sa, &dntx);
-	else if (!strcmp (mm, "al")) t = scpfe  (sa, &pfe);
-	else if (!strcmp (mm, "ms")) t = SCER_OK;
-	else return (GOER_NOWHERE);
-	if (t)
-	    return (GOER_NOWHERE);
-
-#ifdef notyet
-	t = menugoto (mm);
-	if (t)
-	    return (GOER_NOWHERE);
-#endif
-
-	     if (!strcmp (mm, "zo")) Gzone = zone;
-	else if (!strcmp (mm, "he")) Gpfe  = pfe;
-	else if (!strcmp (mm, "pp")) Gpfe  = pfe;
-	else if (!strcmp (mm, "tc")) Gdntx = dntx;
-	else if (!strcmp (mm, "sb")) Gdsb  = dsb;
-	else if (!strcmp (mm, "dc")) Gdntx = dntx;
-	else if (!strcmp (mm, "ti")) Gdntx = dntx;
-	else if (!strcmp (mm, "al")) Gpfe  = pfe;
-	else if (!strcmp (mm, "ms")) ;
-	else return (GOER_NOWHERE);
-
-	return (t);
 }
 
 /* THE END */

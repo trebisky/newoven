@@ -9,12 +9,15 @@
 #include "menus.h"
 #include "context.h"
 #include "global.h"
-//#include "oxnames.h"
 #include "mcodes.h"
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <time.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+
 #include "protos.h"
 
 /* tjt - here is a use note that is dangerous and important to know if you want
@@ -34,19 +37,24 @@
 /* XXX - this file is not yet fully ANSI */
 int do_menus(int period, int offset);
 
+/* XXX - dead wood warning.
+ * now with the migration to libcurses, the first two arguments (tty_fd and tty)
+ * are now completely useless and could be eradicated.
+ */
+
 static int doline(int tty_fd, int tty, ITEM *ip, int itime, int nline, BOOL repaint, BOOL refresh);
 
 int nmline(void);
 static int dostline(int tty_fd, int tty, int nlines, int top, int bot, int total, int autom);
 int statusline(int tty_fd, int tty, int nlines, char *string);
 int ring(void);
-int domgoto(int tty_fd, int tty, int nlines, int eswitch);
-int domwritep(int tty_fd, int tty, int nlines);
-int domeditp(int tty_fd, int tty, int nlines);
-int domeditb(int tty_fd, int tty, int nlines);
+static int domgoto(int tty_fd, int tty, int nlines, int eswitch);
+static int domwritep(int tty_fd, int tty, int nlines);
+static int domeditp(int tty_fd, int tty, int nlines);
+static int domeditb(int tty_fd, int tty, int nlines);
 int menugoto(char *id);
-int domreturn(int tty_fd, int tty, int nlines);
-int domenter(int tty_fd, int tty, int nlines, int ncols, int iswitch);
+static int domreturn(int tty_fd, int tty, int nlines);
+static int domenter(int tty_fd, int tty, int nlines, int ncols, int iswitch);
 int dopcur(int tty_fd, int tty);
 void updateitem(void);
 
@@ -297,12 +305,8 @@ ring ()
 
 /* domgoto - do menu goto
  */
-int
-domgoto (tty_fd, tty, nlines, eswitch)
-int	tty_fd;
-int	tty;
-int	nlines;
-int	eswitch;
+static int
+domgoto ( int tty_fd, int tty, int nlines, int eswitch)
 {
 	MENU	*mp = Menus[Gmenu];
 	ITEM	*ip = mp->item[Gitem];
@@ -362,11 +366,8 @@ int	eswitch;
 
 /* domwritep - do menu writep
  */
-int
-domwritep (tty_fd, tty, nlines)
-int	tty_fd;
-int	tty;
-int	nlines;
+static int
+domwritep ( int tty_fd, int tty, int nlines)
 {
 	int	status = GOER_OK;
 
@@ -414,11 +415,8 @@ int	nlines;
 
 /* domeditp - do menu editp
  */
-int
-domeditp (tty_fd, tty, nlines)
-int	tty_fd;
-int	tty;
-int	nlines;
+static int
+domeditp (int tty_fd, int tty, int nlines)
 {
 	int	status = GOER_OK;
 
@@ -448,11 +446,8 @@ int	nlines;
 
 /* domeditb - do menu editb
  */
-int
-domeditb (tty_fd, tty, nlines)
-int	tty_fd;
-int	tty;
-int	nlines;
+static int
+domeditb ( int tty_fd, int tty, int nlines)
 {
 	int	status = GOER_OK;
 
@@ -504,11 +499,8 @@ menugoto ( char * id )
 
 /* domreturn - do menu return
  */
-int
-domreturn (tty_fd, tty, nlines)
-int	tty_fd;
-int	tty;
-int	nlines;
+static int
+domreturn ( int tty_fd, int tty, int nlines)
 {
 	if (pop_context () != 0) {
 	    statusline (tty_fd, tty, nlines,
@@ -522,13 +514,8 @@ int	nlines;
  * Called w/ iswitch = 0 when user types "e" to enter a value
  * Called w/ iswitch = 1 when mcode == IMCUR || mcode == IMCURG
  */
-int
-domenter (tty_fd, tty, nlines, ncols, iswitch)
-int	tty_fd;
-int	tty;
-int	nlines;
-int	ncols;
-int	iswitch;
+static int
+domenter ( int tty_fd, int tty, int nlines, int ncols, int iswitch)
 {
 	MENU	*mp = Menus[Gmenu];
 	ITEM	*ip = mp->item[Gitem];
@@ -961,6 +948,123 @@ mkey ( int autom,  int period,  int offset)
 	}
 
 	return (mcode);
+}
+
+/*
+ *  The following routines moved here from errorreport.c 7-11-2019
+ *  This is called from ./menusc/er.c
+ */
+
+#define	NSEEN	( globalp->db->intermediate.misc.msclock )
+#define	LEN_ELOGLINE	79
+
+/* nelogline - return the number of lines in the error log
+ */
+int
+nelogline ( void )
+{
+	struct	stat st;
+	int	nlines;
+
+	nlines = stat ("errors.log", &st) ? 0 : st.st_size/LEN_ELOGLINE;
+	if (NSEEN > nlines)
+	    if (!globalp->readonly)
+		NSEEN = 0;
+	return (nlines);
+}
+
+/* eunseen - check for unseen errors
+ */
+int
+eunseen ( void )
+{
+	return ( nelogline () > NSEEN );
+}
+
+/* elogline - return the n'th line of the error log
+ */
+void
+elogline ( int n, char *s)
+{
+	int	fd;
+	off_t	offset = n * LEN_ELOGLINE;
+	int	nlines = nelogline ();
+
+	if ((n < nlines) && ((fd = open ("errors.log", O_RDONLY)) >= 0)) {
+	    lseek (fd, offset, L_SET);
+	    if (read (fd, s, LEN_ELOGLINE) == LEN_ELOGLINE) {
+		s[LEN_ELOGLINE-1] = 0;
+		if (n == nlines-1)
+		    if (!globalp->readonly)
+			NSEEN = MAX (n+1, NSEEN);
+	    } else {
+		*s = 0;
+	    }
+	    close (fd);
+	}
+}
+
+
+/* eloggoto - go to a menu based on where we are in the error log.
+ */
+int
+eloggoto ( char *s )
+{
+	char	mm[3];
+	char	sa[5];
+	char	*cp;
+	char	*strchr();
+	int	t;
+	int	zone;
+	DNTX	dntx;
+	DSB	dsb;
+	PFE	pfe;
+
+	if ((cp = strchr (s, '<')) == 0)
+	    return (GOER_NOWHERE);
+	cp++;
+	mm[0] = *cp++;
+	mm[1] = *cp++;
+	mm[2] = 0;
+
+	if ((cp = strchr (s, '@')) == 0)
+	    return (GOER_NOWHERE);
+	cp++;
+	sa[0] = *cp++;
+	sa[1] = *cp++;
+	sa[2] = *cp++;
+	sa[3] = *cp++;
+	sa[4] = 0;
+
+	     if (!strcmp (mm, "zo")) t = sczone (sa, &zone);
+	else if (!strcmp (mm, "he")) t = scpfe  (sa, &pfe);
+	else if (!strcmp (mm, "pp")) t = scpfe  (sa, &pfe);
+	else if (!strcmp (mm, "tc")) t = scdntx (sa, &dntx);
+	else if (!strcmp (mm, "sb")) t = scdsb  (sa, &dsb);
+	else if (!strcmp (mm, "dc")) t = scdntx (sa, &dntx);
+	else if (!strcmp (mm, "ti")) t = scdntx (sa, &dntx);
+	else if (!strcmp (mm, "al")) t = scpfe  (sa, &pfe);
+	else if (!strcmp (mm, "ms")) t = SCER_OK;
+	else return (GOER_NOWHERE);
+	if (t)
+	    return (GOER_NOWHERE);
+
+	t = menugoto (mm);
+	if (t)
+	    return (GOER_NOWHERE);
+
+	     if (!strcmp (mm, "zo")) Gzone = zone;
+	else if (!strcmp (mm, "he")) Gpfe  = pfe;
+	else if (!strcmp (mm, "pp")) Gpfe  = pfe;
+	else if (!strcmp (mm, "tc")) Gdntx = dntx;
+	else if (!strcmp (mm, "sb")) Gdsb  = dsb;
+	else if (!strcmp (mm, "dc")) Gdntx = dntx;
+	else if (!strcmp (mm, "ti")) Gdntx = dntx;
+	else if (!strcmp (mm, "al")) Gpfe  = pfe;
+	else if (!strcmp (mm, "ms")) ;
+	else return (GOER_NOWHERE);
+
+	return (t);
 }
 
 /* THE END */

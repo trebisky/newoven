@@ -928,6 +928,9 @@ typedef	struct	{
 	e_database	error;
 } database;			/* total database			*/
 
+#define OLD_EXTERN
+#ifdef OLD_EXTERN
+/* protos.h should handles this */
 #ifndef	UTIL
 extern	p_buss	*pbuss_dsb();
 extern	i_buss	*ibuss_dsb();
@@ -961,6 +964,7 @@ extern	DNTX	adjtic();
 extern	TEMP	adjtmp();
 extern	DNTX	dntx_dsb();
 extern	int	n_dntx_dsb();
+#endif
 #endif
 
 /* The total database is divided into parts according to usage.

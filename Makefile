@@ -1,7 +1,7 @@
 # Build the oven menu system outside of IRAF
 
 OBJS = oven.o menus.o domenus.o prints.o scans.o init.o \
-	errorreport.o stale.o automkey.o \
+	stale.o automkey.o \
 	context.o cache.o menusc.o \
 	shmalloc.o database.o databasc.o \
 	ipportrw.o util.o console.o
@@ -18,6 +18,10 @@ ROBJS = ovenr.o
 
 EOBJS = ovene.o errorreport.o prints.o scans.o util.o init.o shmalloc.o database.o ipportrw.o
 
+#CC = cc -g
+#CC = cc -pedantic -Wstrict-prototypes -Wmissing-prototypes
+CC = cc -Wold-style-definition
+
 # ----
 
 TARGETS = oven ovend oveng ovenb ovenp ovenr ovene
@@ -30,7 +34,7 @@ install:	all
 	cp watch.pl /usr/local/bin/watch
 
 .c.o:
-	cc -g -o $@ -c $<
+	$(CC) -o $@ -c $<
 
 ovene: $(EOBJS)
 	cc -o ovene $(EOBJS) -lm
