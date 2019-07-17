@@ -5,9 +5,7 @@
  */
 
 p_buss	*
-pbuss_dsb (pdb, addr)
-p_database	*pdb;
-DSB		addr;
+pbuss_dsb(p_database *pdb, DSB addr)
 {
 	int	b = addr%N_BUSS;
 	int	s = addr/N_BUSS%N_SELECT;
@@ -17,9 +15,7 @@ DSB		addr;
 }
 
 i_buss	*
-ibuss_dsb (idb, addr)
-i_database	*idb;
-DSB		addr;
+ibuss_dsb(i_database *idb, DSB addr)
 {
 	int	b = addr%N_BUSS;
 	int	s = addr/N_BUSS%N_SELECT;
@@ -29,9 +25,7 @@ DSB		addr;
 }
 
 p_tc	*
-ptc_dntx (pdb, addr)
-p_database	*pdb;
-DNTX		addr;
+ptc_dntx(p_database *pdb, DNTX addr)
 {
 	int	x = addr%N_TC;
 	int	t = addr/N_TC%N_TIC;
@@ -42,9 +36,7 @@ DNTX		addr;
 }
 
 i_tc	*
-itc_dntx (idb, addr)
-i_database	*idb;
-DNTX		addr;
+itc_dntx(i_database *idb, DNTX addr)
 {
 	int	x = addr%N_TC;
 	int	t = addr/N_TC%N_TIC;
@@ -55,9 +47,7 @@ DNTX		addr;
 }
 
 d_tc	*
-dtc_dntx (ddb, addr)
-d_database	*ddb;
-DNTX		addr;
+dtc_dntx(d_database *ddb, DNTX addr)
 {
 	int	x = addr%N_TC;
 	int	t = addr/N_TC%N_TIC;
@@ -68,9 +58,7 @@ DNTX		addr;
 }
 
 p_tic	*
-ptic_dntx (pdb, addr)
-p_database	*pdb;
-DNTX		addr;
+ptic_dntx(p_database *pdb, DNTX addr)
 {
 	int	x = addr%N_TC;
 	int	t = addr/N_TC%N_TIC;
@@ -81,9 +69,7 @@ DNTX		addr;
 }
 
 i_tic	*
-itic_dntx (idb, addr)
-i_database	*idb;
-DNTX		addr;
+itic_dntx(i_database *idb, DNTX addr)
 {
 	int	x = addr%N_TC;
 	int	t = addr/N_TC%N_TIC;
@@ -94,9 +80,7 @@ DNTX		addr;
 }
 
 d_tic	*
-dtic_dntx (ddb, addr)
-d_database	*ddb;
-DNTX		addr;
+dtic_dntx(d_database *ddb, DNTX addr)
 {
 	int	x = addr%N_TC;
 	int	t = addr/N_TC%N_TIC;
@@ -107,9 +91,7 @@ DNTX		addr;
 }
 
 p_dcu	*
-pdcu_dntx (pdb, addr)
-p_database	*pdb;
-DNTX		addr;
+pdcu_dntx(p_database *pdb, DNTX addr)
 {
 	int	x = addr%N_TC;
 	int	t = addr/N_TC%N_TIC;
@@ -120,9 +102,7 @@ DNTX		addr;
 }
 
 i_dcu	*
-idcu_dntx (idb, addr)
-i_database	*idb;
-DNTX		addr;
+idcu_dntx(i_database *idb, DNTX addr)
 {
 	int	x = addr%N_TC;
 	int	t = addr/N_TC%N_TIC;
@@ -133,9 +113,7 @@ DNTX		addr;
 }
 
 d_dcu	*
-ddcu_dntx (ddb, addr)
-d_database	*ddb;
-DNTX		addr;
+ddcu_dntx(d_database *ddb, DNTX addr)
 {
 	int	x = addr%N_TC;
 	int	t = addr/N_TC%N_TIC;
@@ -146,9 +124,7 @@ DNTX		addr;
 }
 
 p_element	*
-phe_pfe (pdb, addr)
-p_database	*pdb;
-PFE		addr;
+phe_pfe(p_database *pdb, PFE addr)
 {
 	int	e = addr%N_ELEMENT;
 	int	f = addr/N_ELEMENT%N_FASE;
@@ -158,9 +134,7 @@ PFE		addr;
 }
 
 i_element	*
-ihe_pfe (idb, addr)
-i_database	*idb;
-PFE		addr;
+ihe_pfe(i_database *idb, PFE addr)
 {
 	int	e = addr%N_ELEMENT;
 	int	f = addr/N_ELEMENT%N_FASE;
@@ -170,9 +144,7 @@ PFE		addr;
 }
 
 d_element	*
-dhe_pfe (ddb, addr)
-d_database	*ddb;
-PFE		addr;
+dhe_pfe(d_database *ddb, PFE addr)
 {
 	int	e = addr%N_ELEMENT;
 	int	f = addr/N_ELEMENT%N_FASE;
@@ -182,9 +154,7 @@ PFE		addr;
 }
 
 p_fase	*
-pfase_pfe (pdb, addr)
-p_database	*pdb;
-PFE		addr;
+pfase_pfe(p_database *pdb, PFE addr)
 {
 	int	e = addr%N_ELEMENT;
 	int	f = addr/N_ELEMENT%N_FASE;
@@ -194,9 +164,7 @@ PFE		addr;
 }
 
 pa_fase	*
-pafase_pfe (pdb, addr)
-p_database	*pdb;
-PFE		addr;
+pafase_pfe(p_database *pdb, PFE addr)
 {
 	int	e = addr%N_ELEMENT;
 	int	f = addr/N_ELEMENT%N_FASE;
@@ -207,9 +175,7 @@ PFE		addr;
 }
 
 i_fase	*
-ifase_pfe (idb, addr)
-i_database	*idb;
-PFE		addr;
+ifase_pfe(i_database *idb, PFE addr)
 {
 	int	e = addr%N_ELEMENT;
 	int	f = addr/N_ELEMENT%N_FASE;
@@ -219,9 +185,7 @@ PFE		addr;
 }
 
 d_fase	*
-dfase_pfe (ddb, addr)
-d_database	*ddb;
-PFE		addr;
+dfase_pfe(d_database *ddb, PFE addr)
 {
 	int	e = addr%N_ELEMENT;
 	int	f = addr/N_ELEMENT%N_FASE;
@@ -231,9 +195,7 @@ PFE		addr;
 }
 
 da_fase	*
-dafase_pfe (ddb, addr)
-d_database	*ddb;
-PFE		addr;
+dafase_pfe(d_database *ddb, PFE addr)
 {
 	int	e = addr%N_ELEMENT;
 	int	f = addr/N_ELEMENT%N_FASE;
@@ -244,9 +206,7 @@ PFE		addr;
 }
 
 p_panel	*
-ppanel_pfe (pdb, addr)
-p_database	*pdb;
-PFE		addr;
+ppanel_pfe(p_database *pdb, PFE addr)
 {
 	int	e = addr%N_ELEMENT;
 	int	f = addr/N_ELEMENT%N_FASE;
@@ -256,9 +216,7 @@ PFE		addr;
 }
 
 pa_panel	*
-papanel_pfe (pdb, addr)
-p_database	*pdb;
-PFE		addr;
+papanel_pfe(p_database *pdb, PFE addr)
 {
 	int	e = addr%N_ELEMENT;
 	int	f = addr/N_ELEMENT%N_FASE;
@@ -269,9 +227,7 @@ PFE		addr;
 }
 
 i_panel	*
-ipanel_pfe (idb, addr)
-i_database	*idb;
-PFE		addr;
+ipanel_pfe(i_database *idb, PFE addr)
 {
 	int	e = addr%N_ELEMENT;
 	int	f = addr/N_ELEMENT%N_FASE;
@@ -281,9 +237,7 @@ PFE		addr;
 }
 
 d_panel	*
-dpanel_pfe (ddb, addr)
-d_database	*ddb;
-PFE		addr;
+dpanel_pfe(d_database *ddb, PFE addr)
 {
 	int	e = addr%N_ELEMENT;
 	int	f = addr/N_ELEMENT%N_FASE;
@@ -293,9 +247,7 @@ PFE		addr;
 }
 
 da_panel	*
-dapanel_pfe (ddb, addr)
-d_database	*ddb;
-PFE		addr;
+dapanel_pfe(d_database *ddb, PFE addr)
 {
 	int	e = addr%N_ELEMENT;
 	int	f = addr/N_ELEMENT%N_FASE;
@@ -306,9 +258,7 @@ PFE		addr;
 }
 
 int
-n_nneigh (pdb, dntx)
-p_database	*pdb;
-DNTX		dntx;
+n_nneigh(p_database *pdb, DNTX dntx)
 {
 	PFE	pfe;
 	p_element *phe;
@@ -326,10 +276,7 @@ DNTX		dntx;
 }
 
 PFE
-nneigh (pdb, dntx, num)
-p_database	*pdb;
-DNTX		dntx;
-int	num;
+nneigh(p_database *pdb, DNTX dntx, int num)
 {
 	PFE	pfe;
 	p_element *phe;
@@ -348,9 +295,7 @@ int	num;
 }
 
 int
-n_fneigh (pdb, dntx)
-p_database	*pdb;
-DNTX		dntx;
+n_fneigh(p_database *pdb, DNTX dntx)
 {
 	PFE	pfe;
 	p_element *phe;
@@ -368,10 +313,7 @@ DNTX		dntx;
 }
 
 PFE
-fneigh (pdb, dntx, num)
-p_database	*pdb;
-DNTX		dntx;
-int	num;
+fneigh(p_database *pdb, DNTX dntx, int num)
 {
 	PFE	pfe;
 	p_element *phe;
@@ -390,9 +332,7 @@ int	num;
 }
 
 DNTX
-adjtic (pdb, addr)
-p_database	*pdb;
-DNTX		addr;
+adjtic(p_database *pdb, DNTX addr)
 {
 	DNTX	dntx;
 	int	ijblock = ptic_dntx (pdb, addr)->ijblock;
@@ -406,10 +346,7 @@ DNTX		addr;
 }
 
 TEMP
-adjtmp (pdb, ddb, addr)
-p_database	*pdb;
-d_database	*ddb;
-DNTX		addr;
+adjtmp(p_database *pdb, d_database *ddb, DNTX addr)
 {
 	DNTX	dntx = adjtic (pdb, addr);
 
@@ -420,9 +357,7 @@ DNTX		addr;
 }
 
 int
-n_dntx_dsb (pdb, select)
-p_database	*pdb;
-DSB		select;
+n_dntx_dsb(p_database *pdb, DSB select)
 {
 	DNTX	dntx;
 	int	number = 0;
@@ -434,10 +369,7 @@ DSB		select;
 }
 
 DNTX
-dntx_dsb (pdb, select, num)
-p_database	*pdb;
-DSB		select;
-int	num;
+dntx_dsb(p_database *pdb, DSB select, int num)
 {
 	DNTX	dntx;
 	int	number = 0;
@@ -450,8 +382,7 @@ int	num;
 }
 
 int
-n_schedule (pdb)
-p_database	*pdb;
+n_schedule(p_database *pdb)
 {
 	int	zone;
 	int	number = 0;
@@ -463,9 +394,7 @@ p_database	*pdb;
 }
 
 int
-nth_schedule (pdb, num)
-p_database	*pdb;
-int	num;
+nth_schedule(p_database *pdb, int num)
 {
 	int	zone;
 	int	number = 0;
