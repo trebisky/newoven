@@ -71,11 +71,7 @@ getovenip ( int noven, int ncomp )
 /* ipportwrite - write to   an IP port.
  */
 int
-ipportwrite (ip, port, buf, nbytes)
-int	ip;
-int	port;
-char	*buf;
-int	nbytes;
+ipportwrite ( int ip, int port, char *buf, int nbytes )
 {
 	struct	sockaddr_in	sockaddr;
 	unsigned short	portnumber = port;
@@ -141,11 +137,7 @@ int	nbytes;
 /* ipportread  - read  from an IP port.
  */
 int
-ipportread (ip, port, buf, nbytes)
-int	ip;
-int	port;
-char	*buf;
-int	nbytes;
+ipportread ( int ip, int port, char *buf, int nbytes)
 {
 	struct	sockaddr_in	sockaddr;
 	unsigned short	portnumber = port;
@@ -217,14 +209,10 @@ int	nbytes;
 
 /* tportwrite - listen for connections and write data from buffer
  * (i.e. this implements a server).
+ * NOTE: the odd multi buffer definition.
  */
 int
-tportwrite (noven, ncomp, port, buf, nbytes)
-int	noven;
-int	ncomp;
-int	port;
-char	*buf[];
-int	nbytes;
+tportwrite ( int noven, int ncomp, int port, char *buf[], int nbytes)
 {
 	struct	sockaddr_in	rsockaddr;
 	struct	sockaddr_in	sockaddr;
@@ -238,7 +226,6 @@ int	nbytes;
 	unsigned long	ip;
 	int	iip;
 	int	oven, comp;
-	// char	*malloc();
 
 	if ((s = socket (AF_INET, SOCK_STREAM, 0)) < 0)
 	    return (-1);

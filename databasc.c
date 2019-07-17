@@ -51,8 +51,7 @@ int miscascr ( database * );
 /* firsttok - read in next non-comment line
  */
 static char	*
-firsttok (line)
-char	*line;
+firsttok ( char *line )
 {
 	char	*s;
 	char	*strchr();
@@ -77,8 +76,7 @@ char	*line;
 /* nexttok - get next white space delimited token
  */
 static char	*
-nexttok (s)
-char	*s;
+nexttok ( char *s )
 {
 	char	*ip = s;
 	char	*op;

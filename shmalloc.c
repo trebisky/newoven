@@ -8,11 +8,7 @@
 /* shmalloc - shared memory allocator
  */
 char	*
-shmalloc (nbytes, noven, ncomp, readonly)
-int	nbytes;
-int	noven;
-int	ncomp;
-int	readonly;
+shmalloc ( int nbytes,  int noven,  int ncomp,  int readonly)
 {
 #ifndef	TEST
 	key_t	key = 256 + noven%16*16 + ncomp%4;
@@ -54,11 +50,7 @@ int	readonly;
 /* shmfree - shared memory deallocator
  */
 void
-shmfree (shmptr, noven, ncomp, remove)
-char	*shmptr;
-int	noven;
-int	ncomp;
-int	remove;
+shmfree ( char *shmptr, int noven, int ncomp, int remove)
 {
 #ifndef	TEST
 	key_t	key = 256 + noven%16*16 + ncomp%4;
