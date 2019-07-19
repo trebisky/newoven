@@ -14,8 +14,7 @@ extern int comp;
 extern int readonly;
 extern int period;
 extern int offset;
-
-static int log_data = 1;
+extern int log_data;
 
 int
 ovend ( void )

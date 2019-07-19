@@ -15,6 +15,7 @@ int comp = 0;
 int readonly = 0;
 int period = DEFAULT_PERIOD;
 int offset = 0;
+int log_data = 1;
 
 static void
 show_sizes ( void )
@@ -38,18 +39,30 @@ oven_set_args ( int argc, char **argv )
 
 	while ( argc ) {
 	    p = *argv;
-	    printf ( "ARG: %s\n", p );
+	    // printf ( "ARG: %s\n", p );
+
+	    /* -o1 for M3 (or just use -M) */
 	    if ( p[0] == '-' && p[1] == 'o' ) {
 		x_oven = atoi ( &p[2] );
-		printf ( "Oven: %d\n", x_oven );
+		// printf ( "Oven: %d\n", x_oven );
 		if ( x_oven >=0 && x_oven <= 1 )
 		    oven = x_oven;
 	    }
+
+	    /* -c1 for other computers */
 	    if ( p[0] == '-' && p[1] == 'c' ) {
 		x_comp = atoi ( &p[2] );
-		printf ( "Comp: %d\n", x_comp );
+		// printf ( "Comp: %d\n", x_comp );
 		if ( x_comp >=0 && x_comp <= 2 )
 		    comp = x_comp;
+	    }
+	    /* Short cut for M3 */
+	    if ( p[0] == '-' && p[1] == 'M' ) {
+		oven = 1;
+	    }
+	    /* For ovend - can turn off logging to files */
+	    if ( p[0] == '-' && strncmp ( "nol", &p[1], 3 ) == 0 ) {
+		log_data = 0;
 	    }
 	    --argc;
 	    ++argv;
