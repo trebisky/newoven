@@ -54,12 +54,6 @@ oven_gui ( void )
 {
 	int status;
 
-	/* XXX - faster update, just for fun.
-	 * we never directly talk to the onboard oven any faster,
-	 * so there is no harm in this.
-	 */
-	period = 10;
-
 
         status = init_globals ( oven, comp );
 	if ( status < 0 ) {
@@ -98,6 +92,18 @@ main ( int argc, char **argv )
 	int s;
 
 	oven_check_db ();
+
+	/* XXX - faster update, just for fun.
+	 * we never directly talk to the onboard oven any faster,
+	 * so there is no harm in this.
+	 */
+	period = 10;
+	offset = 0;
+
+	/* This is the old default */
+	// period = 60;
+	// offset = 8;
+
 	oven_set_args ( argc, argv );
 
 	s = oven_gui ();

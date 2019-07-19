@@ -58,6 +58,8 @@ main ( int argc, char **argv )
 	if ( oven_check_db () )
 	    return 1;
 
+	offset = 10;
+	/* sun code did 11, and 12 for -c1 and -c2 */
 	oven_set_args ( argc, argv );
 
 	s = ovene ();

@@ -208,10 +208,11 @@ main ( int argc, char **argv )
 
 	if ( oven_check_db () )
 	    return 1;
+
+	offset = 13;
 	oven_set_args ( argc, argv );
 
 	s = oveng ();
-	// printf ( "Game over.\n" );
 	return s;
 }
 
