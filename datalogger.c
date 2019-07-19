@@ -3,6 +3,8 @@
 #include "context.h"
 #include "global.h"
 
+#include "protos.h"
+
 static void datalog ( database *db );
 static void adclog ( database *db );
 static void dculog ( database *db );

@@ -29,19 +29,20 @@ int get_ovenip ( int noven, int ncomp );
 int ip_connect ( int ip, int port );
 int ip_read ( int s, char *buf, int nbytes );
 
+extern int oven;
+extern int comp;
+
 void
 ovenr ( void )
 {
 	// char *host = "oven0v0";
-	int noven = 0;
-	int ncomp = 0;
 	int port = 5107;
 	int oven_ip;
 	int clock, speed;
 	int sock;
 
 	// n = sizeof ( buf );
-	oven_ip = get_ovenip ( noven, ncomp );
+	oven_ip = get_ovenip ( oven, comp );
 	if ( oven_ip == 0 ) {
 	    printf ( "Cannot resolve oven IP\n" );
 	    exit ( 1 );
@@ -64,10 +65,11 @@ ovenr ( void )
 }
 
 int
-main ()
+main ( int argc, char **argv )
 {
+	oven_set_args ( argc, argv );
+
 	ovenr ();
-	// printf ( "Game over.\n" );
 }
 
 /* getovenip - get the oven computer's ip number.

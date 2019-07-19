@@ -10,6 +10,13 @@
 #include <string.h>
 #include <time.h>
 
+/* common.c */
+void oven_set_args(int argc, char **argv);
+int oven_check_db(void);
+
+/* logdata.c */
+void logdata(char *prefix, float *data, int num);
+
 /* Functions in prints.c */
 int prspace ( char *, int n );
 int prstring ( char *, char *);
