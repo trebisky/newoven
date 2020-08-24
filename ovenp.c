@@ -27,6 +27,10 @@ ovenp ( void )
 	    return 1;
 	}
 
+	/* We must be readonly, otherwise we will create
+	 * a multitude of databases.
+	 */
+	readonly = 0;
         init_all_databases ( oven, comp, readonly );
 
 	status = tportwrite(N_OVEN,N_COMP,PORTRP,globalp->pdbn,sizeof(p_database));
