@@ -85,7 +85,7 @@ db_bpwrite_oven ( void )
 	db_pwrite_oven ();
 }
 
-/* db_bpread_oven - database biparameters and parameters read to  oven
+/* db_bpread_oven - database biparameters and parameters read from  oven
  */
 void
 db_bpread_oven ( void )
@@ -123,7 +123,7 @@ db_bwrite_oven ( void )
 	    }
 }
 
-/* db_pread_oven - database parameters read to  oven
+/* db_pread_oven - database parameters read from  oven
  */
 void
 db_pread_oven ( void )
@@ -136,7 +136,7 @@ db_pread_oven ( void )
 	}
 }
 
-/* db_bread_oven - database biparameters read to  oven
+/* db_bread_oven - database biparameters read from  oven
  */
 void
 db_bread_oven ( void )

@@ -107,7 +107,7 @@ main ( int argc, char **argv )
 	oven_set_args ( argc, argv );
 
 	s = oven_gui ();
-	printf ( "Game over.\n" );
+	// printf ( "Game over.\n" );
 	return 0;
 }
 

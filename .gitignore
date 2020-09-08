@@ -6,6 +6,7 @@ ovenp
 ovenb
 ovenp
 ovenr
+oven_shm
 makemenus
 *.o
 database

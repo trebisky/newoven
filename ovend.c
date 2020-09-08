@@ -77,7 +77,7 @@ main ( int argc, char **argv )
 
 
 	s = ovend ();
-	printf ( "Game over.\n" );
+	// printf ( "Game over.\n" );
 	return s;
 }
 

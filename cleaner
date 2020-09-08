@@ -22,6 +22,8 @@ TASK = 1
 SHM = 2
 STARTUP = 3
 
+DEF_WIDTH=300
+
 # "dest" status on ipcs means "marked to be destroyed".
 # It actually will be destroyed when all applications that
 # have it attached have terminated.
@@ -37,7 +39,7 @@ class Cleaner:
         fixed_font = tkinter.font.nametofont("TkFixedFont")
         self.mw.option_add("*Font", fixed_font)
 
-        root = tk.Frame ( self.mw, width=300 ).pack ()
+        root = tk.Frame ( self.mw, width=DEF_WIDTH ).pack ()
         self.root = root
 
         f1 = tk.Frame ( root, pady=10 )
@@ -55,7 +57,7 @@ class Cleaner:
         self.qu = tk.Button( f1, text="Quit", command=self.mw.destroy)
         self.qu.pack(side='left')
 
-        self.f2 = tk.Frame ( root, width=300 )
+        self.f2 = tk.Frame ( root, width=DEF_WIDTH )
         self.f2.pack()
 
         self.f3 = tk.Frame ( root )
@@ -88,6 +90,143 @@ class Cleaner:
 
         tk.mainloop()
 
+    def find_pid ( self, who ) :
+        tasks = os.popen('ps -eo pid,command').read().splitlines()
+        for ll in tasks[1:] :
+            ww = ll.split()
+            # Note broken, stupid python "stop" on a slice is one beyond the last item
+            xx = ' '.join( ww[1:3] )
+            if xx == who :
+                return ww[0]
+        return None
+
+    def ckall ( self ) :
+        for w in self.info :
+            (l,c,v) = w
+            v.set(1)
+
+    def unckall ( self ) :
+        for w in self.info :
+            (l,c,v) = w
+            v.set(0)
+
+    def unload ( self ) :
+        if self.mode == INIT :
+            return
+
+        if self.mode == STARTUP :
+            for w in self.info :
+                w.destroy ()
+        else :
+            for w in self.info :
+                (l,c,v) = w
+                #print ( l )
+                c.destroy ()
+        self.info = []
+
+    # get rid of either a process or a shm segment
+    def nuke_one ( self, line ) :
+        ww = line.split()
+        if self.mode == SHM :
+            cmd = "ipcrm -m " + ww[1]
+            print ( cmd )
+            os.system ( cmd )
+        else :
+            cmd = "kill -9 " + ww[0]
+            #print ( cmd )
+            os.system ( cmd )
+
+    # get rid of all selected items
+    def nuke ( self ) :
+        for w in self.info :
+            (l,c,v) = w
+            if v.get() == 1 :
+                self.nuke_one ( l )
+            if self.mode == SHM :
+                self.reload_shm ()
+            else :
+                self.reload_task ()
+
+    def task_pid ( self, line ) :
+        ww = line.split()
+        pid = int ( ww[2] )
+
+    def reload_stuff ( self, stuff ) :
+        self.info = []
+        for l in stuff :
+            v = tk.IntVar()
+            v.set(0)
+            c = tk.Checkbutton( self.f2, text=l, variable=v)
+            self.info.append ( (l,c,v) )
+            c.pack ()
+
+# ----------------------------------
+# - stuff for shared memory tab
+
+    def reload_shm ( self ) :
+        self.unload ()
+        if self.mode == STARTUP :
+            self.f3.pack()
+            self.f4.pack_forget()
+        self.mode = SHM
+        self.reload_stuff ( self.get_shm() )
+
+    def get_shm ( self ) :
+        # First 3 lines are header stuff
+        # Last line is blank
+        #ipcs = os.popen('ipcs').readlines()
+        ipcs = os.popen('ipcs -m').read().splitlines()
+        rv = []
+        for ii in ipcs[3:-1] :
+            ww = ii.split()
+            if int(ww[4]) == oven_size :
+                rv.append ( ii )
+        return rv
+
+# ----------------------------------
+# - stuff for tasks tab
+
+    def reload_task ( self ) :
+        self.unload ()
+        if self.mode == STARTUP :
+            self.f3.pack()
+            self.f4.pack_forget()
+        self.mode = TASK
+        self.reload_stuff ( self.get_tasks() )
+
+    # first line is header
+    def get_tasks ( self ) :
+        #tasks = os.popen('ps -alx').read().splitlines()
+        tasks = os.popen('ps -eo pid,user,bsdtime,command').read().splitlines()
+        rv = []
+        for ll in tasks[1:] :
+            ww = ll.split()
+            # print ( ll[:80] )
+            keep = False
+            if "iraf" in ll :
+                keep = True
+            if "oven" in ll :
+                keep = True
+            if "mirror" in ll :
+                keep = True
+            if test_mode and "xfce" in ll :
+                keep = True
+            if keep :
+                #print ( ww[12] )
+                rv.append ( ll[:100].ljust(100) )
+        return rv
+
+# ----------------------------------
+# - stuff for startup tab
+
+    def reload_start ( self ) :
+        self.unload ()
+        if self.mode != STARTUP :
+            self.f3.pack_forget()
+        self.f4.pack()
+        self.mode = STARTUP
+        self.change_oven ()
+
     def change_oven ( self ) :
         self.unload ()
 
@@ -104,31 +243,16 @@ class Cleaner:
             self.st_one ("ovene -M")
         self.st_one ("ovenp")
         self.st_one ("ovenb")
+        if self.oven.get() == 1 :
+            self.sm_one ( "100" )
+            self.sm_one ( "101" )
+            self.sm_one ( "102" )
+        else :
+            self.sm_one ( "110" )
         print ( "In directory: " + os.getcwd() )
 
-    def reload_start ( self ) :
-        self.unload ()
-        if self.mode != STARTUP :
-            self.f3.pack_forget()
-        self.f4.pack()
-        self.mode = STARTUP
-        self.change_oven ()
-
-    def nada ( self ) :
-        return True
-
-    def find_pid ( self, who ) :
-        tasks = os.popen('ps -eo pid,command').read().splitlines()
-        for ll in tasks[1:] :
-            ww = ll.split()
-            # Note broken, stupid python "stop" on a slice is one beyond the last item
-            xx = ' '.join( ww[1:3] )
-            if xx == who :
-                return ww[0]
-        return None
-
     def st_one ( self, who ) :
-        f = tk.Frame ( self.f2, width=300 )
+        f = tk.Frame ( self.f2, width=DEF_WIDTH )
         f.pack()
         self.info.append ( f )
 
@@ -174,113 +298,37 @@ class Cleaner:
         self.st_start ( who )
         #self.reload_start ()
 
-    def nuke_one ( self, line ) :
-        ww = line.split()
-        if self.mode == SHM :
-            cmd = "ipcrm -m " + ww[1]
-            print ( cmd )
-            os.system ( cmd )
+    def find_shm ( self, who ) :
+        return None
+
+    # Set up a line in the Start GUI for a shm segment
+    def sm_one ( self, who ) :
+        f = tk.Frame ( self.f2, width=DEF_WIDTH )
+        f.pack()
+        self.info.append ( f )
+
+        lab = "shm " + who
+        l1 = tk.Label( f, text=lab.ljust(10) )
+        l1.pack(side='left')
+
+        if self.find_shm ( who ) == None :
+            status = "none"
+            color = 'yellow'
         else :
-            cmd = "kill -9 " + ww[0]
-            #print ( cmd )
-            os.system ( cmd )
+            status = "OK"
+            color = 'green2'
 
-    def ckall ( self ) :
-        for w in self.info :
-            (l,c,v) = w
-            v.set(1)
+        status = ("  " + status).ljust(24)
+        l2 = tk.Label( f, text=status, bg=color )
+        f.configure ( bg=color )
 
-    def unckall ( self ) :
-        for w in self.info :
-            (l,c,v) = w
-            v.set(0)
+        l2.pack(side='left')
 
-    def unload ( self ) :
-        if self.mode == INIT :
-            return
+        b1 = tk.Button( f, text="Load from oven", command=partial(self.st_start,who))
+        b1.pack(side='left')
+        b2 = tk.Button( f, text="Load from disk", command=partial(self.st_stop,who))
+        b2.pack(side='left')
 
-        if self.mode == STARTUP :
-            for w in self.info :
-                w.destroy ()
-        else :
-            for w in self.info :
-                (l,c,v) = w
-                #print ( l )
-                c.destroy ()
-        self.info = []
-
-    def nuke ( self ) :
-        for w in self.info :
-            (l,c,v) = w
-            if v.get() == 1 :
-                self.nuke_one ( l )
-            if self.mode == SHM :
-                self.reload_shm ()
-            else :
-                self.reload_task ()
-
-    def task_pid ( self, line ) :
-        ww = line.split()
-        pid = int ( ww[2] )
-
-    def reload_shm ( self ) :
-        self.unload ()
-        if self.mode == STARTUP :
-            self.f3.pack()
-            self.f4.pack_forget()
-        self.mode = SHM
-        self.reload_stuff ( self.get_shm() )
-
-    def reload_task ( self ) :
-        self.unload ()
-        if self.mode == STARTUP :
-            self.f3.pack()
-            self.f4.pack_forget()
-        self.mode = TASK
-        self.reload_stuff ( self.get_tasks() )
-
-    def reload_stuff ( self, stuff ) :
-        self.info = []
-        for l in stuff :
-            v = tk.IntVar()
-            v.set(0)
-            c = tk.Checkbutton( self.f2, text=l, variable=v)
-            self.info.append ( (l,c,v) )
-            c.pack ()
-
-    # first line is header
-    def get_tasks ( self ) :
-        #tasks = os.popen('ps -alx').read().splitlines()
-        tasks = os.popen('ps -eo pid,user,bsdtime,command').read().splitlines()
-        rv = []
-        for ll in tasks[1:] :
-            ww = ll.split()
-            # print ( ll[:80] )
-            keep = False
-            if "iraf" in ll :
-                keep = True
-            if "oven" in ll :
-                keep = True
-            if "mirror" in ll :
-                keep = True
-            if test_mode and "xfce" in ll :
-                keep = True
-            if keep :
-                #print ( ww[12] )
-                rv.append ( ll[:100].ljust(100) )
-        return rv
-
-    def get_shm ( self ) :
-        # First 3 lines are header stuff
-        # Last line is blank
-        #ipcs = os.popen('ipcs').readlines()
-        ipcs = os.popen('ipcs -m').read().splitlines()
-        rv = []
-        for ii in ipcs[3:-1] :
-            ww = ii.split()
-            if int(ww[4]) == oven_size :
-                rv.append ( ii )
-        return rv
 
 Cleaner ()
 

@@ -6,6 +6,9 @@ OOBJS = oven.o common.o menus.o domenus.o prints.o scans.o init.o \
 	shmalloc.o database.o databasc.o \
 	ipportrw.o util.o console.o
 
+#SHMOBJS = oven_shm.o common.o init.o shmalloc.o stale.o datalogger.o logdata.o database.o ipportrw.o
+SHMOBJS = oven_shm.o common.o init.o shmalloc.o database.o ipportrw.o
+
 DOBJS = ovend.o common.o init.o shmalloc.o stale.o datalogger.o logdata.o database.o ipportrw.o
 
 GOBJS = oveng.o common.o init.o shmalloc.o database.o ipportrw.o
@@ -24,7 +27,7 @@ CC = cc -Wold-style-definition -pedantic
 
 # ----
 
-TARGETS = oven ovend oveng ovenb ovenp ovenr ovene
+TARGETS = oven ovend oveng ovenb ovenp ovenr ovene oven_shm
 
 all: $(TARGETS)
 
@@ -53,6 +56,9 @@ oveng: $(GOBJS)
 
 ovend: $(DOBJS)
 	cc -o ovend $(DOBJS) -lm -lcfitsio
+
+oven_shm: $(SHMOBJS)
+	cc -o oven_shm $(SHMOBJS) -lm
 
 oven: $(OOBJS)
 	cc -o oven $(OOBJS) -lm -lncurses
