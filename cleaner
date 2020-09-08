@@ -128,8 +128,8 @@ class Cleaner:
     def nuke_one ( self, line ) :
         ww = line.split()
         if self.mode == SHM :
-            cmd = "ipcrm -m " + ww[1]
-            print ( cmd )
+            cmd = "ipcrm -m " + ww[2]
+            #print ( cmd )
             os.system ( cmd )
         else :
             cmd = "kill -9 " + ww[0]
@@ -151,6 +151,7 @@ class Cleaner:
         ww = line.split()
         pid = int ( ww[2] )
 
+    # shared by shm and tasks
     def reload_stuff ( self, stuff ) :
         self.info = []
         for l in stuff :
@@ -171,6 +172,17 @@ class Cleaner:
         self.mode = SHM
         self.reload_stuff ( self.get_shm() )
 
+    def shm_friendly ( self, xyz ) :
+        if xyz == "0x00000100" :
+            return "-c0"
+        if xyz == "0x00000101" :
+            return "-c1"
+        if xyz == "0x00000102" :
+            return "-c2"
+        if xyz == "0x00000110" :
+            return "-M "
+        return "?? "
+
     def get_shm ( self ) :
         # First 3 lines are header stuff
         # Last line is blank
@@ -180,7 +192,8 @@ class Cleaner:
         for ii in ipcs[3:-1] :
             ww = ii.split()
             if int(ww[4]) == oven_size :
-                rv.append ( ii )
+                lab = self.shm_friendly(ww[0]) + " " + ii 
+                rv.append ( lab )
         return rv
 
 # ----------------------------------
@@ -301,7 +314,7 @@ class Cleaner:
     def find_shm ( self, who ) :
         cmd = 'oven_shm ' + who
         info = os.popen(cmd).read().rstrip()
-        print ( info )
+        #print ( info )
         return info
 
     def shm_load_disk ( self, who ) :
