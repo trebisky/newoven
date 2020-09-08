@@ -98,6 +98,12 @@ oven_setup ( void )
 	return 0;
 }
 
+/* I thought about having the ability to "zero" the database,
+ * but I can't really think how that would be useful.
+ * There should ALWAYS be a way to immediately load the database
+ * with something valid.
+ */
+
 enum shm_mode { STATUS, DISK_LOAD, OVEN_LOAD };
 
 static enum shm_mode my_mode = STATUS;

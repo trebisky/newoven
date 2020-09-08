@@ -244,11 +244,11 @@ class Cleaner:
         self.st_one ("ovenp")
         self.st_one ("ovenb")
         if self.oven.get() == 1 :
-            self.sm_one ( "100" )
-            self.sm_one ( "101" )
-            self.sm_one ( "102" )
+            self.sm_one ( "-c0" )
+            self.sm_one ( "-c1" )
+            self.sm_one ( "-c2" )
         else :
-            self.sm_one ( "110" )
+            self.sm_one ( "-M" )
         print ( "In directory: " + os.getcwd() )
 
     def st_one ( self, who ) :
@@ -299,7 +299,20 @@ class Cleaner:
         #self.reload_start ()
 
     def find_shm ( self, who ) :
-        return None
+        cmd = 'oven_shm ' + who
+        info = os.popen(cmd).read().rstrip()
+        print ( info )
+        return info
+
+    def shm_load_disk ( self, who ) :
+        cmd = 'oven_shm -dload ' + who
+        os.system ( cmd )
+        self.reload_start ();
+
+    def shm_load_oven ( self, who ) :
+        cmd = 'oven_shm -oload ' + who
+        os.system ( cmd )
+        self.reload_start ();
 
     # Set up a line in the Start GUI for a shm segment
     def sm_one ( self, who ) :
@@ -311,11 +324,12 @@ class Cleaner:
         l1 = tk.Label( f, text=lab.ljust(10) )
         l1.pack(side='left')
 
-        if self.find_shm ( who ) == None :
+        zones = self.find_shm ( who )
+        if zones == "Sorry" :
             status = "none"
             color = 'yellow'
         else :
-            status = "OK"
+            status = zones
             color = 'green2'
 
         status = ("  " + status).ljust(24)
@@ -324,9 +338,9 @@ class Cleaner:
 
         l2.pack(side='left')
 
-        b1 = tk.Button( f, text="Load from oven", command=partial(self.st_start,who))
+        b1 = tk.Button( f, text="Load from oven", command=partial(self.shm_load_oven,who))
         b1.pack(side='left')
-        b2 = tk.Button( f, text="Load from disk", command=partial(self.st_stop,who))
+        b2 = tk.Button( f, text="Load from disk", command=partial(self.shm_load_disk,who))
         b2.pack(side='left')
 
 
