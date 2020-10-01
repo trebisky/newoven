@@ -677,6 +677,7 @@ domkey ( int tty_fd, int tty, int nlines, int mlines, int top, int bot, int ncol
 	do {
 	    dopcur (tty_fd, tty);
 
+	    /* Get keystroke from user */
 	    mcode = mkey (oldstatus & M_AUTO, period, offset);
 
 	    oldstatus &= ~M_AUTO;
@@ -826,6 +827,9 @@ domkey ( int tty_fd, int tty, int nlines, int mlines, int top, int bot, int ncol
 }
 
 /* mkey - return a menu encoded key
+ * this calls con_key() (which calls getch())
+ *  to get a keystroke from the user, then maps
+ *  it into an "action code" or whatever you want to call it.
  */
 static int
 mkey ( int autom,  int period,  int offset)

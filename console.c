@@ -1,5 +1,8 @@
-/* glue.c
- * -- stubs for things that once were provided by SPP code
+/* console.c
+ * Originally called "glue.c"
+ * This was written by Tom Trebisky in 2019 to encapsulate
+ * calls to libcurses.
+ * -- Here we have stubs for things that once were provided by SPP code
  * In particular hgkey.x
  *  tjt  6-21-2019
  */

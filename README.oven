@@ -1,0 +1,118 @@
+Understanding the oven ascii GUI
+
+This is what you get when you type "oven".
+There are a number of tricky aspects to this code, and it is the
+purpose of these notes to help me (or anyone) who has to try to
+maintain this code.
+
+It was written originally by Skip Schaller and designed to work within
+the IRAF environment.  IRAF provides its own set of screen cursor management
+calls.  In 2019, Tom Trebisky ported this out of IRAF and converted it to use
+lib_curses instead.  This was surprisingly easy and has yielded few bugs thus far.
+
+I have attempted to make an absolute minimum of code changes, resisting
+temptation at every turn.  The work has had 3 main parts.  A lot of hacking on
+domenus.c was done, but with strict discipline as mentioned below.
+A Makefile was written (the original scheme used the iraf mkpkg utility).
+Also a glue layer to curses named console.c was written.
+
+The file oven.c is fairly small and sets up access to shared memory, sets up
+a variety of global variables, then calls do_menus() to launch the menus.
+
+The file domenus.c could be considered the "menu engine".
+It has a partner in console.c, which is code added by Tom Trebisky when
+the adaptation to lib_curses was done.  This is a glue layer that provides
+a set of calls that all begin "con_".  My practice when I made these calls
+was to comment out but keep the original code in domenus.c.
+I also added a second section to console.c that has the original code
+wrapped in the new con_ calls.  This has never been tested or used and
+serves only as an illustration of how I understand the original IRAF
+calls (which are undocumented and internal to IRAF as near as I can tell).
+
+-- The "menus" subdirectories.
+
+We have menus, menusc, menusm, and menust.  We also have a utility program
+"makemenus" that processes these files.  This is effectively a domain specific
+language to define the oven menu system and certainly merits explanation.
+Some of these directories have files "Readme.tjt" which are notes by
+Tom Trebisky as he was working out how all of this works.
+
+Let's start from the Makefile.
+The list of files to link includes domenus.o menus.o and menusc.o
+
+domenus.o has already been mentioned in passing as the "menu engine" and we
+will pass over it once again, with expectation of getting into it in detail
+once we understand the menu components.
+
+menus.o is copied from menusm/menus.o
+menusc.o is copied from menusc/menusc.o
+
+This pair of files is built via:
+
+    make -C menusc
+    make -C menusm
+
+The build in the menusc directory compiles the 30 little files with names
+like "jt.c" and then links them together into menusc.o
+These files define C functions invoked from the table driven menu system.
+
+The build in the menusm directory compiles a single file menus.c.
+This file pulls in several files, the most important of which is
+menus.vc (which is 2192 lines at this time).
+Include files are used more like a macro facility.
+An array, msp->menu[] is filled up with the various menus.
+Each menu is an array of items mp->item[]
+
+The menus themselves are defined by the 30 files in the "menus" directory.
+These files are the input to the "makemenus" utility.
+If you were to run it, it would produce the 30 C files in menusc as
+well as the big menus.vc file.
+But you only would need to run it if you made changes to these files which
+define the menus, and this it not something I expect to do.
+
+As an example though, the first file named "aa" looks like this:
+
+Oven Main Menu
+Exit                          %ex      $
+Configuration and Status      %cs      $
+Error Log                     %er      $
+Database                      %db      $
+
+Anyone who has ever used this software will recognize this as generating
+the first menu everyone sees when they launch the oven "GUI"
+The first line is a "title" line displayed at the top of the screen.
+The rest of the lines each point to submenus.
+
+Selecting the error log will take you to the "er" file, which is like this:
+
+Error Log
+%el                                                                            %
+!nl
+
+Here again, as always, the first line is a title line displayed at the top of
+the screen.  The last line (!nl) displays the summary line at the bottom of
+the screen.  The %el line displays the actual error lines in between.
+
+The file menusc/er.c provides functions erelg(), erelo() and ernl()
+
+The relevant section in menus.vc looks like:
+
+#include "menus.m"
+        mp->id = "er";
+#include "menus.i"
+        ip->text_start = 0;
+        ip->text_end   = 8;
+        ip->text = "Error Log";
+#include "menus.i"
+        ip->gfunc = erelg;
+        ip->ofunc = erelo;
+        ip->func_start = 0;
+        ip->func_end   = 79;
+        ip->ntimes = ernl;
+
+So the error "menu" would have two items in it, as shown.
+The first item is just the display of the title.
+Describing the second item will take us into the menu engine.
+
+
+
