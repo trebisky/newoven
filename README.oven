@@ -78,6 +78,44 @@ Configuration and Status      %cs      $
 Error Log                     %er      $
 Database                      %db      $
 
+The relevant section in menusm/menus.vc looks like:
+
+#include "menus.m"
+        mp->id = "aa";
+#include "menus.i"
+        ip->text_start = 0;
+        ip->text_end   = 13;
+        ip->text = "Oven Main Menu";
+#include "menus.i"
+        ip->gfunc = aaexg;
+        ip->func_start = 30;
+        ip->func_end   = 39;
+        ip->text_start = 0;
+        ip->text_end   = 3;
+        ip->text = "Exit";
+#include "menus.i"
+        ip->gfunc = aacsg;
+        ip->func_start = 30;
+        ip->func_end   = 39;
+        ip->text_start = 0;
+        ip->text_end   = 23;
+        ip->text = "Configuration and Status";
+#include "menus.i"
+        ip->gfunc = aaerg;
+        ip->func_start = 30;
+        ip->func_end   = 39;
+        ip->text_start = 0;
+        ip->text_end   = 8;
+        ip->text = "Error Log";
+#include "menus.i"
+        ip->gfunc = aadbg;
+        ip->func_start = 30;
+        ip->func_end   = 39;
+        ip->text_start = 0;
+        ip->text_end   = 7;
+        ip->text = "Database";
+
+
 Anyone who has ever used this software will recognize this as generating
 the first menu everyone sees when they launch the oven "GUI"
 The first line is a "title" line displayed at the top of the screen.
@@ -95,7 +133,7 @@ the screen.  The %el line displays the actual error lines in between.
 
 The file menusc/er.c provides functions erelg(), erelo() and ernl()
 
-The relevant section in menus.vc looks like:
+The relevant section in menusm/menus.vc looks like:
 
 #include "menus.m"
         mp->id = "er";
@@ -114,5 +152,81 @@ So the error "menu" would have two items in it, as shown.
 The first item is just the display of the title.
 Describing the second item will take us into the menu engine.
 
+-- Rendering and executing the basic menu
 
+So consider the oven GUI starting up for the first time.
+It will start with menu 0 (via Gmenu = 0) and will loop calling
+doline() for each item in the menu to display the initial menu.
+Then it will call domkey() to process user keystrokes.
+
+Let's look at domkey().  It calls mkey() to get a character from the user and
+to map it to some value it will process.  If the user moves the cursor up or
+down (CUR_U or CUR_D) the variable Gmline is manipulated accordingly.  
+If the user types right arrow (or C or p) this is "RETURN"
+meaning to exit this menu and go back to the parent.
+If the user types left arrow (or D or n) this is "GOTO"
+meaning to execute this menu entry.
+Typing E (for enter) is for entering data and has nothing to
+do with navigating among menus.
+
+So, how does a GOTO for the Configuration and Status selection get handled?
+The function domgoto() is called.  It will end up calling the function
+given by gfunc for that item, which is aacsg() in this case.
+This is in menusc/aa.c and looks like:
+
+int
+aacsg ( void )
+{
+        int     t = 0;
+
+        t = menugoto ("cs");
+        return (t);
+}
+
+The menugoto() routine searches the menu list for "cs" and upon finding it
+sets Gmenu to that index and back to domenu() we go.
+
+What happens when we select the error log?
+Here we have both a gfunc and an ofunc pointer.
+And now we need to look at menusc/er.c
+
+int
+erelg (n)
+int     n;
+{
+        int     t = 0;
+        char    s[80];
+
+        elogline (n, s);
+        t = eloggoto (s);
+        return (t);
+}
+
+int
+erelo (n, s)
+int     n;
+char    *s;
+{
+        int     t = 0;
+
+        elogline (n, s);
+        return (t);
+}
+
+int
+ernl ()
+{
+        int     n = 0;
+
+        n = nelogline () + nmline ();
+        return (n);
+}
+
+It is not clear (to me) what erelo() does.  It is the "ofunc" handler, but as
+near as I can tell it just discards the error text.
+The function erelg() gets a single line from the error log.
+The error log is an odd file (for a unix system) and seems to have records
+padded to constant length.
+Note that eloggoto() is a clever thing that goes to an appropriate display
+based on a particular line in the error log.
 
