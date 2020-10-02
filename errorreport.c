@@ -23,7 +23,7 @@
 
 /* Prototypes - 6-21-2019 */
 /* XXX - many could probably be static */
-void timestamp ( char * );
+static void timestamp ( char * );
 void elogger ( database *, FILE *, int *, int , int );
 void zoneereport ( database *, FILE * );
 void pripanelereport ( database *, FILE * );
@@ -298,6 +298,29 @@ zoneereport ( database *db, FILE *fp)
 	}
 }
 
+/* timestamp - write out a timestamp
+ */
+static void
+timestamp ( char *string)
+{
+	time_t	now;
+
+	// char	*ctime();
+	// char	*strchr ();
+	/* ctime yields something like:
+	 * Wed Jun 30 21:49:08 1993\n
+	 */
+
+	time (&now);
+	strcpy (string, ctime (&now));
+
+	if (strchr (string, '\n'))
+	    *(strchr (string, '\n')) = 0;
+	string[strlen(string)-5] = 0;
+}
+
+#define EBUFSIZE	100
+
 /* elogger - error logger
  */
 void
@@ -306,6 +329,7 @@ elogger ( database *db, FILE *fp, int *count, int errnum, int addr)
 	char	saddr[6];
 	char	sloc[12];
 	char	string[80];
+	char	safe_buf[EBUFSIZE];
 
 	     if (!strcmp (errmenu[errnum], "zo")) przone (saddr, addr);
 	else if (!strcmp (errmenu[errnum], "he")) prpfe  (saddr, addr);
@@ -339,7 +363,9 @@ elogger ( database *db, FILE *fp, int *count, int errnum, int addr)
 	  saddr,
 	  errmenu[errnum],
 	  sloc);
-#else
+#endif
+
+#ifdef ORIGINAL_ERRORS
 	/* should be LEN_ELOGLINE (79) characters long
 	 */
 	fprintf (fp,
@@ -354,28 +380,40 @@ elogger ( database *db, FILE *fp, int *count, int errnum, int addr)
 	  errnum,
 	  errmes[errnum]);
 #endif
-	*count = 0;
-}
 
-/* timestamp - write out a timestamp
+/* In September of 2020, some data corruption yielded huge values for the count
+ * value that exceeded the 6 digits of space provided here.  This caused the total
+ * length of the string to be longer than 79 bytes.  This breaks logic in the
+ * error log viewer that expects fixed length records in the log file.
+ * This code ensures that will not happen again.
+ * Although proper software wouldn't have caused this in the first place,
+ * doing things this way simply makes things more robust.
  */
-void
-timestamp ( char *string)
-{
-	time_t	now;
+#define SAFER_ERRORS
+#ifdef SAFER_ERRORS
+	sprintf ( safe_buf,
+	  "%16.16s %1.1dv%1.1d#%6.6d@%-4.4s<%2.2s %-11.11s>%2.2d %-27.27s\n",
+	  string+4,
+	  globalp->noven,
+	  globalp->ncomp,
+	  *count,
+	  saddr,
+	  errmenu[errnum],
+	  sloc,
+	  errnum,
+	  errmes[errnum]);
 
-	// char	*ctime();
-	// char	*strchr ();
-	/* ctime yields something like:
-	 * Wed Jun 30 21:49:08 1993\n
-	 */
+	  if ( safe_buf[LEN_ELOGLINE-1] != '\n' ) {
+	    safe_buf[LEN_ELOGLINE-1] = '\n';
+	    safe_buf[LEN_ELOGLINE] = '\0';
+	    fprintf ( stderr, "ovene - line trimmed\n" );
+	  }
 
-	time (&now);
-	strcpy (string, ctime (&now));
+	  fputs ( safe_buf, fp );
+	  fflush ( fp );
+#endif
 
-	if (strchr (string, '\n'))
-	    *(strchr (string, '\n')) = 0;
-	string[strlen(string)-5] = 0;
+	*count = 0;
 }
 
 /* THE END */

@@ -252,7 +252,7 @@ void errorreport(void);
 // void panelereport(database *db, FILE *fp);
 // void zoneereport(database *db, FILE *fp);
 // void elogger(database *db, FILE *fp, int *count, int errnum, int addr);
-void timestamp(char *string);
+// void timestamp(char *string);
 int nelogline(void);
 
 // int eunseen(void);

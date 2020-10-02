@@ -230,3 +230,22 @@ padded to constant length.
 Note that eloggoto() is a clever thing that goes to an appropriate display
 based on a particular line in the error log.
 
+=========================================================
+
+The routine show_sizes() yields the following output:
+
+B database:       172 bytes
+P database:    133376 bytes
+I database:     50628 bytes
+D database:     34952 bytes
+E database:     44620 bytes
+total database:    263748 bytes
+
+The total size is well known and verified each time the software starts.
+It is the exact sum of the parts, there is no padding for alignment
+between parts, even with a 64 bit compile.
+
+The error database is nothing but a bunch of int values (4 bytes each),
+which are counts of errors of various sorts.
+
+

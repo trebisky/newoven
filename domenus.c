@@ -961,7 +961,9 @@ mkey ( int autom,  int period,  int offset)
  */
 
 #define	NSEEN	( globalp->db->intermediate.misc.msclock )
-#define	LEN_ELOGLINE	79
+
+// Now defined in oven.h
+// #define	LEN_ELOGLINE	79
 
 /* nelogline - return the number of lines in the error log
  */

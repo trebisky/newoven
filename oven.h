@@ -13,6 +13,9 @@
 #define	MIN(a,b)	( ((a) < (b)) ? (a) : (b) )
 #define	MAX(a,b)	( ((a) > (b)) ? (a) : (b) )
 
+/* Records in the error log file must have fixed length of this size */
+#define	LEN_ELOGLINE	79
+
 #ifdef notdef
 /* 6-21-2019 - let the system find these and take care of them */
 #define bzero(a,n)      memset(a,0,n)
