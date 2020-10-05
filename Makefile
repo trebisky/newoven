@@ -19,7 +19,7 @@ POBJS = ovenp.o common.o init.o shmalloc.o ipportrw.o
 ROBJS = ovenr.o common.o
 
 EOBJS = ovene.o common.o errorreport.o prints.o scans.o util.o init.o shmalloc.o database.o ipportrw.o
-ZOBJS = ovenz.o common.o errorreport.o prints.o scans.o util.o init.o shmalloc.o database.o ipportrw.o
+ZOBJS = ovenz.o common.o prints.o scans.o util.o init.o shmalloc.o database.o ipportrw.o
 
 #CC = cc -g
 #CC = cc -pedantic -Wstrict-prototypes -Wmissing-prototypes

@@ -248,4 +248,12 @@ between parts, even with a 64 bit compile.
 The error database is nothing but a bunch of int values (4 bytes each),
 which are counts of errors of various sorts.
 
+==================================================
+
+Working your way through the software is tricky.
+There are a lot of macros, and while this is not entirely bad
+in itself, a lot of them have side effects and do things with
+specific variables embedded in the macros.
+This makes the code compact, but obtuse.
+
 
