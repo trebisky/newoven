@@ -36,6 +36,7 @@ extern int readonly;
 extern int period;
 extern int offset;
 
+#ifdef notdef
 static void
 set_hof ( int p, int f, int e, int count )
 {
@@ -52,6 +53,7 @@ bogus_eread_oven ( void )
 	set_hof ( 0, 1, 0, 10 );
 	set_hof ( 0, 1, 1, 1187404 );
 }
+#endif
 
 int
 ovenz ( void )
@@ -74,18 +76,18 @@ ovenz ( void )
 	    return 1;
 	}
 
-#ifdef ZTEST
+#ifdef OLDZTEST
 	bogus_eread_oven ();
 	errorreport ();
 #else
 	for ( ;; ) {
-	    // printf ( "Sleeping\n" );
+	    printf ( "Sleeping\n" );
             if (period) {
                 time (&now);
                 sleep (period - now%period + offset);
             }
 
-	    // printf ( "Getting data\n" );
+	    printf ( "Getting data\n" );
 	    if (db_eread_oven ())
                 errorreport ();
         }
