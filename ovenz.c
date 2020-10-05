@@ -81,15 +81,16 @@ ovenz ( void )
 	errorreport ();
 #else
 	for ( ;; ) {
+	    printf ( "Getting data\n" );
+	    if (db_eread_oven ())
+                errorreport ();
+
 	    printf ( "Sleeping\n" );
             if (period) {
                 time (&now);
                 sleep (period - now%period + offset);
             }
 
-	    printf ( "Getting data\n" );
-	    if (db_eread_oven ())
-                errorreport ();
         }
 #endif
 
