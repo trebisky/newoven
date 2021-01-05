@@ -3,18 +3,19 @@
 import tkinter as tk
 import tkinter.font
 import os
+import getpass
+
 from functools import partial
 
 test_mode = False
 #test_mode = True
 
+already_told_him = False
+
 if test_mode :
     oven_size = 524288
 else :
     oven_size = 263748
-
-oven_path = os.path.expanduser ( "~/Casting" )
-mcube_path = os.path.expanduser ( "~/MCUBE" )
 
 # We have these "modes"
 INIT = 99
@@ -34,7 +35,7 @@ class Cleaner:
         self.mw = tk.Tk()
         self.mw.title('Oven Starter / Cleaner')
 
-        os.chdir ( oven_path )
+        self.new_dir ( "oven" )
 
         fixed_font = tkinter.font.nametofont("TkFixedFont")
         self.mw.option_add("*Font", fixed_font)
@@ -89,6 +90,36 @@ class Cleaner:
         self.reload_start ()
 
         tk.mainloop()
+
+    def change_dir ( self, path ) :
+        if not os.path.exists ( path) :
+            print ( "The directory does not exist!! - " + path )
+            exit ()
+        if not os.path.isdir ( path) :
+            print ( "This must be a directory!! - " + path )
+            exit ()
+        os.chdir ( path );
+                
+    # on 1-5-2021, I decided to only switch directories for MCUBE
+    # for the pilot, we stay in the home directory.
+    # BUT, when I am running as "tom", I move to ~/Casting
+    # since I don't want the oven mess in my home directory
+    def new_dir ( self, which_oven ) :
+        global already_told_him
+
+        if which_oven == "mcube" :
+            path = os.path.expanduser ( "~/MCUBE" )
+            self.change_dir ( path );
+            print ( "Changed to directory " + os.getcwd() )
+            return
+
+        user = getpass.getuser()
+        if user == "tom" :
+            path = os.path.expanduser ( "~/Casting" )
+            self.change_dir ( path );
+            if not already_told_him :
+                print ( "Changed to directory " + os.getcwd() + " for user " + user )
+                already_told_him = True
 
     def find_pid ( self, who ) :
         tasks = os.popen('ps -eo pid,command').read().splitlines()
@@ -209,6 +240,8 @@ class Cleaner:
 
     # first line is header
     def get_tasks ( self ) :
+        global test_mode
+
         #tasks = os.popen('ps -alx').read().splitlines()
         tasks = os.popen('ps -eo pid,user,bsdtime,command').read().splitlines()
         rv = []
@@ -238,31 +271,38 @@ class Cleaner:
             self.f3.pack_forget()
         self.f4.pack()
         self.mode = STARTUP
+
         self.change_oven ()
 
     def change_oven ( self ) :
         self.unload ()
 
         self.info = []
+
+        # tasks
         if self.oven.get() == 1 :
-            os.chdir ( oven_path )
+            self.new_dir ( "oven" )
             self.st_one ("ovend")
             self.st_one ("ovene -c0")
             self.st_one ("ovene -c1")
             self.st_one ("ovene -c2")
+            self.st_one ("oveng")
         else :
-            os.chdir ( mcube_path )
+            self.new_dir ( "mcube" )
             self.st_one ("ovend -M")
             self.st_one ("ovene -M")
         self.st_one ("ovenp")
         self.st_one ("ovenb")
+
+        # shared memory
         if self.oven.get() == 1 :
             self.sm_one ( "-c0" )
             self.sm_one ( "-c1" )
             self.sm_one ( "-c2" )
         else :
             self.sm_one ( "-M" )
-        print ( "In directory: " + os.getcwd() )
+
+        #print ( "Change oven -- In directory: " + os.getcwd() )
 
     def st_one ( self, who ) :
         f = tk.Frame ( self.f2, width=DEF_WIDTH )
