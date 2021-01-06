@@ -286,6 +286,8 @@ class Cleaner:
             self.st_one ("ovene -c0")
             self.st_one ("ovene -c1")
             self.st_one ("ovene -c2")
+            # Randy says ovenr is no longer used.
+            #self.st_one ("ovenr")
             self.st_one ("oveng")
         else :
             self.new_dir ( "mcube" )
