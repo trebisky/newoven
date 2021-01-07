@@ -1,0 +1,51 @@
+ovenRed*font:           10x20
+ovenRed*geometry:       80x24+85+0
+ovenRed*tekGeometry:    -70-0
+ovenRed*iconGeometry:   +0+625
+ovenRed*title:          Red IRAF XGterm
+ovenRed*iconName:       red
+ovenRed*foreground:     tomato
+ovenRed*background:     black
+ovenBlue*font:          10x20
+ovenBlue*geometry:      80x36+85-0
+ovenBlue*tekGeometry:   -70-0
+ovenBlue*iconGeometry:  +0+700
+ovenBlue*title:         Blue IRAF XGterm
+ovenBlue*iconName:      blue
+ovenBlue*foreground:    navy
+ovenBlue*background:    white
+ovenGreen*font:         10x20
+ovenGreen*geometry:     80x36+0-0
+ovenGreen*tekGeometry:  -70-0
+ovenGreen*iconGeometry: +0+550
+ovenGreen*title:        Green IRAF XGterm
+ovenGreen*iconName:     green
+ovenGreen*foreground:   green
+ovenGreen*background:   black
+ovenPurple*font:        10x20
+ovenPurple*geometry:    120x24+0-25
+ovenPurple*tekGeometry: 480x360-0-0
+ovenPurple*iconGeometry:        +0+475
+ovenPurple*title:       Purple IRAF XGterm
+ovenPurple*iconName:    purple
+ovenPurple*foreground:  white
+ovenPurple*background:  purple4
+Xgterm*gterm*font:           10x20
+Xgterm*gterm*foreground:     tomato
+Xgterm*gterm*background:     black
+XGterm*gterm*font:           10x20
+XGterm*gterm*foreground:     tomato
+XGterm*gterm*background:     black
+XGterm*Gterm*font:           10x20
+XGterm*Gterm*foreground:     tomato
+XGterm*Gterm*background:     black
+XGterm*title:          generic IRAF XGterm
+XGterm*font:           10x20
+XGterm*foreground:     white
+XGterm*background:     black
+Tom*font:           10x20
+Tom*foreground:     tomato
+Tom*background:     black
+XImtool.displayPanner:  false
+XImtool.cmap1:          rainbow2.lut
+XImtool.defNFrames:	4

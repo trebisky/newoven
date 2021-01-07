@@ -36,7 +36,8 @@ install:	all
 	cp $(TARGETS) /usr/local/bin
 	cp train.au /usr/local/bin
 	cp watch.pl /usr/local/bin/watch
-	cp cleaner /usr/local/bin
+	cp scripts/cleaner /usr/local/bin
+	cp scripts/start_* /usr/local/bin
 
 .c.o:
 	$(CC) -o $@ -c $<
