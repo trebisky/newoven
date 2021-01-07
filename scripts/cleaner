@@ -105,6 +105,9 @@ class Cleaner:
 
         tk.mainloop()
 
+# To get the nice color jive, you need to start a gnome-terminal,
+# Then go to "edit preferences" and set up two profiles (Red and Blue)
+# with the color setup you want.  This must be done on both crater and dorado
     def windows ( self, which_oven ) :
         if which_oven == MAIN_OVEN :
             os.system ( "ximtool &" );
