@@ -1,0 +1,19 @@
+#!/bin/sh
+
+cd MCUBE
+
+# echo "Set Rainbow1 color map in all 4 ximtool frames"
+# ximtool &
+# Blue is used to start ovend and run oven
+xgterm -name ovenBlue -title 'Blue IRAF XGterm (orig)' -e cl &
+
+# Red is used to start ovene and oveng
+xgterm -name ovenRed -title 'Red IRAF XGterm (orig)' -e cl &
+
+# Green is not used (for oven rotation).
+#xgterm -name ovenGreen -title 'Green IRAF XGterm (orig)' -e cl &
+# Purple is not used (for ovenc).
+#xgterm -name ovenPurple -title 'Purple IRAF XGterm (orig)' -e cl &
+
+starter -M &
+

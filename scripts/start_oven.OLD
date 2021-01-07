@@ -1,0 +1,37 @@
+#!/bin/sh
+
+# xgterm works oddly with curses run "naked" but with the cl running
+# in it, it seems fine ??
+# xfce-terminal options:
+#  -e command
+#  --command=command
+#  -T title
+#  --title=title
+
+# I decided this was not a good idea
+#cd Casting
+
+# echo "Set Rainbow1 color map in all 4 ximtool frames"
+# I decided to stick with ximtool
+ximtool &
+# ds9 &
+
+# For ovene and error monitor
+# xgterm -name ovenRed -title 'Red IRAF XGterm (orig)' -e cl &
+#xgterm -name ovenRed -title 'Red IRAF XGterm (orig)' &
+xfce4-terminal --title='Red Oven terminal'
+
+# For ovend and oven GUI
+#xgterm -name ovenBlue -title 'Blue IRAF XGterm (orig)' -e cl &
+#xgterm -name ovenBlue -title 'Blue IRAF XGterm (orig)' &
+xfce4-terminal --title='Blue Oven terminal'
+
+# For ovenc
+xgterm -name ovenPurple -title 'Purple IRAF XGterm (orig)' -e cl &
+
+# For ovenr
+# xgterm -name ovenGreen -title 'Green IRAF XGterm (orig)' &
+# xfce4-terminal
+# xfce4-terminal --title='Green Oven terminal'
+
+starter &

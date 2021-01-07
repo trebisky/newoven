@@ -41,12 +41,13 @@ DEF_WIDTH=300
 # have it attached have terminated.
 
 class Cleaner:
-    def __init__ (self, is_mcube) :
+    def __init__ (self, which_oven) :
 
         self.mw = tk.Tk()
         self.mw.title('Oven Starter / Cleaner')
 
-        self.new_dir ( "oven" )
+        self.new_dir ( which_oven )
+        self.windows ( which_oven )
 
         fixed_font = tkinter.font.nametofont("TkFixedFont")
         self.mw.option_add("*Font", fixed_font)
@@ -86,10 +87,7 @@ class Cleaner:
         self.f4 = tk.Frame ( root )
 
         v = tk.IntVar()
-        if is_mcube :
-            v.set(MCUBE)
-        else :
-            v.set(MAIN_OVEN)
+        v.set ( which_oven )
         self.oven = v
 
         tk.Radiobutton(self.f4, text="Main oven", padx = 20,
@@ -107,6 +105,20 @@ class Cleaner:
 
         tk.mainloop()
 
+    def windows ( self, which_oven ) :
+        if which_oven == MAIN_OVEN :
+            os.system ( "ximtool &" );
+            os.system ( "gnome-terminal --title='Blue Oven terminal' --window-with-profile=Blue -- oven &" )
+            os.system ( "gnome-terminal --title='Red Oven terminal' --window-with-profile=Red -- oven &" )
+            os.system ( "xgterm -fg purple -bg white -tn 'Purple Oven terminal' -e cl &" )
+        else :
+            # We don't need a cl window for the MCUBE
+            # os.system ( "xgterm -name ovenBlue -title 'Blue IRAF XGterm (orig)' -e cl &" )
+            # xfce terminal is lame and without many options
+            # os.system ( "xfce4-terminal --title='Blue Oven terminal' &" )
+            # gnome terminal on the other hand is much more flexible
+            os.system ( "gnome-terminal --title='Blue Oven terminal' --window-with-profile=Blue -- oven &" )
+
     def change_dir ( self, path ) :
         if not os.path.exists ( path) :
             print ( "The directory does not exist!! - " + path )
@@ -123,7 +135,7 @@ class Cleaner:
     def new_dir ( self, which_oven ) :
         global already_told_him
 
-        if which_oven == "mcube" :
+        if which_oven == MCUBE :
             path = os.path.expanduser ( "~/MCUBE" )
             self.change_dir ( path );
             print ( "Changed to directory " + os.getcwd() )
@@ -300,7 +312,7 @@ class Cleaner:
 
         # tasks
         if self.oven.get() == MAIN_OVEN :
-            self.new_dir ( "oven" )
+            self.new_dir ( MAIN_OVEN )
             self.st_one ("ovend")
             self.st_one ("ovene -c0")
             self.st_one ("ovene -c1")
@@ -309,7 +321,7 @@ class Cleaner:
             #self.st_one ("ovenr")
             self.st_one ("oveng")
         else :
-            self.new_dir ( "mcube" )
+            self.new_dir ( MCUBE )
             self.st_one ("ovend -M")
             self.st_one ("ovene -M")
         self.st_one ("ovenp")
@@ -419,9 +431,9 @@ class Cleaner:
 
 if len(sys.argv) > 1 :
     if sys.argv[1] == "-M" :
-        Cleaner ( True )
+        Cleaner ( MCUBE )
         exit ()
 
-Cleaner ( False )
+Cleaner ( MAIN_OVEN )
 
 # THE END
