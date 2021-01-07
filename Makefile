@@ -37,6 +37,7 @@ install:	all
 	cp train.au /usr/local/bin
 	cp watch.pl /usr/local/bin/watch
 	cp scripts/cleaner /usr/local/bin
+	ln -sf /usr/local/bin/cleaner /usr/local/bin/starter
 	cp scripts/start_* /usr/local/bin
 
 .c.o:

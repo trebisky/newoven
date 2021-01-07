@@ -8,11 +8,13 @@
 #  -T title
 #  --title=title
 
-cd Casting
+# I decided this was not a good idea
+#cd Casting
 
 # echo "Set Rainbow1 color map in all 4 ximtool frames"
-# ximtool &
-ds9 &
+# I decided to stick with ximtool
+ximtool &
+# ds9 &
 
 # For ovene and error monitor
 # xgterm -name ovenRed -title 'Red IRAF XGterm (orig)' -e cl &
@@ -31,3 +33,5 @@ xgterm -name ovenPurple -title 'Purple IRAF XGterm (orig)' -e cl &
 # xgterm -name ovenGreen -title 'Green IRAF XGterm (orig)' &
 # xfce4-terminal
 # xfce4-terminal --title='Green Oven terminal'
+
+starter &
