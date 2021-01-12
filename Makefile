@@ -33,12 +33,13 @@ TARGETS = oven ovend oveng ovenb ovenp ovenr ovene ovenz oven_shm
 all: $(TARGETS)
 
 install:	all
-	cp train.au /usr/local/bin
+	cp scripts/train.au /usr/local/bin
 	cp scripts/cleaner /usr/local/bin
 	ln -sf /usr/local/bin/cleaner /usr/local/bin/starter
 	cp scripts/start_oven /usr/local/bin
 	cp scripts/start_mcube /usr/local/bin
-	cp watch.pl /usr/local/bin/watch
+	#cp watch.pl /usr/local/bin/watch
+	cp scripts/ovenw /usr/local/bin
 	cp $(TARGETS) /usr/local/bin
 
 .c.o:

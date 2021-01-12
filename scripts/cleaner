@@ -29,6 +29,7 @@ INIT = 99
 TASK = 1
 SHM = 2
 STARTUP = 3
+MISC = 4
 
 # Sort of a homebrew enum for which oven we are working
 # with.  These are used in the radio button controlled
@@ -61,10 +62,14 @@ class Cleaner:
         root = tk.Frame ( self.mw, width=DEF_WIDTH ).pack ()
         self.root = root
 
+        # f1 holds the "tabs" up top
         f1 = tk.Frame ( root, pady=10 )
         f1.pack()
 
         self.sb = tk.Button( f1, text="Startup", command=self.reload_start)
+        self.sb.pack(side='left')
+
+        self.sb = tk.Button( f1, text="Misc", command=self.reload_misc )
         self.sb.pack(side='left')
 
         self.bu = tk.Button( f1, text="Shared Memory", command=self.reload_shm)
@@ -76,57 +81,74 @@ class Cleaner:
         self.qu = tk.Button( f1, text="Quit", command=self.mw.destroy)
         self.qu.pack(side='left')
 
+        # f2 holds all the frames for Startup and Misc
         self.f2 = tk.Frame ( root, width=DEF_WIDTH )
         self.f2.pack()
 
+        # f3 holds all stuff for shm and tasks
         self.f3 = tk.Frame ( root )
 
         self.ma = tk.Button( self.f3, text="Check all", command=self.ckall)
         self.ma.pack(side='left')
+
         self.ua = tk.Button( self.f3, text="Uncheck all", command=self.unckall)
         self.ua.pack(side='left')
 
         self.nk = tk.Button( self.f3, text="Nuke 'em", command=self.nuke)
         self.nk.pack(side='right', padx=50 )
-        # self.f3.pack()
 
+        # For main/mcube radio button
         self.f4 = tk.Frame ( root )
 
         v = tk.IntVar()
         v.set ( which_oven )
         self.oven = v
 
-        tk.Radiobutton(self.f4, text="Main oven", padx = 20,
+        r1 = tk.Radiobutton(self.f4, text="Main oven", padx = 20,
             command=self.change_oven,
             variable=v, value=MAIN_OVEN).pack(side='left')
-        tk.Radiobutton(self.f4, text="Meter cube", padx = 20,
+        r2 = tk.Radiobutton(self.f4, text="Meter cube", padx = 20,
             command=self.change_oven,
             variable=v, value=MCUBE).pack(side='left')
 
         # load up the first tab
         self.mode = INIT
         self.info = []
-        #self.reload_shm ()
+
+        self.cur_frame = self.f4
         self.reload_start ()
 
         tk.mainloop()
+
+    def launch_window ( self, color ) :
+        if color == "blue" :
+            cmd = "gnome-terminal --title='Blue Oven terminal' --window-with-profile=Blue -- oven"
+        elif color == "red" :
+            cmd = "gnome-terminal --title='Red Oven terminal' --window-with-profile=Red -- oven"
+        elif color == "green" :
+            cmd = "xgterm -fn 12x24 -fg green -bg white -tn 'Green Oven terminal' -e cl"
+        else : # purple
+            cmd = "xgterm -fn 12x24 -fg purple -bg white -tn 'Purple Oven terminal' -e cl"
+
+        os.system ( cmd + " &" )
 
 # To get the nice color jive, you need to start a gnome-terminal,
 # Then go to "edit preferences" and set up two profiles (Red and Blue)
 # with the color setup you want.  This must be done on both crater and dorado
     def windows ( self, which_oven ) :
+        print ( "start all windows" )
         if which_oven == MAIN_OVEN :
-            os.system ( "ximtool &" );
-            os.system ( "gnome-terminal --title='Blue Oven terminal' --window-with-profile=Blue -- oven &" )
-            os.system ( "gnome-terminal --title='Red Oven terminal' --window-with-profile=Red -- oven &" )
-            os.system ( "xgterm -fg purple -bg white -tn 'Purple Oven terminal' -e cl &" )
+            os.system ( "ximtool &" )
+            launch_window ( "blue" )
+            launch_window ( "red" )
+            launch_window ( "purple" )
         else :
             # We don't need a cl window for the MCUBE
             # os.system ( "xgterm -name ovenBlue -title 'Blue IRAF XGterm (orig)' -e cl &" )
             # xfce terminal is lame and without many options
             # os.system ( "xfce4-terminal --title='Blue Oven terminal' &" )
             # gnome terminal on the other hand is much more flexible
-            os.system ( "gnome-terminal --title='Blue Oven terminal' --window-with-profile=Blue -- oven &" )
+            launch_window ( "blue" )
 
     def change_dir ( self, path ) :
         if not os.path.exists ( path) :
@@ -182,7 +204,7 @@ class Cleaner:
         if self.mode == INIT :
             return
 
-        if self.mode == STARTUP :
+        if self.mode == STARTUP or self.mode == MISC :
             for w in self.info :
                 w.destroy ()
         else :
@@ -233,10 +255,14 @@ class Cleaner:
 # - stuff for shared memory tab
 
     def reload_shm ( self ) :
-        self.unload ()
+        self.unload () # empty f2
+
         if self.mode == STARTUP :
             self.f3.pack()
             self.f4.pack_forget()
+        if self.mode == MISC :
+            self.f3.pack()
+
         self.mode = SHM
         self.reload_stuff ( self.get_shm() )
 
@@ -268,10 +294,14 @@ class Cleaner:
 # - stuff for tasks tab
 
     def reload_task ( self ) :
-        self.unload ()
+        self.unload () # empty f2
+
         if self.mode == STARTUP :
             self.f3.pack()
             self.f4.pack_forget()
+        if self.mode == MISC :
+            self.f3.pack()
+
         self.mode = TASK
         self.reload_stuff ( self.get_tasks() )
 
@@ -283,7 +313,6 @@ class Cleaner:
         tasks = os.popen('ps -eo pid,user,bsdtime,command').read().splitlines()
         rv = []
         for ll in tasks[1:] :
-            ww = ll.split()
             # print ( ll[:80] )
             keep = False
             if "iraf" in ll :
@@ -295,20 +324,53 @@ class Cleaner:
             if test_mode and "xfce" in ll :
                 keep = True
             if keep :
-                #print ( ww[12] )
+                # print ( ll[:80] )
                 rv.append ( ll[:100].ljust(100) )
         return rv
 
 # ----------------------------------
+# - stuff for Misc tab
+
+    def reload_misc ( self ) :
+        self.unload () # flush out f2
+
+        if self.mode == TASK or self.mode == SHM :
+            self.f3.pack_forget()
+        if self.mode == STARTUP :
+            self.f4.pack_forget()
+
+        self.mode = MISC
+        self.update_misc ()
+
+    def add_wbutton ( self, text, name ) :
+        f = tk.Frame ( self.f2, width=DEF_WIDTH )
+        #f.pack(side="top")
+        f.pack()
+        self.info.append ( f )
+
+        b = tk.Button( f, text=text, command=partial(self.launch_window,name) )
+        b.pack(side='left')
+
+    def update_misc ( self ) :
+        self.info = []
+
+        self.add_wbutton ( "new Red Window", "red" )
+        self.add_wbutton ( "new Blue Window", "blue" )
+        self.add_wbutton ( "new Purple Window", "purple" )
+        self.add_wbutton ( "new Green Window", "green" )
+
+# ----------------------------------
 # - stuff for startup tab
+# - f4 holds main/mcube radio button
 
     def reload_start ( self ) :
         self.unload ()
-        if self.mode != STARTUP :
+
+        if self.mode == TASK or self.mode == SHM :
             self.f3.pack_forget()
         self.f4.pack()
-        self.mode = STARTUP
 
+        self.mode = STARTUP
         self.change_oven ()
 
     def change_oven ( self ) :
@@ -328,11 +390,14 @@ class Cleaner:
             self.st_one ("ovene -c2")
             # Randy says ovenr is no longer used.
             #self.st_one ("ovenr")
+            self.st_one ("ovenw") # was watch.pl
             self.st_one ("oveng")
         else :
             self.new_dir ( MCUBE )
             self.st_one ("ovend -M")
             self.st_one ("ovene -M")
+
+        # We always launch these.
         self.st_one ("ovenp")
         self.st_one ("ovenb")
 
@@ -374,20 +439,23 @@ class Cleaner:
         b3 = tk.Button( f, text="Restart", command=partial(self.st_restart,who))
         b3.pack(side='left')
 
+    # handler for start button
     def st_start ( self, who ) :
         cmd = who + " &"
         os.system ( cmd )
         self.reload_start ()
 
+    # handler for stop button
     def st_stop ( self, who ) :
         pid = self.find_pid ( who )
         if pid != None :
-            print ( "Found: " + pid )
+            #print ( "Found: " + pid )
             os.system ( "kill -9 " + pid )
         else :
             print ( "Not running" )
         self.reload_start ()
 
+    # handler for restart button
     def st_restart ( self, who ) :
         self.st_stop ( who )
         self.st_start ( who )

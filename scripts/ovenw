@@ -1,4 +1,7 @@
 #!/usr/bin/perl
+
+# tjt - renamed to ovenw 1-12-2021
+# now "cleaner" will start this automatically
 #
 # watch -- watch the oven error log and make a noise when something is added
 #
