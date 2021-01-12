@@ -180,6 +180,8 @@ class Cleaner:
                 print ( "Changed to directory " + os.getcwd() + " for user " + user )
                 already_told_him = True
 
+    # ovenw is problematic because ps sees:
+    # /usr/bin/perl /usr/local/bin/ovenw
     def find_pid ( self, who ) :
         tasks = os.popen('ps -eo pid,command').read().splitlines()
         for ll in tasks[1:] :

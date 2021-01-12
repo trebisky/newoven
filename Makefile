@@ -29,6 +29,7 @@ CC = cc -Wold-style-definition -pedantic
 # ----
 
 TARGETS = oven ovend oveng ovenb ovenp ovenr ovene ovenz oven_shm
+PUBLISH = oven ovend oveng ovenb ovenp ovenr ovene oven_shm
 
 all: $(TARGETS)
 
@@ -40,7 +41,7 @@ install:	all
 	cp scripts/start_mcube /usr/local/bin
 	#cp watch.pl /usr/local/bin/watch
 	cp scripts/ovenw /usr/local/bin
-	cp $(TARGETS) /usr/local/bin
+	cp $(PUBLISH) /usr/local/bin
 
 .c.o:
 	$(CC) -o $@ -c $<

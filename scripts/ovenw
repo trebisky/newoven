@@ -26,7 +26,7 @@ $cmd = "/usr/bin/wc ";
 
 $sound = "/usr/local/bin/train.au";
 
-print "Whistles when something appears in $path \n";
+#print "Whistles when something appears in $path \n";
 
 unless (-e $path) {
     print "File: $path doesn't exist.\n";
@@ -36,11 +36,11 @@ unless (-e $path) {
 # Use wc to check the size of errors.log
 @initialmatches = `$cmd $path`;
 
-print "Size $initialmatches[0] \n";
+#print "Size $initialmatches[0] \n";
 
 sub toot {
     # system("cat /usr/demo/SOUND/sounds/train.au > /dev/audio");
-    system ( "aplay $sound" );
+    system ( "aplay -q $sound" );
 }
 
 toot ();
@@ -49,7 +49,7 @@ toot ();
 while ( 1 > 0 ) {
 	sleep(30); # wait 30 seconds
 	@matches = `$cmd $path`;
-	print "Size $matches[0] \n";
+	#print "Size $matches[0] \n";
 	if ($matches[0] > $initialmatches[0]) { 
 		toot ();
 		sleep(1);
