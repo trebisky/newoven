@@ -17,6 +17,8 @@ test_mode = False
 
 already_told_him = False
 
+start_windows = False
+
 if test_mode :
     oven_size = 524288
 else :
@@ -34,6 +36,8 @@ STARTUP = 3
 MAIN_OVEN = 1
 MCUBE = 2
 
+which_oven = MAIN_OVEN
+
 DEF_WIDTH=300
 
 # "dest" status on ipcs means "marked to be destroyed".
@@ -41,13 +45,15 @@ DEF_WIDTH=300
 # have it attached have terminated.
 
 class Cleaner:
-    def __init__ (self, which_oven) :
+    def __init__ (self) :
 
         self.mw = tk.Tk()
         self.mw.title('Oven Starter / Cleaner')
 
         self.new_dir ( which_oven )
-        self.windows ( which_oven )
+
+        if start_windows :
+            self.windows ( which_oven )
 
         fixed_font = tkinter.font.nametofont("TkFixedFont")
         self.mw.option_add("*Font", fixed_font)
@@ -432,11 +438,15 @@ class Cleaner:
         b2 = tk.Button( f, text="Load from disk", command=partial(self.shm_load_disk,who))
         b2.pack(side='left')
 
-if len(sys.argv) > 1 :
-    if sys.argv[1] == "-M" :
-        Cleaner ( MCUBE )
-        exit ()
+# We don't actually need the -O argument, that is the default
+for arg in sys.argv[1:] :
+    if arg == "-w" :
+        start_windows = True;
+    if arg == "-M" :
+        which_oven = MCUBE
+    if arg == "-O" :
+        which_oven = MAIN_OVEN
 
-Cleaner ( MAIN_OVEN )
+Cleaner ()
 
 # THE END
