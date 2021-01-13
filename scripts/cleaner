@@ -147,16 +147,16 @@ class Cleaner:
         print ( "start all windows" )
         if which_oven == MAIN_OVEN :
             os.system ( "ximtool &" )
-            launch_window ( "blue" )
-            launch_window ( "red" )
-            launch_window ( "purple" )
+            self.launch_window ( "blue" )
+            self.launch_window ( "red" )
+            self.launch_window ( "purple" )
         else :
             # We don't need a cl window for the MCUBE
             # os.system ( "xgterm -name ovenBlue -title 'Blue IRAF XGterm (orig)' -e cl &" )
             # xfce terminal is lame and without many options
             # os.system ( "xfce4-terminal --title='Blue Oven terminal' &" )
             # gnome terminal on the other hand is much more flexible
-            launch_window ( "blue" )
+            self.launch_window ( "blue" )
 
     def change_dir ( self, path ) :
         if not os.path.exists ( path) :
