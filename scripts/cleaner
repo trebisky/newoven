@@ -50,6 +50,10 @@ class Cleaner:
     def __init__ (self) :
         global which_oven
 
+        user = getpass.getuser()
+        self.is_pilot = (user == "pilot" or user == "tom")
+        print ( self.is_pilot )
+
         self.mw = tk.Tk()
         self.mw.title('Oven Starter / Cleaner')
 
@@ -510,7 +514,10 @@ class Cleaner:
     # handler for start button
     def st_start ( self, who ) :
         cmd = who + " &"
-        os.system ( cmd )
+        if self.is_pilot :
+            os.system ( cmd )
+        else :
+            print ( "Sorry, you don't get to start things" )
         self.reload_start ()
 
     # handler for stop button
