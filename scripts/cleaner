@@ -9,6 +9,7 @@ import tkinter.font
 import os
 import sys
 import getpass
+import re
 
 from functools import partial
 
@@ -33,7 +34,7 @@ MISC = 4
 
 # Sort of a homebrew enum for which oven we are working
 # with.  These are used in the radio button controlled
-# intvar self.oven
+# intvar self.oven and elsewhere.
 MAIN_OVEN = 1
 MCUBE = 2
 
@@ -47,6 +48,7 @@ DEF_WIDTH=300
 
 class Cleaner:
     def __init__ (self) :
+        global which_oven
 
         self.mw = tk.Tk()
         self.mw.title('Oven Starter / Cleaner')
@@ -118,6 +120,12 @@ class Cleaner:
         self.cur_frame = self.f4
         self.reload_start ()
 
+        self.ping_label = {
+            "oven0v0" : None,
+            "oven0v1" : None,
+            "oven0v2" : None,
+            "oven1v0" : None }
+
         tk.mainloop()
 
     def launch_window ( self, color ) :
@@ -181,14 +189,19 @@ class Cleaner:
                 already_told_him = True
 
     # ovenw is problematic because ps sees:
-    # /usr/bin/perl /usr/local/bin/ovenw
+    # "/usr/bin/perl /usr/local/bin/ovenw"
+    # something like ovend appears as just "ovend"
     def find_pid ( self, who ) :
+        who_re = ".*" + who + "$"
         tasks = os.popen('ps -eo pid,command').read().splitlines()
         for ll in tasks[1:] :
             ww = ll.split()
             # Note broken, stupid python "stop" on a slice is one beyond the last item
-            xx = ' '.join( ww[1:3] )
-            if xx == who :
+            #xx = ' '.join( ww[1:3] )
+            xx = ' '.join( ww[1:] )
+            #if xx == who :
+            #    return ww[0]
+            if re.match ( who_re, xx ) :
                 return ww[0]
         return None
 
@@ -353,13 +366,64 @@ class Cleaner:
         b = tk.Button( f, text=text, command=partial(self.launch_window,name) )
         b.pack(side='left')
 
+    def run_ping ( self, host ) :
+        ping_host = host
+        #ping_host = "localhost"
+        pcmd = "ping -q -c 1 -W 1 "
+        cmd = pcmd + ping_host + " &> /dev/null"
+        #print ( cmd )
+
+        s = os.system ( cmd )
+
+        l = self.ping_label[host]
+        if l is None :
+            return
+
+        if s == 0 :
+            status = " Alive "
+            color = "green2"
+        else :
+            status = " Not responding "
+            color = "red"
+        #print ( status )
+        l.configure ( text=status )
+        l.configure ( bg=color )
+
+    def add_ping ( self, host ) :
+        f = tk.Frame ( self.f2, width=DEF_WIDTH )
+        f.pack()
+        self.info.append ( f )
+
+        l = tk.Label( f, text=host.ljust(10) )
+        l.pack(side='left')
+
+        b = tk.Button( f, text="Ping", command=partial(self.run_ping,host) )
+        b.pack(side='left',padx=10)
+
+        s = tk.Label( f, text=" ? unknown ", bg='yellow' )
+        s.pack(side='left')
+        self.ping_label[host] = s
+        self.run_ping ( host )
+
     def update_misc ( self ) :
+        global which_oven
+
         self.info = []
 
-        self.add_wbutton ( "new Red Window", "red" )
-        self.add_wbutton ( "new Blue Window", "blue" )
-        self.add_wbutton ( "new Purple Window", "purple" )
-        self.add_wbutton ( "new Green Window", "green" )
+        if which_oven == MCUBE :
+            self.add_wbutton ( "new Red Window", "red" )
+            self.add_wbutton ( "new Blue Window", "blue" )
+
+            self.add_ping ( "oven1v0" )
+        else :
+            self.add_wbutton ( "new Red Window", "red" )
+            self.add_wbutton ( "new Blue Window", "blue" )
+            self.add_wbutton ( "new Purple Window", "purple" )
+            self.add_wbutton ( "new Green Window", "green" )
+
+            self.add_ping ( "oven0v0" )
+            self.add_ping ( "oven0v1" )
+            self.add_ping ( "oven0v2" )
 
 # ----------------------------------
 # - stuff for startup tab
@@ -376,15 +440,17 @@ class Cleaner:
         self.change_oven ()
 
     def change_oven ( self ) :
-        self.unload ()
-
-        self.info = []
+        global which_oven
 
         # oven.get() fetches the value of the radiobutton controlled
         # intVar that is 1 for the main oven, 2 for the Mcube
+        which_oven = self.oven.get()
+
+        self.unload ()
+        self.info = []
 
         # tasks
-        if self.oven.get() == MAIN_OVEN :
+        if which_oven == MAIN_OVEN :
             self.new_dir ( MAIN_OVEN )
             self.st_one ("ovend")
             self.st_one ("ovene -c0")
@@ -404,7 +470,7 @@ class Cleaner:
         self.st_one ("ovenb")
 
         # shared memory
-        if self.oven.get() == MAIN_OVEN :
+        if which_oven == MAIN_OVEN :
             self.sm_one ( "-c0" )
             self.sm_one ( "-c1" )
             self.sm_one ( "-c2" )
