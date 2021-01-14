@@ -52,7 +52,6 @@ class Cleaner:
 
         user = getpass.getuser()
         self.is_pilot = (user == "pilot" or user == "tom")
-        print ( self.is_pilot )
 
         self.mw = tk.Tk()
         self.mw.title('Oven Starter / Cleaner')
@@ -178,13 +177,20 @@ class Cleaner:
     def new_dir ( self, which_oven ) :
         global already_told_him
 
+        user = getpass.getuser()
+
+        if user == "vncpilot" :
+            if which_oven == MCUBE :
+                self.change_dir ( "/home/pilot/MCUBE" );
+            else :
+                self.change_dir ( "/home/pilot" );
+
         if which_oven == MCUBE :
             path = os.path.expanduser ( "~/MCUBE" )
             self.change_dir ( path );
             print ( "Changed to directory " + os.getcwd() )
             return
 
-        user = getpass.getuser()
         if user == "tom" :
             path = os.path.expanduser ( "~/Casting" )
             self.change_dir ( path );
