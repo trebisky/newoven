@@ -137,9 +137,11 @@ class Cleaner:
         elif color == "red" :
             cmd = "gnome-terminal --title='Red Oven terminal' --window-with-profile=Red -- oven"
         elif color == "green" :
-            cmd = "xgterm -fn 12x24 -fg green -bg white -tn 'Green Oven terminal' -e cl"
+            cmd = "cd " + self.my_iraf_home + "; "
+            cmd += "xgterm -fn 12x24 -fg green -bg white -tn 'Green Oven terminal' -e cl"
         else : # purple
-            cmd = "xgterm -fn 12x24 -fg purple -bg white -tn 'Purple Oven terminal' -e cl"
+            cmd = "cd " + self.my_iraf_home + "; "
+            cmd += "xgterm -fn 12x24 -fg purple -bg white -tn 'Purple Oven terminal' -e cl"
 
         os.system ( cmd + " &" )
 
@@ -174,10 +176,15 @@ class Cleaner:
     # for the pilot, we stay in the home directory.
     # BUT, when I am running as "tom", I move to ~/Casting
     # since I don't want the oven mess in my home directory
+    # on 1-14-2021 I added stuff for vncuser, including this
+    # my_iraf_home thing.
     def new_dir ( self, which_oven ) :
         global already_told_him
 
         user = getpass.getuser()
+        # For some reason, starting the cl when we are in
+        # /home/pilot fails, so we add this as a workaround
+        self.my_iraf_home = os.path.expanduser ( "~" )
 
         if user == "vncpilot" :
             if which_oven == MCUBE :
