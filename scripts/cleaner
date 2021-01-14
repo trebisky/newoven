@@ -50,8 +50,8 @@ class Cleaner:
     def __init__ (self) :
         global which_oven
 
-        user = getpass.getuser()
-        self.is_pilot = (user == "pilot" or user == "tom")
+        self.user = getpass.getuser()
+        self.is_pilot = (self.user == "pilot" or self.user == "tom")
 
         self.mw = tk.Tk()
         self.mw.title('Oven Starter / Cleaner')
@@ -181,12 +181,11 @@ class Cleaner:
     def new_dir ( self, which_oven ) :
         global already_told_him
 
-        user = getpass.getuser()
         # For some reason, starting the cl when we are in
         # /home/pilot fails, so we add this as a workaround
         self.my_iraf_home = os.path.expanduser ( "~" )
 
-        if user == "vncpilot" :
+        if self.user == "vncpilot" :
             if which_oven == MCUBE :
                 self.change_dir ( "/home/pilot/MCUBE" );
             else :
@@ -198,11 +197,11 @@ class Cleaner:
             print ( "Changed to directory " + os.getcwd() )
             return
 
-        if user == "tom" :
+        if self.user == "tom" :
             path = os.path.expanduser ( "~/Casting" )
             self.change_dir ( path );
             if not already_told_him :
-                print ( "Changed to directory " + os.getcwd() + " for user " + user )
+                print ( "Changed to directory " + os.getcwd() + " for user " + self.user )
                 already_told_him = True
 
     # ovenw is problematic because ps sees:
@@ -467,9 +466,13 @@ class Cleaner:
         self.info = []
 
         # tasks
+        # only the user "pilot" should log data
         if which_oven == MAIN_OVEN :
             self.new_dir ( MAIN_OVEN )
-            self.st_one ("ovend")
+            if self.user == "pilot" :
+                self.st_one ("ovend")
+            else :
+                self.st_one ("ovend -nol")
             self.st_one ("ovene -c0")
             self.st_one ("ovene -c1")
             self.st_one ("ovene -c2")
@@ -479,7 +482,10 @@ class Cleaner:
             self.st_one ("oveng")
         else :
             self.new_dir ( MCUBE )
-            self.st_one ("ovend -M")
+            if self.user == "pilot" :
+                self.st_one ("ovend -M")
+            else :
+                self.st_one ("ovend -nol -M")
             self.st_one ("ovene -M")
 
         # We always launch these.
