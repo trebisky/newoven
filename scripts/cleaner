@@ -1,6 +1,7 @@
 #!/bin/python3
 
-# SOML oven "starter" script (aka cleaner)
+# SOML oven "control panel" script
+#  (originally cleaner aka "starter")
 #
 # Tom Trebisky  12-2020
 
@@ -54,7 +55,7 @@ class Cleaner:
         self.is_pilot = (self.user == "pilot" or self.user == "tom")
 
         self.mw = tk.Tk()
-        self.mw.title('Oven Starter / Cleaner')
+        self.mw.title('Oven Control Panel')
 
         self.new_dir ( which_oven )
 
@@ -531,9 +532,11 @@ class Cleaner:
         b3.pack(side='left')
 
     # handler for start button
+    # in general only pilot gets to start things,
+    # but we let anyone start ovend (which ought to start as ovend -nol)
     def st_start ( self, who ) :
         cmd = who + " &"
-        if self.is_pilot :
+        if self.is_pilot or who.starswith("ovend") :
             os.system ( cmd )
         else :
             print ( "Sorry, you don't get to start things" )
