@@ -470,10 +470,7 @@ class Cleaner:
         # only the user "pilot" should log data
         if which_oven == MAIN_OVEN :
             self.new_dir ( MAIN_OVEN )
-            if self.user == "pilot" :
-                self.st_one ("ovend")
-            else :
-                self.st_one ("ovend -nol")
+            self.st_one ("ovend")
             self.st_one ("ovene -c0")
             self.st_one ("ovene -c1")
             self.st_one ("ovene -c2")
@@ -483,10 +480,7 @@ class Cleaner:
             self.st_one ("oveng")
         else :
             self.new_dir ( MCUBE )
-            if self.user == "pilot" :
-                self.st_one ("ovend -M")
-            else :
-                self.st_one ("ovend -nol -M")
+            self.st_one ("ovend -M")
             self.st_one ("ovene -M")
 
         # We always launch these.
@@ -533,10 +527,10 @@ class Cleaner:
 
     # handler for start button
     # in general only pilot gets to start things,
-    # but we let anyone start ovend (which ought to start as ovend -nol)
     def st_start ( self, who ) :
         cmd = who + " &"
-        if self.is_pilot or who.starswith("ovend") :
+        #if self.is_pilot or who.starswith("ovend") :
+        if self.is_pilot :
             os.system ( cmd )
         else :
             print ( "Sorry, you don't get to start things" )
