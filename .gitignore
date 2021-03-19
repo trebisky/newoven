@@ -7,8 +7,9 @@ ovenb
 ovenp
 ovenr
 oven_shm
-odisp
-odisp_helper
+odisp/odisp
+odisp/odisp_helper
+odisp/database
 makemenus
 *.o
 database

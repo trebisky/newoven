@@ -1,20 +1,11 @@
-/* oven_shm.c
+/* odisp_helper.c
  *
- * Tom Trebisky  9-8-2020
+ * Tom Trebisky  3-19-2021
  *
- * This is a new tool to check and initialize shared memory.
- * In general, it will not be invoked directly, but will be
- *  called by the "cleaner" script, which is a user friendly
- *  front end.
- * This will never write to the oven.
- * It will, as requested, read B and P data from the oven in
- *  order to initialize a shared memory segment
- *
- * Options:
- *	- oload - load database from oven (create if necessary)
- *	- dload - load database from disk (create if necessary)
- *	- check - see if database exists (return number of zones).
+ * This is a new tool to pull information from shared memory
+ * to be passed to the new odisp.
  */
+
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
@@ -28,85 +19,10 @@
 extern int oven;
 extern int comp;
 extern int readonly;
-extern int period;
-extern int offset;
 
-#ifdef notdef
-static int
-init_context ( void )
-{
-	CONTEXT	*cp;
+enum db_type { DB_SHM, DB_LOCAL };
 
-	cp = (CONTEXT *)calloc (1, sizeof(CONTEXT));
-
-	/* 6-23-2019 */
-	if ( ! cp )
-	    return 20;
-
-	/*
-	status = (int)cp;
-	switch (status) {
-	case 0:
-	    return (status+20);
-	    break;
-	default:
-	    status = 0;
-	    break;
-	}
-	*/
-	globalp->contextp = cp;
-	return 0;
-}
-#endif
-
-static int
-oven_setup ( void )
-{
-	int status;
-
-        status = init_globals ( oven, comp );
-	if ( status < 0 ) {
-	    printf ( "Cannot init globals (%d)\n", status );
-	    return 1;
-	}
-
-#ifdef notdef
-        status = init_context ();
-	if ( status ) {
-	    printf ( "Cannot init context (%d)\n", status );
-	    return 1;
-	}
-        status = init_database ( oven, comp, readonly );
-	if ( status ) {
-	    printf ( "Cannot init database (%d)\n", status );
-	    return 1;
-	}
-        status = init_menus ();
-	if ( status ) {
-	    printf ( "Cannot init menus (%d)\n", status );
-	    return 1;
-	}
-
-	/* Run the menus! */
-        status = do_menus ( period, offset );
-
-	if ( status ) {
-	    printf ( "Cannot run menus (%d)\n", status );
-	    return 1;
-	}
-#endif
-	return 0;
-}
-
-/* I thought about having the ability to "zero" the database,
- * but I can't really think how that would be useful.
- * There should ALWAYS be a way to immediately load the database
- * with something valid.
- */
-
-enum shm_mode { STATUS, DISK_LOAD, OVEN_LOAD };
-
-static enum shm_mode my_mode = STATUS;
+enum db_type db_type = DB_LOCAL;
 
 /* -status is the default.
  * This can be provided (as well any any other thing)
@@ -115,7 +31,7 @@ static enum shm_mode my_mode = STATUS;
  * they get the last load option specified.
  */
 static void
-shm_set_args ( int argc, char **argv )
+set_args ( int argc, char **argv )
 {
 	int x_oven, x_comp;
 	char *p;
@@ -127,86 +43,68 @@ shm_set_args ( int argc, char **argv )
 	    p = *argv;
 	    // printf ( "ARG: %s\n", p );
 
-	    if ( p[0] == '-' && strncmp ( "oload", &p[1], 5 ) == 0 ) {
-		my_mode = OVEN_LOAD;
-	    }
-
-	    if ( p[0] == '-' && strncmp ( "dload", &p[1], 5 ) == 0 ) {
-		my_mode = DISK_LOAD;
-	    }
-
 	    --argc;
 	    ++argv;
 	}
 }
 
-static void
-do_disk_load ( void )
+
+p_database *
+attach_shm_database ( void )
 {
 	int status;
 
-	// printf ( "Disk load\n" );
-        status = init_database ( oven, comp, readonly );
-	if ( status ) {
-	    printf ( "Cannot init database (%d)\n", status );
-	    // return 1;
-	}
-	db_bpread_disk ();
-}
-
-static void
-do_oven_load ( void )
-{
-	int status;
-
-	// printf ( "Oven load\n" );
-        status = init_database ( oven, comp, readonly );
-	if ( status ) {
-	    printf ( "Cannot init database (%d)\n", status );
-	    // return 1;
-	}
-	db_bpread_oven ();
-}
-
-/* Active zones have a non-zero schedule node count
- */
-static int
-zone_count ( void )
-{
-	p_database *pdb;
-	int i;
-	int count = 0;
-
-	pdb = Pdb;
-	for ( i=0; i<N_ZONE; i++ ) {
-	    //printf ( "Zone %d:  %d\n", i, pdb->zone[i].n_node );
-	    if ( pdb->zone[i].n_node > 0 )
-		count++;
-	}
-	return count;
-}
-
-static int
-do_status ( void )
-{
-	int status;
-
-	//printf ( "status " );
-	//printf ( " oven = %d, comp = %d\n", oven, comp );
-
+	oven = 0;
+	comp = 0;
 	readonly = 1;
-        status = init_database ( oven, comp, readonly );
-	if ( status ) {
-	    // printf ( "Cannot init database (%d)\n", status );
-	    return 999;
+
+        status = init_globals ( oven, comp );
+	if ( status < 0 ) {
+	    fprintf ( stderr, "Cannot init globals (%d)\n", status );
+	    return NULL;
 	}
-	return zone_count();
+
+	status = init_database ( oven, comp, readonly );
+
+        if ( status ) {
+            fprintf ( stderr, "Cannot init database (%d)\n", status );
+            return NULL;
+        }
+
+	return Pdb;
+}
+
+static char database_name[] = "database";
+
+p_database *
+attach_local_database ( void )
+{
+	p_database *local_db;
+	b_database *extra;
+        FILE    *fp;
+
+        fp = fopen (database_name, "r");
+	if ( fp == NULL ) {
+	    fprintf ( stderr, "Cannot open database: %s\n", database_name );
+	    return NULL;
+	}
+
+	local_db = (p_database *) malloc ( sizeof(p_database) );
+	extra = (b_database *) malloc ( sizeof(b_database) );
+
+	fread ( (char *)extra, sizeof(b_database), 1, fp);
+	fread ( (char *)local_db, sizeof(p_database), 1, fp);
+	fclose (fp);
+
+	free ( (char *) extra );
+
+	return local_db;
 }
 
 int
 main ( int argc, char **argv )
 {
-	int rv;
+	p_database *db;
 
 	/* This checks the size of the database structure,
 	 * verifying that things are compiled right.
@@ -214,48 +112,17 @@ main ( int argc, char **argv )
 	 */
 	oven_check_db ();
 
-	/* Neither of these change the args, they just set
-	 * variables according to the contents.
-	 */
-	oven_set_args ( argc, argv );
-	shm_set_args ( argc, argv );
+	set_args ( argc, argv );
 
-	if ( oven_setup () ) {
-	    printf ( "Trouble in setup, exiting\n" );
-	    return 0;
+	if ( db_type == DB_SHM ) {
+	    db = attach_shm_database ();
+	} else {
+	    db = attach_local_database ();
 	}
 
-#ifdef notdef
-	/* XXX - faster update, just for fun.
-	 * we never directly talk to the onboard oven any faster,
-	 * so there is no harm in this.
-	 */
-	period = 10;
-	offset = 0;
-
-	/* This is the old default */
-	// period = 60;
-	// offset = 8;
-
-	oven_set_args ( argc, argv );
-
-	s = oven_gui ();
-	// printf ( "Game over.\n" );
-#endif
-
-	switch ( my_mode ) {
-	    case DISK_LOAD:
-		do_disk_load ();
-		break;
-	    case OVEN_LOAD:
-		do_oven_load ();
-		break;
-	    default:
-		rv = do_status ();
-		if ( rv < 100 )
-		    printf ( "%d Zones\n", rv );
-		else
-		    printf ( "Sorry\n" );
+	if ( db == NULL ) {
+	    fprintf ( stderr, "Sorry\n" );
+	    return 1;
 	}
 
 	return 0;
