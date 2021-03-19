@@ -10,6 +10,8 @@ oven_shm
 odisp/odisp
 odisp/odisp_helper
 odisp/database
+odisp/zzz
+odisp/zzz.c
 makemenus
 *.o
 database
