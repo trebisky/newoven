@@ -50,7 +50,7 @@ set_args ( int argc, char **argv )
 	}
 }
 
-p_database *
+database *
 attach_shm_database ( void )
 {
 	int status;
@@ -72,16 +72,16 @@ attach_shm_database ( void )
             return NULL;
         }
 
-	return Pdb;
+	return Gdb;
 }
 
 static char database_name[] = "database";
 
-p_database *
+database *
 attach_local_database ( void )
 {
-	p_database *local_db;
-	b_database *extra;
+	database *local_db;
+	// b_database *extra;
         FILE    *fp;
 	int e_size = sizeof(p_database) + sizeof(b_database);
 	struct stat st_buf;
@@ -105,24 +105,30 @@ attach_local_database ( void )
 	    return NULL;
 	}
 
-	local_db = (p_database *) malloc ( sizeof(p_database) );
-	extra = (b_database *) malloc ( sizeof(b_database) );
+	local_db = (database *) malloc ( sizeof(database) );
+	// local_db = (p_database *) malloc ( sizeof(p_database) );
+	// extra = (b_database *) malloc ( sizeof(b_database) );
 
-	fread ( (char *)extra, sizeof(b_database), 1, fp);
-	fread ( (char *)local_db, sizeof(p_database), 1, fp);
+	fread ( (char *)&local_db->biparameter, sizeof(b_database), 1, fp);
+	fread ( (char *)&local_db->parameter, sizeof(p_database), 1, fp);
 	fclose (fp);
 
-	free ( (char *) extra );
+	// free ( (char *) extra );
 
 	printf ( "Local database loaded !!\n" );
 
 	return local_db;
 }
 
+void
+fetch_tc_he ( database *db )
+{
+}
+
 int
 main ( int argc, char **argv )
 {
-	p_database *db;
+	database *db;
 
 	/* This checks the size of the database structure,
 	 * verifying that things are compiled right.
@@ -142,6 +148,8 @@ main ( int argc, char **argv )
 	    fprintf ( stderr, "Sorry\n" );
 	    return 1;
 	}
+
+	fetch_tc_he ( db );
 
 	return 0;
 }
