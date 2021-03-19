@@ -120,9 +120,95 @@ attach_local_database ( void )
 	return local_db;
 }
 
+/* tc_loc - tc locations
+ */
+int
+get_tc_locs ( database *db, int *tc_index, int *tc_radius, int *tc_theta, int *tc_z )
+{
+	// database	*db = globalp->db;
+	int count = 0;
+	DCL_DCU
+
+	for (dcu = 0; dcu < N_DCU; DCU__) {
+
+	    DCL_COUNTER
+
+	    for (counter = 0; counter < N_COUNTER; COUNTER__) {
+
+		DCL_TIC
+
+		for (tic = 0; tic < N_TIC; TIC__) {
+
+		    p_tc	*ptc = ptic->tc;
+		    int		tc;
+
+		    for (tc = 0; tc < N_TTMP; ptc++, tc++) {
+
+		      DNTX dntx = ((dcu*N_COUNTER+counter)*N_TIC+tic)*N_TTMP+tc;
+
+			*tc_index++ = dntx+1;
+			*tc_radius++ = ptc->loc.r;
+			*tc_theta++ = ptc->loc.t;
+			*tc_z++ = ptc->loc.z;
+			count++;
+		    }
+		}
+	    }
+	}
+	return count;
+}
+
+/* he_loc - heater element locations
+ */
+int
+get_he_locs ( database *db, int *he_index, int *he_radius, int *he_theta, int *he_z )
+{
+	// database	*db = globalp->db;
+	int count = 0;
+	DCL_PANEL
+
+	for (panel = 0; panel < N_PANEL; PANEL__) {
+
+	    DCL_FASE
+
+	    for (fase = 0; fase < N_FASE; FASE__) {
+
+		DCL_ELEMENT
+
+		for (element = 0; element < N_ELEMENT; ELEMENT__) {
+
+		    PFE		pfe = (panel*N_FASE+fase)*N_ELEMENT+element;
+
+		    *he_index++ = pfe+1;
+		    *he_radius++ = pelement->loc.r;
+		    *he_theta++ = pelement->loc.t;
+		    *he_z++ = pelement->loc.z;
+		    count++;
+		}
+	    }
+	}
+	return count;
+}
+
 void
 fetch_tc_he ( database *db )
 {
+	int tc_index[1000];
+	int tc_radius[1000];
+	int tc_theta[1000];
+	int tc_z[1000];
+	int n_tc;
+
+	int he_index[500];
+	int he_radius[500];
+	int he_theta[500];
+	int he_z[500];
+	int n_he;
+
+	n_tc = get_tc_locs ( db, tc_index, tc_radius, tc_theta, tc_z );
+	printf ( "%d TC's fetched\n", n_tc );
+	n_he = get_he_locs ( db, he_index, he_radius, he_theta, he_z );
+	printf ( "%d HE's fetched\n", n_he );
 }
 
 int
