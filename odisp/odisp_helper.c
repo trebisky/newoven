@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include "oven.h"
 #include "menus.h"
@@ -48,7 +50,6 @@ set_args ( int argc, char **argv )
 	}
 }
 
-
 p_database *
 attach_shm_database ( void )
 {
@@ -82,6 +83,21 @@ attach_local_database ( void )
 	p_database *local_db;
 	b_database *extra;
         FILE    *fp;
+	int e_size = sizeof(p_database) + sizeof(b_database);
+	struct stat st_buf;
+
+	// -- should be 133548 bytes
+	// printf ( "Total database size = %d\n", e_size );
+
+	if ( stat ( database_name, &st_buf ) < 0 ) {
+	    fprintf ( stderr, "Cannot find database file: %s\n", database_name );
+	    return NULL;
+	}
+
+	if ( st_buf.st_size != e_size ) {
+	    fprintf ( stderr, "database file wrong size: %s\n", database_name );
+	    return NULL;
+	}
 
         fp = fopen (database_name, "r");
 	if ( fp == NULL ) {
@@ -97,6 +113,8 @@ attach_local_database ( void )
 	fclose (fp);
 
 	free ( (char *) extra );
+
+	printf ( "Local database loaded !!\n" );
 
 	return local_db;
 }
