@@ -26,11 +26,32 @@ enum db_type { DB_SHM, DB_LOCAL };
 
 enum db_type db_type = DB_LOCAL;
 
-/* -status is the default.
- * This can be provided (as well any any other thing)
- * but is not necessary.
+#define NUM_TC	720
+#define NUM_HE	300
+
+struct tc_info {
+	int r;		/* radius in inches */
+	int t;		/* theta in degrees */
+	int z;
+};
+
+struct he_info {
+	int r;		/* radius in inches */
+	int t;		/* theta in degrees */
+	int z;
+};
+
+#define PAD_TC	NUM_TC + 10
+#define PAD_HE	NUM_HE + 10
+
+struct tc_info tc_data[PAD_TC];
+struct he_info he_data[PAD_HE];
+
+/* ---------------------------------------------------------------*/
+
+/*
  * If some idiot puts several options on the line,
- * they get the last load option specified.
+ * they get the last options specified.
  */
 static void
 set_args ( int argc, char **argv )
@@ -122,8 +143,10 @@ attach_local_database ( void )
 
 /* tc_loc - tc locations
  */
+// int get_tc_locs ( database *db, int *tc_index, int *tc_radius, int *tc_theta, int *tc_z )
+// int get_tc_locs ( database *db, int *tc_radius, int *tc_theta, int *tc_z )
 int
-get_tc_locs ( database *db, int *tc_index, int *tc_radius, int *tc_theta, int *tc_z )
+get_tc_locs ( database *db, struct tc_info *tc, int limit )
 {
 	// database	*db = globalp->db;
 	int count = 0;
@@ -140,17 +163,23 @@ get_tc_locs ( database *db, int *tc_index, int *tc_radius, int *tc_theta, int *t
 		for (tic = 0; tic < N_TIC; TIC__) {
 
 		    p_tc	*ptc = ptic->tc;
-		    int		tc;
+		    int		itc;
 
-		    for (tc = 0; tc < N_TTMP; ptc++, tc++) {
+		    for (itc = 0; itc < N_TTMP; ptc++, itc++) {
 
-		      DNTX dntx = ((dcu*N_COUNTER+counter)*N_TIC+tic)*N_TTMP+tc;
+		      DNTX dntx = ((dcu*N_COUNTER+counter)*N_TIC+tic)*N_TTMP+itc;
 
-			*tc_index++ = dntx+1;
-			*tc_radius++ = ptc->loc.r;
-			*tc_theta++ = ptc->loc.t;
-			*tc_z++ = ptc->loc.z;
+			// *tc_index++ = dntx+1;
+			tc->r = ptc->loc.r;
+			tc->t = ptc->loc.t;
+			tc->z = ptc->loc.z;
+			// *tc_radius++ = ptc->loc.r;
+			// *tc_theta++ = ptc->loc.t;
+			// *tc_z++ = ptc->loc.z;
+			tc++;
 			count++;
+			if ( count >= limit )
+			    return count;
 		    }
 		}
 	    }
@@ -160,8 +189,10 @@ get_tc_locs ( database *db, int *tc_index, int *tc_radius, int *tc_theta, int *t
 
 /* he_loc - heater element locations
  */
+// int get_he_locs ( database *db, int *he_index, int *he_radius, int *he_theta, int *he_z )
+// int get_he_locs ( database *db, int *he_radius, int *he_theta, int *he_z )
 int
-get_he_locs ( database *db, int *he_index, int *he_radius, int *he_theta, int *he_z )
+get_he_locs ( database *db, struct he_info *he, int limit )
 {
 	// database	*db = globalp->db;
 	int count = 0;
@@ -179,36 +210,95 @@ get_he_locs ( database *db, int *he_index, int *he_radius, int *he_theta, int *h
 
 		    PFE		pfe = (panel*N_FASE+fase)*N_ELEMENT+element;
 
-		    *he_index++ = pfe+1;
-		    *he_radius++ = pelement->loc.r;
-		    *he_theta++ = pelement->loc.t;
-		    *he_z++ = pelement->loc.z;
+		    // *he_index++ = pfe+1;
+		    he->r = pelement->loc.r;
+		    he->t = pelement->loc.t;
+		    he->z = pelement->loc.z;
+		    // *he_radius++ = pelement->loc.r;
+		    // *he_theta++ = pelement->loc.t;
+		    // *he_z++ = pelement->loc.z;
+		    he++;
 		    count++;
+		    if ( count >= limit )
+			return count;
 		}
 	    }
 	}
 	return count;
 }
 
-void
+#ifdef notdef
+define IS_BASE  ($1 >= bmin && $1 <= bmax)
+define IS_LID   ($1 >= lmin && $1 <= lmax)
+define IS_WALL  ($1 >= wmin && $1 <= wmax && $2 > bmax && $2 < lmin)
+define IS_MOLD  ($1 >= mmin && $1 <= mmax)
+define IS_ALUM  ($1 >= umin && $1 <= umax)
+
+// different limits for heaters vs thermocouples,
+//  but only for the wall tests
+//  walls tests r,z -- IS_WALL (radius, z)
+// all the rest just test z
+define HBMIN     -1.                    # base minimum and maximum z values
+define HBMAX      6.
+define HLMIN     52.                    # lid minimum and maximum z values
+define HLMAX     95.
+define HWMIN    191.                    # wall minimum and maximum radii
+define HWMAX    193.
+define HMMIN     19.                    # mold minimum and maximum z values
+define HMMAX     21.
+define HAMIN     -11.                   # alum minimum and maximum z values
+define HAMAX     -9.
+
+define TBMIN     -1.                    # base minimum and maximum z values
+define TBMAX      6.
+define TLMIN     52.                    # lid minimum and maximum z values
+define TLMAX     95.
+define TWMIN    187.                    # wall minimum and maximum radii
+define TWMAX    193.
+define TMMIN     19.                    # mold minimum and maximum z values
+define TMMAX     21.
+define TAMIN     -11.                   # alum minimum and maximum z values
+define TAMAX     -9.
+
+#endif
+
+int
 fetch_tc_he ( database *db )
 {
-	int tc_index[1000];
+	/*
 	int tc_radius[1000];
 	int tc_theta[1000];
 	int tc_z[1000];
-	int n_tc;
 
-	int he_index[500];
 	int he_radius[500];
 	int he_theta[500];
 	int he_z[500];
+	*/
+
+	int n_tc;
 	int n_he;
 
-	n_tc = get_tc_locs ( db, tc_index, tc_radius, tc_theta, tc_z );
+	int i;
+
+	// n_tc = get_tc_locs ( db, tc_radius, tc_theta, tc_z );
+	n_tc = get_tc_locs ( db, tc_data, PAD_TC );
 	printf ( "%d TC's fetched\n", n_tc );
-	n_he = get_he_locs ( db, he_index, he_radius, he_theta, he_z );
+	if ( n_tc != NUM_TC ) {
+	    fprintf ( stderr, "TC database mismatch!\n" );
+	    return 0;
+	}
+	for ( i=0; i<n_tc; i++ )
+	    printf ( "TC %3d %12d %12d %12d\n", i+1,
+		tc_data[i].r, tc_data[i].t, tc_data[i].z );
+
+	// n_he = get_he_locs ( db, he_radius, he_theta, he_z );
+	n_he = get_he_locs ( db, he_data, PAD_HE );
 	printf ( "%d HE's fetched\n", n_he );
+	for ( i=0; i<n_he; i++ )
+	    printf ( "HE %3d %12d %12d %12d\n", i+1,
+		he_data[i].r, he_data[i].t, he_data[i].z );
+
+	return 1;
 }
 
 int
