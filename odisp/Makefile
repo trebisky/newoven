@@ -1,7 +1,8 @@
 # build a version of odisp independent of IRAF
 # Tom Trebisky  3-19-2021
 
-HELPER_OBJS = odisp_helper.o common.o init.o shmalloc.o
+# HELPER_OBJS = odisp_helper.o common.o init.o shmalloc.o
+HELPER_OBJS = odisp_helper.o
 
 #CC = cc -g
 #CC = cc -pedantic -Wstrict-prototypes -Wmissing-prototypes

@@ -4,25 +4,30 @@
  *
  * This is a tool to pull information from shared memory
  * to be passed to the new odisp.
+ *
+ * It can now be built without linking in any other oven code.
+ *  (well, it does need oven.h)
+ * It can read tc/he locations and config either from
+ *  shared memory (i.e. during a casting) or later from a
+ *  binary database file.
+ * It would not be hard to make it capable of reading an
+ *  ascii config/database file.
+ *
+ * We can specify 3 kinds of data (ttmp, htmp, or hpwr)
+ *  this was called "info" in the original odisp
+ * We can display 5 views (previously called "aspect")
+ *  base, lid, wall, mold, alum
  */
 
 #include <stdio.h>
 #include <stdlib.h>
-// #include <time.h>
+
 #include <sys/types.h>
+#include <sys/shm.h>
 #include <sys/stat.h>
 #include <math.h>
 
-
 #include "oven.h"
-#include "menus.h"
-#include "context.h"
-#include "global.h"
-#include "protos.h"
-
-extern int oven;
-extern int comp;
-extern int readonly;
 
 static float degtorad = 3.14159 / 180.0;
 
@@ -44,9 +49,12 @@ struct info {
 	float xpos;
 	float ypos;
 	float zpos;
+	float value;	/* tc or he value */
 };
 
-/* flags */
+/* flags
+ *  these do double duty as a sort of enum also.
+ */
 #define F_TC	0x0001
 #define F_HE	0x0002
 #define F_LID	0x0010
@@ -54,6 +62,9 @@ struct info {
 #define F_WALL	0x0040
 #define F_MOLD	0x0080
 #define F_ALUM	0x0100
+
+char *info = "ttmp";
+int view = F_LID;
 
 /* This pad business is some belt and suspenders checking.
  * if the oven database changes so that the expected TC and HE
@@ -66,7 +77,7 @@ struct info {
 struct info tc_data[PAD_TC];
 struct info he_data[PAD_HE];
 
-#ifdef notdef
+#ifdef OLD_SPP_CODE
 /* Parameters and macros to decide what part of the oven
  * a tc or he is located in.
  * Note that the polar coordinates within the oven are stored
@@ -155,29 +166,67 @@ set_args ( int argc, char **argv )
 	}
 }
 
+char    *
+shmalloc ( int nbytes,  int noven,  int ncomp,  int readonly)
+{
+        key_t   key = 256 + noven%16*16 + ncomp%4;
+        int     shmflg1 = (readonly) ? 0444 : 0644 | IPC_CREAT;
+        int     shmflg2 = (readonly) ? SHM_RDONLY : 0;
+        int     shmid;
+        char    *shmptr;
+
+        /* ovenp and ovenb scan through all possible ovens
+         * looking for databases (readonly), so we want to
+         * be silent in those cases.
+         */
+        if ((shmid = shmget (key, nbytes, shmflg1)) == -1) {
+            if (!readonly) {
+                perror ("shmget");
+                // fprintf ( stderr, "TJT error: shmget: %d %d %d %d\n", nbytes, key, readonly, shmid );
+                fprintf ( stderr, "shm - cannot get shared memory (key=%x, flag=%x)\n", key, shmflg1 );
+            }
+            return ((char *)0);
+        }
+
+
+        shmptr = (char *)shmat (shmid, (char *)0, shmflg2);
+        if ( shmptr == (char *) -1 ) {
+            if (!readonly) {
+                perror ("shmat");
+                fprintf ( stderr, "shm - cannot attach shared memory\n" );
+            }
+            return ((char *)0);
+        }
+
+        return (shmptr);
+}
+
 database *
 attach_shm_database ( void )
 {
-	int status;
+        database        *db;
+        char    *shmalloc ();
 
-	oven = 0;
-	comp = 0;
-	readonly = 1;
+	int noven = 0;
+	int ncomp = 0;
+	int readonly = 1;
 
+	/*
         status = init_globals ( oven, comp );
 	if ( status < 0 ) {
 	    fprintf ( stderr, "Cannot init globals (%d)\n", status );
 	    return NULL;
 	}
+	*/
 
-	status = init_database ( oven, comp, readonly );
+        db = (database *)shmalloc (sizeof(database), noven, ncomp, readonly);
 
-        if ( status ) {
-            fprintf ( stderr, "Cannot init database (%d)\n", status );
+        if ( ! db ) {
+            fprintf ( stderr, "Cannot init database\n" );
             return NULL;
         }
 
-	return Gdb;
+	return db;
 }
 
 static char database_name[] = "database";
@@ -456,6 +505,20 @@ mk_grid ( int who, int what )
 	}
 }
 
+#define CORRECT_DB_SIZE 263748
+
+int
+oven_check_db ( void )
+{
+        if ( sizeof(database) != CORRECT_DB_SIZE ) {
+            // show_sizes ();
+            printf ( "ERROR - bad compile, database size wrong\n" );
+            return 1;
+        }
+
+        return 0;
+}
+
 int
 main ( int argc, char **argv )
 {
@@ -465,7 +528,8 @@ main ( int argc, char **argv )
 	 * verifying that things are compiled right.
 	 * It does nothing with the actual database
 	 */
-	oven_check_db ();
+	if ( oven_check_db () )
+	    return 1;
 
 	set_args ( argc, argv );
 
