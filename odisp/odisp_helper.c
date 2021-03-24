@@ -33,8 +33,6 @@ static float degtorad = 3.14159 / 180.0;
 
 enum db_type { DB_SHM, DB_LOCAL };
 
-enum db_type db_type = DB_LOCAL;
-
 #define NUM_TC	720
 #define NUM_HE	300
 
@@ -62,9 +60,6 @@ struct info {
 #define F_WALL	0x0040
 #define F_MOLD	0x0080
 #define F_ALUM	0x0100
-
-char *info = "ttmp";
-int view = F_LID;
 
 /* This pad business is some belt and suspenders checking.
  * if the oven database changes so that the expected TC and HE
@@ -144,85 +139,39 @@ define IS_ALUM  ($1 >= umin && $1 <= umax)
 
 /* ---------------------------------------------------------------*/
 
-/*
- * If some idiot puts several options on the line,
- * they get the last options specified.
- */
-static void
-set_args ( int argc, char **argv )
-{
-	int x_oven, x_comp;
-	char *p;
-
-	--argc;
-	++argv;
-
-	while ( argc ) {
-	    p = *argv;
-	    // printf ( "ARG: %s\n", p );
-
-	    --argc;
-	    ++argv;
-	}
-}
-
 char    *
-shmalloc ( int nbytes,  int noven,  int ncomp,  int readonly)
+shmalloc ( int nbytes,  int noven,  int ncomp )
 {
         key_t   key = 256 + noven%16*16 + ncomp%4;
-        int     shmflg1 = (readonly) ? 0444 : 0644 | IPC_CREAT;
-        int     shmflg2 = (readonly) ? SHM_RDONLY : 0;
         int     shmid;
         char    *shmptr;
 
-        /* ovenp and ovenb scan through all possible ovens
-         * looking for databases (readonly), so we want to
-         * be silent in those cases.
-         */
-        if ((shmid = shmget (key, nbytes, shmflg1)) == -1) {
-            if (!readonly) {
-                perror ("shmget");
-                // fprintf ( stderr, "TJT error: shmget: %d %d %d %d\n", nbytes, key, readonly, shmid );
-                fprintf ( stderr, "shm - cannot get shared memory (key=%x, flag=%x)\n", key, shmflg1 );
-            }
-            return ((char *)0);
+        if ((shmid = shmget (key, nbytes, 0444)) == -1) {
+	    fprintf ( stderr, "shm - cannot get shared memory (key=%x)\n", key );
+            return NULL;
         }
 
-
-        shmptr = (char *)shmat (shmid, (char *)0, shmflg2);
+        shmptr = (char *)shmat (shmid, (char *)0, SHM_RDONLY);
         if ( shmptr == (char *) -1 ) {
-            if (!readonly) {
-                perror ("shmat");
-                fprintf ( stderr, "shm - cannot attach shared memory\n" );
-            }
-            return ((char *)0);
+	    fprintf ( stderr, "shm - cannot attach shared memory\n" );
+            return NULL;
         }
 
-        return (shmptr);
+        return shmptr;
 }
 
 database *
 attach_shm_database ( void )
 {
         database        *db;
-        char    *shmalloc ();
 
 	int noven = 0;
 	int ncomp = 0;
-	int readonly = 1;
 
-	/*
-        status = init_globals ( oven, comp );
-	if ( status < 0 ) {
-	    fprintf ( stderr, "Cannot init globals (%d)\n", status );
-	    return NULL;
-	}
-	*/
-
-        db = (database *)shmalloc (sizeof(database), noven, ncomp, readonly);
+        db = (database *)shmalloc (sizeof(database), noven, ncomp);
 
         if ( ! db ) {
-            fprintf ( stderr, "Cannot init database\n" );
+            fprintf ( stderr, "Cannot connect to shm database\n" );
             return NULL;
         }
 
@@ -517,6 +466,34 @@ oven_check_db ( void )
         }
 
         return 0;
+}
+
+// enum db_type db_type = DB_LOCAL;
+enum db_type db_type = DB_SHM;
+
+char *info = "ttmp";
+int view = F_LID;
+
+/*
+ * If some idiot puts several options on the line,
+ * they get the last options specified.
+ */
+static void
+set_args ( int argc, char **argv )
+{
+	int x_oven, x_comp;
+	char *p;
+
+	--argc;
+	++argv;
+
+	while ( argc ) {
+	    p = *argv;
+	    // printf ( "ARG: %s\n", p );
+
+	    --argc;
+	    ++argv;
+	}
 }
 
 int
