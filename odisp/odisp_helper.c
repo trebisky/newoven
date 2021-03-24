@@ -39,6 +39,7 @@ struct info {
 	int t;		/* theta in degrees */
 	int z;
 	int flags;
+	int moniker;
 	float theta;
 	float xpos;
 	float ypos;
@@ -255,6 +256,11 @@ classify ( struct info *dingus )
 }
 
 /* tc_loc - tc locations
+ * The TC moniker is a 4 digit number dntx where:
+ *  d = dcu (0-5)
+ *  n = counter (0-5)
+ *  t = tic (0-3)
+ *  x = tc (0-4)
  */
 // int get_tc_locs ( database *db, int *tc_index, int *tc_radius, int *tc_theta, int *tc_z )
 // int get_tc_locs ( database *db, int *tc_radius, int *tc_theta, int *tc_z )
@@ -287,6 +293,7 @@ get_tc_locs ( database *db, struct info *tc, int limit )
 			tc->t = ptc->loc.t;
 			tc->z = ptc->loc.z;
 			tc->flags = F_TC;
+			tc->moniker = ((dcu*10 + counter) * 10 + tic) * 10 + itc;
 			classify ( tc );
 			// *tc_radius++ = ptc->loc.r;
 			// *tc_theta++ = ptc->loc.t;
@@ -303,6 +310,10 @@ get_tc_locs ( database *db, struct info *tc, int limit )
 }
 
 /* he_loc - heater element locations
+ * The HE moniker is a 3 digit number pfe where:
+ *  p = panel (0-9)
+ *  f = fase (0-2)
+ *  e = element (0-9)
  */
 // int get_he_locs ( database *db, int *he_index, int *he_radius, int *he_theta, int *he_z )
 // int get_he_locs ( database *db, int *he_radius, int *he_theta, int *he_z )
@@ -330,6 +341,7 @@ get_he_locs ( database *db, struct info *he, int limit )
 		    he->t = pelement->loc.t;
 		    he->z = pelement->loc.z;
 		    he->flags = F_HE;
+		    he->moniker = panel * 100 + fase * 10 + element;
 		    classify ( he );
 		    // *he_radius++ = pelement->loc.r;
 		    // *he_theta++ = pelement->loc.t;
@@ -392,12 +404,14 @@ print_tc_he ( void )
 	int i;
 
 	for ( i=0; i<NUM_TC; i++ )
-	    printf ( "TC %3d %12d %12d %12d %8s\n", i+1,
+	    printf ( "TC %3d tc-%d %12d %12d %12d %8s\n", i+1,
+		tc_data[i].moniker,
 		tc_data[i].r, tc_data[i].t, tc_data[i].z,
 		flags_to_s(tc_data[i].flags) );
 
 	for ( i=0; i<NUM_HE; i++ )
-	    printf ( "HE %3d %12d %12d %12d %8s\n", i+1,
+	    printf ( "HE %3d he-%d %12d %12d %12d %8s\n", i+1,
+		he_data[i].moniker,
 		he_data[i].r, he_data[i].t, he_data[i].z,
 		flags_to_s(he_data[i].flags) );
 }
