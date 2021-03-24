@@ -27,7 +27,7 @@ install:	all
 	$(CC) -c $^  -o $@
 
 odisp_helper: $(HELPER_OBJS)
-	cc -o odisp_helper $(HELPER_OBJS) -lm
+	cc -o odisp_helper $(HELPER_OBJS) -lm -lcfitsio
 
 odisp_helper.o:	odisp_helper.c
 common.o:	../common.c

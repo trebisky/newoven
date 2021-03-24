@@ -12,6 +12,7 @@ odisp/odisp_helper
 odisp/database
 odisp/zzz
 odisp/zzz.c
+odisp/*.fits
 makemenus
 *.o
 database

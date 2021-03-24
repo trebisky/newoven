@@ -25,6 +25,8 @@
 #include <sys/types.h>
 #include <sys/shm.h>
 #include <sys/stat.h>
+
+#include <cfitsio/fitsio.h>
 #include <math.h>
 
 #include "oven.h"
@@ -47,7 +49,8 @@ struct info {
 	float xpos;
 	float ypos;
 	float zpos;
-	float value;	/* tc or he value */
+	float value;	/* ttmp or htmp */
+	float val2;	/* hpwr*/
 };
 
 /* flags
@@ -60,6 +63,7 @@ struct info {
 #define F_WALL	0x0040
 #define F_MOLD	0x0080
 #define F_ALUM	0x0100
+#define F_DOWN	0x0200
 
 /* This pad business is some belt and suspenders checking.
  * if the oven database changes so that the expected TC and HE
@@ -280,9 +284,10 @@ get_tc_locs ( database *db, struct info *tc, int limit )
 		for (tic = 0; tic < N_TIC; TIC__) {
 
 		    p_tc	*ptc = ptic->tc;
+		    d_tc        *dtc = dtic->tc;
 		    int		itc;
 
-		    for (itc = 0; itc < N_TTMP; ptc++, itc++) {
+		    for (itc = 0; itc < N_TTMP; dtc++, ptc++, itc++) {
 
 		      DNTX dntx = ((dcu*N_COUNTER+counter)*N_TIC+tic)*N_TTMP+itc;
 
@@ -290,8 +295,13 @@ get_tc_locs ( database *db, struct info *tc, int limit )
 			tc->r = ptc->loc.r;
 			tc->t = ptc->loc.t;
 			tc->z = ptc->loc.z;
-			tc->flags = F_TC;
 			tc->moniker = ((dcu*10 + counter) * 10 + tic) * 10 + itc;
+			tc->flags = F_TC;
+			if ( pdcu->down || ptic->down || ptc->down )
+			    tc->flags |= F_DOWN;
+
+			tc->value = tc->flags & F_DOWN ? INDEFT : dtc->ttmp;
+
 			classify ( tc );
 			// *tc_radius++ = ptc->loc.r;
 			// *tc_theta++ = ptc->loc.t;
@@ -338,8 +348,14 @@ get_he_locs ( database *db, struct info *he, int limit )
 		    he->r = pelement->loc.r;
 		    he->t = pelement->loc.t;
 		    he->z = pelement->loc.z;
-		    he->flags = F_HE;
 		    he->moniker = panel * 100 + fase * 10 + element;
+		    he->flags = F_HE;
+		    if ( pelement->he_down )
+			he->flags |= F_DOWN;
+
+		    he->value = pelement->he_down ? INDEFT : delement->htmp;
+		    he->val2 = pelement->he_down ?      0 : delement->heat;
+
 		    classify ( he );
 		    // *he_radius++ = pelement->loc.r;
 		    // *he_theta++ = pelement->loc.t;
@@ -387,6 +403,10 @@ flags_to_s ( int f )
 	char *p;
 
 	p = ss;
+	if ( f & F_DOWN ) *p++ = '-';
+	if ( f & F_DOWN ) *p++ = '-';
+	if ( f & F_DOWN ) *p++ = ' ';
+
 	if ( f & F_BASE ) *p++ = 'B';
 	if ( f & F_LID ) *p++ = 'L';
 	if ( f & F_WALL ) *p++ = 'W';
@@ -400,18 +420,33 @@ void
 print_tc_he ( void )
 {
 	int i;
+	struct info *ip;
 
-	for ( i=0; i<NUM_TC; i++ )
-	    printf ( "TC %3d tc-%d %12d %12d %12d %8s\n", i+1,
-		tc_data[i].moniker,
-		tc_data[i].r, tc_data[i].t, tc_data[i].z,
-		flags_to_s(tc_data[i].flags) );
+	for ( i=0; i<NUM_TC; i++ ) {
+	    ip = &tc_data[i];
+	    printf ( "TC %3d tc-%04d %12d %12d %12d %8s ", i+1,
+		ip->moniker,
+		ip->r, ip->t, ip->z,
+		flags_to_s(ip->flags) );
+	    if ( ip->value > 1.0e30 )
+		printf ( "        ----" );
+	    else
+		printf ( "%12.2f", ip->value );
+	    printf ( "\n" );
+	}
 
-	for ( i=0; i<NUM_HE; i++ )
-	    printf ( "HE %3d he-%d %12d %12d %12d %8s\n", i+1,
-		he_data[i].moniker,
-		he_data[i].r, he_data[i].t, he_data[i].z,
-		flags_to_s(he_data[i].flags) );
+	for ( i=0; i<NUM_HE; i++ ) {
+	    ip = &he_data[i];
+	    printf ( "HE %3d he-%03d %12d %12d %12d %8s", i+1,
+		ip->moniker,
+		ip->r, ip->t, ip->z,
+		flags_to_s(ip->flags) );
+	    if ( ip->value > 1.0e30 )
+		printf ( "        ----" );
+	    else
+		printf ( "%12.2f", ip->value );
+	    printf ( " %12.2f\n", ip->val2 );
+	}
 }
 
 /*
@@ -468,8 +503,62 @@ oven_check_db ( void )
         return 0;
 }
 
-// enum db_type db_type = DB_LOCAL;
-enum db_type db_type = DB_SHM;
+/* ------------------------------------------------------- */
+/* ------------------------------------------------------- */
+
+static char *filename = "ttmp210301.fits";
+#define MPD     (24*60)         /* 1440 minutes per day */
+
+#define MAX_COLS        720             /* ttmp have 720 values */
+#define MAX_ROWS        MPD
+
+/* Big enough for anything we know about at this time */
+#define MAX_ARRAY       (MAX_ROWS*MAX_COLS)
+
+static float array [MAX_ARRAY];
+
+#define T_INDEF  1.6e38
+
+int
+load_data ( char *info, int date, int time )
+{
+	fitsfile *fptr;
+	int status = 0;
+	int s;
+	int anynul;
+	int num = NUM_TC;
+	// int num = NUM_HE;
+	int index = 0;	/* 0 - 1439 */
+	int offset;
+	int i;
+
+	s = fits_open_file ( &fptr, filename, READWRITE, &status );
+	if ( s ) {
+	    fprintf ( stderr, "Cannot open %s\n", filename );
+	    return 0;
+	}
+	// printf ( "FITS: %d %d\n", s, status );
+
+	s = fits_read_img ( fptr, TFLOAT, 1, MPD*num, 0, array, &anynul, &status);
+	if ( s ) {
+	    fprintf ( stderr, "Cannot read %s\n", filename );
+	    return 0;
+	}
+	// printf ( "FITS: %d %d\n", s, status );
+
+	offset = index * num;
+	for ( i=0; i<num; i++ )
+	    tc_data[i].value = array[offset+i];
+
+	fits_close_file ( fptr, &status );
+	return 1;
+}
+
+/* ------------------------------------------------------- */
+/* ------------------------------------------------------- */
+
+enum db_type db_type = DB_LOCAL;
+// enum db_type db_type = DB_SHM;
 
 char *info = "ttmp";
 int view = F_LID;
@@ -522,6 +611,7 @@ main ( int argc, char **argv )
 	}
 
 	fetch_tc_he ( db );
+	load_data ( "ttmp", 0, 0 );
 	print_tc_he ();
 	mk_grid ( F_TC, F_LID );
 
