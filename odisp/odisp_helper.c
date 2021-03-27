@@ -404,8 +404,9 @@ flags_to_s ( int f )
 
 	p = ss;
 	if ( f & F_DOWN ) *p++ = '-';
-	if ( f & F_DOWN ) *p++ = '-';
-	if ( f & F_DOWN ) *p++ = ' ';
+	// Just having a single character makes this easier to parse.
+	// if ( f & F_DOWN ) *p++ = '-';
+	// if ( f & F_DOWN ) *p++ = ' ';
 
 	if ( f & F_BASE ) *p++ = 'B';
 	if ( f & F_LID ) *p++ = 'L';
