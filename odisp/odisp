@@ -1,0 +1,15 @@
+#!/bin/python3
+
+import subprocess
+
+def load_data () :
+    proc = subprocess.Popen(['odisp_helper','bogus'],stdout=subprocess.PIPE)
+    print ( proc )
+    while True:
+        line = proc.stdout.readline().decode('ascii').rstrip()
+        if not line:
+            break
+        #print ( line.rstrip() )
+        print ( line )
+
+load_data ()
