@@ -28,6 +28,7 @@
 
 #include <cfitsio/fitsio.h>
 #include <math.h>
+#include <string.h>
 
 #include "oven.h"
 
@@ -562,6 +563,7 @@ static float array [MAX_ARRAY];
 
 #define T_INDEF  1.6e38
 
+#ifdef notdef
 int
 load_data ( char *info, int date, int time )
 {
@@ -610,7 +612,86 @@ load_data ( char *info, int date, int time )
 	fits_close_file ( fptr, &status );
 	return 1;
 }
+#endif
 
+
+int
+load_from_fits ( char *prefix, int date, int time )
+{
+	enum { DT_TTMP, DT_HTMP, DT_HPWR } data_type;
+	fitsfile *fptr;
+	int status = 0;
+	int s;
+	int anynul;
+	int num;
+	int index, h, m;
+	int offset;
+	int i;
+	char filename[20];
+	struct info *data;
+
+	if ( prefix[0] == 't' ) {
+	    num = NUM_TC;
+	    data = tc_data;
+	    data_type = DT_TTMP;
+	} else {
+	    num = NUM_HE;
+	    data = he_data;
+	    if ( strcmp ( prefix, "htmp" ) == 0 )
+		data_type = DT_HTMP;
+	    else
+		data_type = DT_HPWR;
+	}
+
+	h = time / 100;
+	m = time % 100;
+	index = h * 60 + m;
+
+	sprintf ( filename, "%s%06d.fits", prefix, date );
+	// printf ( "%s\n", filename );
+	// return 0;
+
+	s = fits_open_file ( &fptr, filename, READWRITE, &status );
+	if ( s ) {
+	    fprintf ( stderr, "Cannot open %s\n", filename );
+	    return 0;
+	}
+	// printf ( "FITS: %d %d\n", s, status );
+
+	s = fits_read_img ( fptr, TFLOAT, 1, MPD*num, 0, array, &anynul, &status);
+	if ( s ) {
+	    fprintf ( stderr, "Cannot read %s\n", filename );
+	    return 0;
+	}
+	// printf ( "FITS: %d %d\n", s, status );
+
+	offset = index * num;
+	for ( i=0; i<num; i++ )
+	    switch ( data_type ) {
+		case DT_TTMP:
+		    data[i].ttmp = array[offset+i];
+		    break;
+		case DT_HTMP:
+		    data[i].htmp = array[offset+i];
+		    break;
+		default:
+		    data[i].hpwr = array[offset+i];
+		    break;
+	    }
+
+	fits_close_file ( fptr, &status );
+	return 1;
+}
+
+/* load all the data we will ever need !! */
+int
+load_data ( int date, int time )
+{
+	load_from_fits ( "ttmp", date, time );
+	load_from_fits ( "htmp", date, time );
+	load_from_fits ( "hpwr", date, time );
+
+}
 /* ------------------------------------------------------- */
 /* ------------------------------------------------------- */
 
@@ -672,9 +753,7 @@ main ( int argc, char **argv )
 
 	fetch_tc_he ( db );
 
-	load_data ( "ttmp", test_date, test_time );
-	// load_data ( "htmp", test_date, test_time );
-	// load_data ( "hpwr", test_date, test_time );
+	load_data ( test_date, test_time );
 
 	print_tc_he ();
 	// mk_grid ( F_TC, F_LID );
