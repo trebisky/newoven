@@ -1,0 +1,33 @@
+#!/bin/python3
+
+import re
+
+infile = "databasc"
+
+regex = re.compile(r'^he0')
+
+bmax = 6.0
+lmin = 52.0
+
+def process ( l ) :
+    if not regex.search(l) : 
+        return
+
+#    print ( l )
+    w = l.split()
+    coord = w[11] # RRRTTTZZZ
+    #print ( coord )
+    # stupid python slice notation ends one after
+    name = w[1]
+    r = float ( coord[0:3] )
+    t = float ( coord[3:6] )
+    z = float ( coord[6:9] )
+    if ( z < bmax ) :
+        return
+    if ( z > lmin ) :
+        return
+    print ( f"HE {name} {r} {t} {z}" )
+
+with open ( infile )  as f:
+    for line in f:
+        process ( line.rstrip() )

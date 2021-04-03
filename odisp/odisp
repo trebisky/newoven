@@ -2,14 +2,83 @@
 
 import subprocess
 
+tc_expected = 720
+he_expected = 300
+
+TINVAL = 1.6e38
+
+class Info:
+    def __init__ ( self, name, x, y, z, flags ) :
+        self.name = name
+        self.x = float ( x )
+        self.y = float ( y )
+        self.z = float ( z )
+        self.flags = flags
+
+
+tc_info = []
+he_info = []
+
+def set_value ( raw ) :
+    if raw == "----" :
+        return TINVAL
+    else :
+        return float(raw)
+
+def load_line ( line ) :
+    global tc_info, he_info
+
+    ww = line.split()
+    if ww[0] == "TC" :
+        if len ( ww ) != 8 :
+            print ( "TC oops" )
+        tc = Info( ww[2], ww[3], ww[4], ww[5], ww[6] )
+        tc.ttmp = set_value ( ww[7] )
+        tc_info += [ tc ]
+    elif ww[0] == "HE" :
+        if len ( ww ) != 9 :
+            print ( "HE oops" )
+        he = Info( ww[2], ww[3], ww[4], ww[5], ww[6] )
+        he.htmp = set_value ( ww[7] )
+        he.hpwr = float ( ww[8] )
+        he_info += [ he ]
+    else :
+        pass
+        #print ( line )
+
 def load_data () :
     proc = subprocess.Popen(['odisp_helper','bogus'],stdout=subprocess.PIPE)
-    print ( proc )
     while True:
         line = proc.stdout.readline().decode('ascii').rstrip()
         if not line:
             break
-        #print ( line.rstrip() )
-        print ( line )
+        load_line ( line )
+
+def select ( data, flag ) :
+    count = 0
+    for d in data :
+        if '-' in d.flags :
+            continue
+        if flag in d.flags :
+            #print ( f"{d.name} {d.flags}" )
+            count += 1
+    return count
 
 load_data ()
+
+print ( len(tc_info) )
+print ( len(he_info) )
+
+print ( f"Mold tc: { select ( tc_info, 'M' ) }" )
+print ( f"Base tc: { select ( tc_info, 'B' ) }" )
+print ( f"Wall tc: { select ( tc_info, 'W' ) }" )
+print ( f"Lid tc: { select ( tc_info, 'L' ) }" )
+print ( f"Alum tc: { select ( tc_info, 'A' ) }" )
+
+print ( f"Mold he: { select ( he_info, 'M' ) }" )
+print ( f"Base he: { select ( he_info, 'B' ) }" )
+print ( f"Wall he: { select ( he_info, 'W' ) }" )
+print ( f"Lid he: { select ( he_info, 'L' ) }" )
+print ( f"Alum he: { select ( he_info, 'A' ) }" )
+
+# THE END

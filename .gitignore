@@ -12,6 +12,7 @@ odisp/database
 odisp/zzz
 odisp/zzz.c
 odisp/*.fits
+odisp/databasc_*
 makemenus
 *.o
 database
@@ -20,6 +21,7 @@ database_GOOD
 databasc
 databasc_BAD
 databasc_GOOD
+databasc_*
 menust/*.tc
 mkpkg
 z
@@ -29,3 +31,4 @@ OLD
 *.swp
 ovenz
 errors.log
+Auto

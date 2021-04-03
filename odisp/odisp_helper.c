@@ -43,14 +43,29 @@ struct info {
 	int r;		/* radius in inches */
 	int t;		/* theta in degrees */
 	int z;
+
+	int r1;		/* only for heaters */
+	int r2;
+	int t1;
+	int t2;
+	int z1;
+	int z2;
+
 	int flags;
 	int moniker;
 	float theta;
 	float xpos;
 	float ypos;
 	float zpos;
+
+#ifdef notdef
 	float value;	/* ttmp or htmp */
 	float val2;	/* hpwr*/
+#endif
+
+	float ttmp;
+	float htmp;
+	float hpwr;
 };
 
 /* flags
@@ -300,7 +315,7 @@ get_tc_locs ( database *db, struct info *tc, int limit )
 			if ( pdcu->down || ptic->down || ptc->down )
 			    tc->flags |= F_DOWN;
 
-			tc->value = tc->flags & F_DOWN ? INDEFT : dtc->ttmp;
+			tc->ttmp = tc->flags & F_DOWN ? INDEFT : dtc->ttmp;
 
 			classify ( tc );
 			// *tc_radius++ = ptc->loc.r;
@@ -345,16 +360,27 @@ get_he_locs ( database *db, struct info *he, int limit )
 		    PFE		pfe = (panel*N_FASE+fase)*N_ELEMENT+element;
 
 		    // *he_index++ = pfe+1;
+
+		    /* locations */
 		    he->r = pelement->loc.r;
 		    he->t = pelement->loc.t;
 		    he->z = pelement->loc.z;
+
+		    /* volume for "mask" */
+		    he->r1 = pelement->loc.r1;
+		    he->r2 = pelement->loc.r2;
+		    he->t1 = pelement->loc.t1;
+		    he->t2 = pelement->loc.t2;
+		    he->z1 = pelement->loc.z1;
+		    he->z2 = pelement->loc.z2;
+
 		    he->moniker = panel * 100 + fase * 10 + element;
 		    he->flags = F_HE;
 		    if ( pelement->he_down )
 			he->flags |= F_DOWN;
 
-		    he->value = pelement->he_down ? INDEFT : delement->htmp;
-		    he->val2 = pelement->he_down ?      0 : delement->heat;
+		    he->htmp = pelement->he_down ? INDEFT : delement->htmp;
+		    he->hpwr = pelement->he_down ?      0 : delement->heat;
 
 		    classify ( he );
 		    // *he_radius++ = pelement->loc.r;
@@ -403,7 +429,9 @@ flags_to_s ( int f )
 	char *p;
 
 	p = ss;
+	// Add the - just for visibility
 	if ( f & F_DOWN ) *p++ = '-';
+	if ( f & F_DOWN ) *p++ = 'D';
 	// Just having a single character makes this easier to parse.
 	// if ( f & F_DOWN ) *p++ = '-';
 	// if ( f & F_DOWN ) *p++ = ' ';
@@ -413,6 +441,10 @@ flags_to_s ( int f )
 	if ( f & F_WALL ) *p++ = 'W';
 	if ( f & F_MOLD ) *p++ = 'M';
 	if ( f & F_ALUM ) *p++ = 'A';
+
+	// place holder when no flags are set
+	// this lets python use split later.
+	if ( p == ss ) *p++ = '-';
 	*p = '\0';
 	return ss;
 }
@@ -429,10 +461,10 @@ print_tc_he ( void )
 		ip->moniker,
 		ip->r, ip->t, ip->z,
 		flags_to_s(ip->flags) );
-	    if ( ip->value > 1.0e30 )
+	    if ( ip->ttmp > 1.0e30 )
 		printf ( "        ----" );
 	    else
-		printf ( "%12.2f", ip->value );
+		printf ( "%12.2f", ip->ttmp );
 	    printf ( "\n" );
 	}
 
@@ -442,11 +474,20 @@ print_tc_he ( void )
 		ip->moniker,
 		ip->r, ip->t, ip->z,
 		flags_to_s(ip->flags) );
-	    if ( ip->value > 1.0e30 )
+	    if ( ip->htmp > 1.0e30 )
 		printf ( "        ----" );
 	    else
-		printf ( "%12.2f", ip->value );
-	    printf ( " %12.2f\n", ip->val2 );
+		printf ( "%12.2f", ip->htmp );
+	    printf ( " %12.2f\n", ip->hpwr );
+	}
+
+	for ( i=0; i<NUM_HE; i++ ) {
+	    ip = &he_data[i];
+	    printf ( "HEM %3d he-%03d %12d - %12d %12d - %12d %12d - %12d\n", i+1,
+		ip->moniker,
+		ip->r1, ip->r2,
+		ip->t1, ip->t2,
+		ip->z1, ip->z2 );
 	}
 }
 
@@ -507,7 +548,8 @@ oven_check_db ( void )
 /* ------------------------------------------------------- */
 /* ------------------------------------------------------- */
 
-static char *filename = "ttmp210301.fits";
+// static char *filename = "ttmp210301.fits";
+
 #define MPD     (24*60)         /* 1440 minutes per day */
 
 #define MAX_COLS        720             /* ttmp have 720 values */
@@ -527,11 +569,25 @@ load_data ( char *info, int date, int time )
 	int status = 0;
 	int s;
 	int anynul;
-	int num = NUM_TC;
-	// int num = NUM_HE;
-	int index = 0;	/* 0 - 1439 */
+	int num;
+	// int index = 0;	/* 0 - 1439 */
+	int index, h, m;
 	int offset;
 	int i;
+	char filename[20];
+
+	h = time / 100;
+	m = time % 100;
+	index = h * 60 + m;
+
+	if ( info[0] == 't' )
+	    num = NUM_TC;
+	else
+	    num = NUM_HE;
+
+	sprintf ( filename, "%s%06d.fits", info, date );
+	// printf ( "%s\n", filename );
+	// return 0;
 
 	s = fits_open_file ( &fptr, filename, READWRITE, &status );
 	if ( s ) {
@@ -549,7 +605,7 @@ load_data ( char *info, int date, int time )
 
 	offset = index * num;
 	for ( i=0; i<num; i++ )
-	    tc_data[i].value = array[offset+i];
+	    tc_data[i].ttmp = array[offset+i];
 
 	fits_close_file ( fptr, &status );
 	return 1;
@@ -586,6 +642,9 @@ set_args ( int argc, char **argv )
 	}
 }
 
+int test_date = 210305;
+int test_time = 0000;
+
 int
 main ( int argc, char **argv )
 {
@@ -612,9 +671,13 @@ main ( int argc, char **argv )
 	}
 
 	fetch_tc_he ( db );
-	load_data ( "ttmp", 0, 0 );
+
+	load_data ( "ttmp", test_date, test_time );
+	// load_data ( "htmp", test_date, test_time );
+	// load_data ( "hpwr", test_date, test_time );
+
 	print_tc_he ();
-	mk_grid ( F_TC, F_LID );
+	// mk_grid ( F_TC, F_LID );
 
 	return 0;
 }
