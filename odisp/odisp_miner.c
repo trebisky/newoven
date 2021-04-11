@@ -144,7 +144,9 @@ define IS_ALUM  ($1 >= umin && $1 <= umax)
 #define AMIN     -11
 #define AMAX     -9
 
-#define HE_WMIN    191
+/* Note - all the wall heaters as of 3-2021 are at radius 188 inches */
+//#define HE_WMIN    191
+#define HE_WMIN    185
 #define HE_WMAX    193
 #define TC_WMIN    187
 #define TC_WMAX    193

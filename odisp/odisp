@@ -25,7 +25,7 @@ def set_value ( raw ) :
     else :
         return float(raw)
 
-def load_line ( line ) :
+def smelt_line ( line ) :
     global tc_info, he_info
 
     ww = line.split()
@@ -46,13 +46,14 @@ def load_line ( line ) :
         pass
         #print ( line )
 
-def load_data () :
-    proc = subprocess.Popen(['odisp_helper','bogus'],stdout=subprocess.PIPE)
+# Data must be mined, then smelted
+def smelt_data () :
+    proc = subprocess.Popen(['odisp_miner','bogus'],stdout=subprocess.PIPE)
     while True:
         line = proc.stdout.readline().decode('ascii').rstrip()
         if not line:
             break
-        load_line ( line )
+        smelt_line ( line )
 
 def select ( data, flag ) :
     count = 0
@@ -64,7 +65,7 @@ def select ( data, flag ) :
             count += 1
     return count
 
-load_data ()
+smelt_data ()
 
 print ( len(tc_info) )
 print ( len(he_info) )

@@ -1,0 +1,31 @@
+#!/bin/python3
+
+# Tom Trebisky  4-11-2021
+
+import os
+import sys
+
+# Start dorado - set up the 3 shm segments and start
+# one ovend and three ovene processes.
+
+def shm_load_disk ( who ) :
+        cmd = 'oven_shm -dload ' + who
+        os.system ( cmd )
+
+def shm_load_oven ( who ) :
+        cmd = 'oven_shm -oload ' + who
+        os.system ( cmd )
+
+# It seems harmless to do this again if they already
+# exist ...
+shm_load_oven ( "-c0" )
+shm_load_oven ( "-c1" )
+shm_load_oven ( "-c2" )
+
+os.system ( "ovend &" )
+os.system ( "ovene -c0 &" )
+os.system ( "ovene -c1 &" )
+os.system ( "ovene -c2 &" )
+
+os.system ( "ovenp &" )
+os.system ( "ovenb &" )

@@ -1,8 +1,8 @@
 # build a version of odisp independent of IRAF
 # Tom Trebisky  3-19-2021
 
-# HELPER_OBJS = odisp_helper.o common.o init.o shmalloc.o
-HELPER_OBJS = odisp_helper.o
+# HELPER_OBJS = odisp_miner.o common.o init.o shmalloc.o
+HELPER_OBJS = odisp_miner.o
 
 FOBJS = smooth.o iqhscv.o iqhsd.o iqhse.o iqhsf.o iqhsg.o iqhsh.o uertst.o ugetio.o
 
@@ -15,8 +15,8 @@ FC = g77
 
 # ----
 
-TARGETS = odisp_helper
-PUBLISH = odisp_helper odisp
+TARGETS = odisp_miner
+PUBLISH = odisp_miner odisp
 
 all: $(TARGETS)
 
@@ -32,10 +32,10 @@ install:	all
 .f.o:
 	$(FC) -o $@ -c $<
 
-odisp_helper: $(HELPER_OBJS) $(FOBJS)
-	cc -o odisp_helper $(HELPER_OBJS) $(FOBJS) -lm -lcfitsio
+odisp_miner: $(HELPER_OBJS) $(FOBJS)
+	cc -o odisp_miner $(HELPER_OBJS) $(FOBJS) -lm -lcfitsio
 
-odisp_helper.o:	odisp_helper.c
+odisp_miner.o:	odisp_miner.c
 common.o:	../common.c
 init.o:		../init.c
 shmalloc.o:	../shmalloc.c

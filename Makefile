@@ -39,6 +39,7 @@ install:	all
 	ln -sf /usr/local/bin/cleaner /usr/local/bin/starter
 	cp scripts/start_oven /usr/local/bin
 	cp scripts/start_mcube /usr/local/bin
+	cp scripts/start_dorado /usr/local/bin
 	#cp watch.pl /usr/local/bin/watch
 	cp scripts/ovenw /usr/local/bin
 	cp $(PUBLISH) /usr/local/bin
