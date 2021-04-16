@@ -1,0 +1,350 @@
+<HTML>
+<HEAD>
+<TITLE> SOML oven documentation - furnace </TITLE>
+</HEAD>
+<BODY>
+<p>
+<h3>SIMUL_LOGIN (Aug98) &emsp; &emsp; &emsp; furnace</h3>
+
+<h3>NAME</h3>
+simul_login --- procedure for pilot login to the simulator
+
+<h3>DESCRIPTION</h3>
+<p>
+This help file describes the PILOT STARTUP SEQUENCE FOR THE 
+SIMULATOR or the METER-CUBE OVEN. (oven1v0)
+<p>
+The meter-cube furnace has 12 heater circuits and can read as many as 30
+thermocouples.  All of the software is identical to that for the large
+furnace.
+<p>
+<p>
+<p>
+These instructions assumes that crater (or dorado) is running and that
+the oven network is intact.  These instructions also assume that the
+on-board VME computers are running.  IRAF parameter defaults only work
+for <i>oven0</i>.
+<p>
+See <b>user_login</b> for information about non-pilot or remote logins.
+<p>
+
+<h3>WARNING NOTE</h3>
+<p>
+Do not panic and reboot or logout too hastily.  Rebooting normally
+takes 5 minutes, but it could take as long as 20 minutes depending on
+the condition of the disk.  This login procedure will take at least 4
+minutes if you are practiced.  You might get into even more trouble
+than you already had.
+<p>
+Pilot2 should definitely not be running oven on the other workstation
+(crater or dorado) at the same time.  This is not impossible, but it
+is rather dangerous --- you could destroy the other database if you
+make a mistake.
+<p>
+<p>
+
+<h3>STEP 1: login to the console as pilot2.</h3>
+<p>
+The console login starts with a blank screen that says:
+"crater login:" or "dorado login:"
+<p>
+After entering the username and password, this should give you an
+openwindows screen with:
+<pre>
+		- a console window (cmdtool)
+		- a cpu meter (perfmeter)
+		- purple xterm window with IRAF
+		- green xterm window with IRAF
+		- red xterm window with IRAF
+		- blue xterm window with IRAF
+		- a mailtool (for mail)
+		- a clock
+		- a mailtool (for ovenlog)
+		- saoimage
+	(roughly in that order)
+</pre>
+It takes about 1 minute for all the windows to start.
+<p>
+
+<h3>STEP 2: change to the directory you plan to use.</h3>
+	(crater!/home/pilot and dorado!/home/pilot2 should be reserved for
+the large oven.) You must change directories in each of the windows.
+The meter cube normally operates from /home/pilot2/MCUBE/ on dorado.
+<p>
+<p>
+ Example
+<br>
+<pre>
+cl> cd MCUBE/		(yes, MCUBE in caps)
+cl>
+</pre>
+
+	Beware that changing directories does not change your uparm$
+directory, so watch out for parameter conflicts with the large oven.
+The best way to be safe is to specify noven=1 on the command line for
+every task.
+<p>
+<p>
+<p>
+
+<h3>STEP 3: Load the external IRAF packages for the oven.</h3>
+This step is no longer needed as the <b>mirror</b> tasks used to run the
+oven are loaded automatically when the pilot logs in.
+<p>
+<p>
+
+<br>
+<p>
+However, you may still load the <b>mirror</b>
+package in each xterm window.
+<p>
+<p>
+ Example
+<br>
+<pre>
+cl>
+cl> mirror
+mi>
+</pre>
+
+<p>
+The "mi>" prompt indicates that the <b>mirror</b> package is loaded.
+Type "?" for a list of the tasks in the active package (the last one loaded
+from the command line).
+<p>
+<p>
+ Example
+<br>
+<pre>
+mi> ?
+      alumc   ograph  ovenb   ovend   oveng   ovenr   tcmark  
+      odisp   oven    ovenc   ovene   ovenp   ovenw   
+mi> 
+</pre>
+
+<p>
+If you have not loaded the <b>mirror</b> package, you can still get a list
+of the tasks in the package by saying "help mirror" or "help mirror op=dir".
+<p>
+
+<p>
+
+<h3>STEP 4: Create shared memory segments if needed</h3>
+<p>
+Shared memory segments must be created and initialized first. 
+Check these with "ipcs".  There should be 1 segment for on-board
+computer v0, but other segments could exist for another oven.
+<p>
+<p>
+ Example (that's OK)
+<br>
+<pre>
+mi> !ipcs
+IPC status from crater as of Thu Jun  6 18:25:12 1991
+T     ID     KEY        MODE       OWNER    GROUP
+Message Queues:
+Shared Memory:
+m    300 0x00000110 --rw-r--r--    pilot2    other
+Semaphores:
+mi>
+</pre>
+
+<p>
+If shared memory segments do not exist, the oven task will create
+and initialize (fill with zeros) them.
+The shared memory segments can only be created by
+the pilot.  Run the oven task for the v0 computer as shown below.
+(use the blue window)  Before you "exit" from <b>oven</b>, use the
+"Database" menu to "Read parameters from disk".  If you know that you have
+"good" parameters in the v-computers, you could "Read parameters from oven"
+instead.
+"Read parameters from disk" should always work, but could give you clock
+settings that are hours or even days old.
+<p>
+ Example
+<br>
+<pre>
+mi> oven noven=1 ncomp=0	(Exit)
+mi>
+</pre>
+
+If an oven task crashes, use <b>flpr</b> to flush the process cache before
+restarting.  <b>unlearn</b> resets the default parameters for the task.
+<i>oven.readonly</i> must be "no" to modify shared memory segments or the
+database file. And <i>oven.remove</i> must be "no" to make a permanent
+shared memory segment.
+<p>
+ Example
+<br>
+<pre>
+mi> unlearn oven
+mi> oven.readonly=no
+mi> oven noven=1 ncomp=0
+</pre>
+
+<p>
+
+<h3>STEP 5:  Start the data and parameter daemons.</h3>
+<p>
+But, don't start background jobs if they are already running!
+Check by using: 
+<p>
+ Example
+<br>
+<pre>
+mi> !ps -aux | grep pilot2 
+mi>
+</pre>
+
+Oven tasks appear as "/usr/iraf/mirror/bin.sparc/x_mirror.e"
+The <b>cl</b>s in your xterm windows appear as "/usr/iraf/bin.sparc/cl.e"
+Background tasks will have an "N" in the STAT column.  Note that each
+background daemon has an associated <b>cl</b>.
+If you only want to check for the oven daemons, you can say:
+<p>
+ Example
+<br>
+<pre>
+mi> !ps -aux | grep mirror		(shows all mirror tasks)
+mi>
+mi> !ps -ax | grep N			(shows all background tasks)
+mi>
+</pre>
+
+If you aren't sure, kill all pilot background jobs and start clean.
+Each demon also has an associated background <b>cl</b> task.
+To kill tasks, use the Unix command:
+<p>
+ Example
+<br>
+<pre>
+mi> !kill -9 xxxx
+</pre>
+
+Where xxxx is the PID number displayed by ps.
+PID in this case means Process IDentifcation,
+not Proportional, Integral, Derivative.
+<p>
+Always use care when killing tasks.  It is particularly unproductive
+to kill the window you are working in.  It is also recommended that
+you kill or spawn tasks when the clock is between 30 and 45 seconds
+after the minute.  This avoids starting or stopping tasks while they
+are communicating.  Try to use the IRAF <b>kill</b> command whenever
+possible.  Killing a demon may cause its associated <b>cl</b> task to
+go into a loop and use a lot of CPU time.
+<p>
+Advanced users who are interested in a rapid kill may wish to try
+<b>furnace.killer</b> from J. Hill's <b>scopes</b> package.
+<p>
+For a brief description of the daemon's function type: <b>help ovenp</b>
+<p>
+<p>
+Now you are ready to start the daemons in the blue window (border):
+<p>
+ Example
+<br>
+<pre>
+mi> ovenp noven=1 ncomp=0 &
+mi> ovenb noven=1 ncomp=0 &
+	(if you are coldstarting, turn on VME computer here)
+mi> ovend noven=1 ncomp=0 &
+mi> oven  noven=1 ncomp=0
+</pre>
+
+The blue window will now continue the oven program talking to
+the shared memory segment for v0.  If the v0 computer is functioning,
+you should get fresh data each minute.  If the v0 computer has been off,
+reboot it here.
+<p>
+For a brief description of the daemon's function type: <b>help ovenp</b>
+<p>
+<p>
+
+<br>
+	Hints: Beware of parameter database synchronization problems
+after wierd scenarios.  One possible problem occurs if the vX
+computers booted before the oven daemons were running.  Download
+parameters to the oven	(and double check clock parameters). 
+
+<p>
+
+<h3>STEP 6:	Start the error daemons.</h3>
+<p>
+You are never really secure unless you have your error daemons running.
+<p>
+Start these four daemons in the red window (border):
+<p>
+ Example
+<br>
+<pre>
+mi> ovene noven=1 ncomp=0 offset=10 & 
+mi> oveng noven=1 & 
+mi> oven noven=1 ncomp=0 offset=14
+</pre>
+
+Set the <b>oven</b> program in the red window to read the error log.
+<p>
+To verify which background tasks are running in a particular xterm
+window, use the IRAF command:
+<p>
+ Example
+<br>
+<pre>
+mi> jobs
+    [1] 1473:50  Running   ovenb & 
+    [2] 1473:38  Running   ovenp & 
+    [3] 1407:02  Running   ovend & 
+mi>
+</pre>
+
+<p>
+
+<h3>STEP 7: Start the oven cron task.</h3>
+<p>
+Start the cron task in the purple window (border):
+<p>
+ Example
+<br>
+<pre>
+mi> ovenc &
+</pre>
+
+ograph and odisp should now display data at appropriate intervals.
+ 
+To stop the cron task or another daemon, use the IRAF kill
+command in the relevant window: <b>kill</b> x
+(where x is the job number [1-4])
+<p>
+
+<h3>Other useful commands:</h3>
+<p>
+To check the communication links, use "!netstat -f inet".
+<p>
+To remove a shared memory segment, use "!ipcrm -m xxx".
+<p>
+To make a hardcopy of a window, use "!xwd |xpr -device ps |lpr".
+If the window is white on black use "!xwd |xpr -device ps -rv |lpr" to reverse
+it.  (These commands are usually aliased to "hc" and "hr".
+<p>
+To logoff from the console, select "Exit" from the Rootmenu and then confirm
+your selection when prompted.
+(The oven pilot should never need to logoff, except for software changes
+or workstation failure.)
+
+<h3>BUGS</h3>
+Data files are huge as they are in the large oven (10 MB per day).
+<p>
+
+<h3>RELATED MIRROR HELP TASKS</h3>
+oven, ovenb, ovenp, ovend, ovene, oveng, ovenw, ovenc, ovenr
+
+<h3>RELATED FURNACE HELP TASKS</h3>
+pilot_login, pilot_short, user_login
+
+<h3>RELATED IRAF HELP TASKS</h3>
+jobs, kill, spy, lpar, unlearn, flpr, prc, cursors, help
+
+<h3>RELATED UNIX MAN PAGES</h3>
+xterm, ps, grep, ipcs, ipcrm, openwin, kill, w, netstat, X11, pstat, saoimage
+</BODY>
+</HTML>

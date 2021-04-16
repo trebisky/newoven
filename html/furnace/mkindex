@@ -1,0 +1,39 @@
+#!/bin/ruby
+
+def do_start ( f, section )
+  f.puts "<HTML>"
+  f.puts "<HEAD>"
+  f.puts "<TITLE> SOML oven documentation - #{section} </TITLE>"
+  #f.puts "<LINK rel="stylesheet" type="text/css" href="/css/oven.css">"
+  f.puts "</HEAD>"
+  f.puts "<BODY>"
+  f.puts "<p>"
+end
+
+def do_finish ( f )
+  f.puts "</BODY>"
+  f.puts "</HTML>"
+end
+
+def mk_li ( outf, line )
+      line.chomp!
+      base = File.basename line, ".html"
+      outf.puts "<li> <a href=\"#{line.chomp}\">#{base}</a>"
+end
+
+def make_it ( all_file )
+        outf = open( "index.html", 'w')
+        do_start outf, "furnace"
+        outf.puts "<ul>"
+
+        File.readlines(all_file).each { |line|
+          mk_li outf, line
+        }
+
+        outf.puts "</ul>"
+        do_finish outf
+end
+
+make_it "ALL"
+
+# THE END

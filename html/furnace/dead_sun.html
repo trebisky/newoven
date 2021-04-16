@@ -1,0 +1,204 @@
+<HTML>
+<HEAD>
+<TITLE> SOML oven documentation - furnace </TITLE>
+</HEAD>
+<BODY>
+<p>
+<h3>DEAD_SUN (Nov96) &emsp; &emsp; &emsp; furnace</h3>
+
+<h3>NAME</h3>
+dead_sun --- procedure for switching to the backup workstation
+<p>
+
+<h3>DESCRIPTION</h3>
+This help file describes the simple procedure for switching to the
+backup sun workstation (dorado) if the primary workstation (crater)
+should fail.
+<p>
+
+<h3>WARNING NOTES</h3>
+<p>
+Do not panic and switch too hastily.  Switching workstations makes a
+mess of the oven data by breaking image files into several pieces.  If
+you make a mistake, the database files could also be damaged.
+<p>
+Neither Pilot nor Pilot2 should be running oven on the other workstation
+(crater or dorado) at the same time.  This is not impossible, but it
+is rather dangerous --- you could destroy the other database if you
+make a mistake.
+<p>
+Make sure the other workstation is functional before you get too involved
+in this process.
+<p>
+Note that pilot's home directory is physically on crater!/d0.  So that if
+crater dies, pilot cannot login to any machine anywhere.  Similarly
+pilot2's home directory is physically on dorado!/d0, so pilot2 is able
+to login and run the oven from dorado if crater dies.  (Also remember
+that pilot has a non-home directory on dorado!/d0/ and vice-versa that
+pilot2 has a non-home directory on crater!/d0/.) 
+<p>
+
+<h3>STEP 0: Call for help</h3>
+<p>
+If a workstation has died, or even appears to have died, you need lots
+of help.  Start with J. Hill and S. Schaller.
+<p>
+
+<h3>STEP 1: logoff of crater (as pilot)</h3>
+<p>
+This is assuming that crater is not already dead.  Try to kill the oven
+daemons if you can; otherwise they may continue to read the error messages.
+<p>
+
+<h3>STEP 2: login to dorado (as pilot2)</h3>
+<p>
+Kill whatever is running on dorado; then follow the normal
+instructions in <b>pilot_login</b> or <b>pilot_short</b>.  Be careful
+with the <b>oven</b> parameters because they might be set to
+"readonly".  This login will possibly involve creating shared memory
+and possibly killing old daemons.  Be careful not to load database
+from disk until step 4.
+<p>
+
+<h3>STEP 3: save the database backup</h3>
+<p>
+The last updated backup database file (with stale clocks) should be located
+in "dorado!/d0/pilot/".  In the blue window on dorado, "copy
+/d0/pilot/database /home/pilot2/database".  Also in the blue window on
+dorado, "copy database database_save" to make sure you don't lose the
+old database file when reading database from oven.
+<p>
+
+<h3>STEP 4: read database from oven</h3>
+<p>
+This should give you the latest database file with current clocks.
+Do NOT do this step unless you are sure that the problem was with crater
+and not with the on-board computers.
+<p>
+
+<h3>FINISHED</h3>
+<p>
+You should now be piloting the oven again.  If not, call for more help.
+Some additional supplementary information is given below, but it
+should not be needed under normal circumstances.
+<p>
+
+<h3>DATABASE AUTOMATIC BACKUP</h3>
+<p>
+If the IRAF environment variable "backup" contains a valid path, the
+<b>oven</b> program should write a backup copy of database in that
+directory whenever a change to the database is made.  For pilot running
+on crater, the command to set the backup path is
+"set backup = dorado!/d0/pilot/" (usually found in the loginuser.cl file).
+This provides a copy of the database on another machine in case of
+a disk or CPU problem on crater.
+Copies of the last 9 changes to the database are always maintained
+in the pilot's working directory.  These automatic backups can get
+overwritten very quickly, so the pilot should always know the
+location of a "safe copy" of the database.  The logbook should also
+carry sufficient information for the pilot to be able to
+reconstruct the clocks at any time (but don't change the clock time
+manually unless you have qualified assistance).
+<p>
+
+<h3>ON-BOARD</h3>
+<p>
+Usually we run the oven VxWorks software from EPROM.
+The EPROM version of the software can reboot without the Sun, and can get
+oven database information from other on-board computers or from
+non-volatile RAM.
+The typical boot setup looks like this:
+<p>
+<pre>
+> bootChange
+ 
+'.' = clear field;  '-' = go to previous field;  ^D = quit
+ 
+boot device          : ln 
+processor number     : 0 
+host name            : crater 
+file name            : /opt/vxworks/oven0v1/vxWorks 
+inet on ethernet (e) : 128.196.32.11:ffffff00 t (g)     : 
+user (u)             : vwuser 
+ftp password (pw) (blank = use rsh): 
+flags (f)            : 0x0 
+target name (tn)     : oven0v1 
+startup script (s)   : /opt/vxworks/oven0v1/startup.cmd 
+other (o)            : 
+ 
+value = 0 = 0x0
+</pre>
+<p>
+But, if you are using VxWorks which boots from disk, you will also need to
+change the boot parameters of the on-board computers before they can
+successfully reboot.  To change the boot parameters, interrupt the 
+auto-boot sequence and type "c" for change.  If you are changing the
+network address of the VME computer, be sure to reboot it again and
+verify the name before connecting it to the network.
+<p>
+The typical network boot parameters look like:
+<pre>
+-> bootChange
+ 
+'.' = clear field;  '-' = go to previous field;  ^D = quit
+ 
+boot device          : ln 
+processor number     : 0 
+host name            : dorado 
+file name            : /opt/vxworks/oven1v0/vxWorks 
+inet on ethernet (e) : 128.196.32.13:ffffff00 
+inet on backplane (b): 0 
+host inet (h)        : 128.196.32.1 
+gateway inet (g)     : 
+user (u)             : vwuser 
+ftp password (pw) (blank = use rsh): 
+flags (f)            : 0x0 
+target name (tn)     : oven1v0 
+startup script (s)   : /opt/vxworks/oven1v0/startup.cmd 
+other (o)            : 
+ 
+value = 0 = 0x0
+</pre>
+<p>
+The relevant network computers are:  (from /etc/hosts)
+<pre>
+128.196.32.1    dorado.as.arizona.edu dorado
+128.196.32.2    libra.as.arizona.edu libra
+128.196.32.3    crater.as.arizona.edu crater
+128.196.32.4    ncdxtb4.as.arizona.edu ncdxtb4
+128.196.32.5    ncdxte3.as.arizona.edu ncdxte3
+128.196.32.6    vwlog4.as.arizona.edu vwlog4
+128.196.32.7    vw5.as.arizona.edu vw5
+128.196.32.8    afone.as.arizona.edu afone
+128.196.32.9    aftwo.as.arizona.edu aftwo
+128.196.32.10   oven0v0.as.arizona.edu oven0v0
+128.196.32.11   oven0v1.as.arizona.edu oven0v1
+128.196.32.12   oven0v2.as.arizona.edu oven0v2
+128.196.32.13   oven1v0.as.arizona.edu oven1v0
+128.196.32.14   mmtcell.as.arizona.edu mmtcell
+128.196.32.15   xcell.as.arizona.edu xcell
+128.196.32.16   lw4.as.arizona.edu lw4
+128.196.32.19   mlpc10.as.arizona.edu mlpc10
+128.196.32.20   mlpc11.as.arizona.edu mlpc11
+128.196.32.21   mlpc12.as.arizona.edu mlpc12
+128.196.32.22   mlpc13.as.arizona.edu mlpc13
+128.196.32.23   mlpc14.as.arizona.edu mlpc14
+128.196.32.24   mlpc15.as.arizona.edu mlpc15
+</pre>
+<p>
+
+<h3>BUGS</h3>
+
+<h3>RELATED MIRROR HELP TASKS</h3>
+oven, ovenb, ovenp, ovend, ovene, oveng, ovenw, ovenc, ovenr
+
+<h3>RELATED FURNACE HELP TASKS</h3>
+pilot_login, pilot_short, simul_login
+
+<h3>RELATED IRAF HELP TASKS</h3>
+jobs, kill, spy, lpar, unlearn, flpr, prc, cursors, help
+
+<h3>RELATED UNIX MAN PAGES</h3>
+xterm, ps, grep, ipcs, ipcrm, openwin, kill, w, netstat, X11, pstat, saoimage
+</BODY>
+</HTML>

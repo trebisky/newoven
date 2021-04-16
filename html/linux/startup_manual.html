@@ -1,0 +1,32 @@
+<HTML>
+<HEAD>
+<TITLE> SOML control room software on linux</TITLE>
+</HEAD>
+<BODY>
+
+December 4, 2019
+
+<h3> SOML control room software - manual startup (linux version)</h3>
+
+It is hoped that manual startup is seldom or never needed and that the
+automatic startup script(s) are or become entirely reliable.
+But here is what you do if you want to do it by hand.
+
+<p>
+First a quick checklist.
+
+<ul>
+<li> Login as user pilot
+<li> Bring up a terminal window.
+<li> Check for background processes, kill as needed.
+<li> Check for shared memory, remove as needed.
+<li> Start the "oven" GUI for each computer to create and initialize shared memory.
+<li> Start ovend in the background.
+<li> Start ovene in the background. (for each computer)
+<li> Start oven to run the oven GUI.
+<li> Launch ximtool
+<li> Use an xgterm to run ovenc
+</ul>
+
+</BODY>
+</HTML>

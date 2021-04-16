@@ -1,0 +1,56 @@
+<HTML>
+<HEAD>
+<TITLE> SOML control room software on linux</TITLE>
+</HEAD>
+<BODY>
+
+December 4, 2019
+
+<h3> SOML control room software - command line options (linux version)</h3>
+
+The IRAF hosted software provided various options as "cl" variables, in particular the
+values of noven and ncomp are the most commonly specified.  This is now done in a different
+and more terse fashion.  The following examples use the "oven" command, but this syntax
+applies to all of the commands.
+
+<p>
+By default noven = ncomp = 0 which is the most common case, so typing:
+
+<pre>
+oven
+</pre>
+
+will launch the text based oven GUI in the way that is most commonly useful.
+
+<p>
+To specify a different computer (such as when setting up shared memory by hand), you use
+the -c1 option in lieu of "ncomp=1", i.e. you would type:
+
+<pre>
+oven -c1
+</pre>
+
+The software allows for a multitude of ovens, but we use only 0 and 1.  Oven 1 is the meter-cubed.
+As a shorthand for using -o1 for this, the option "-M" can be used and is encouraged.
+It yields clearer output when using the "ps" command to look at running processes.
+<br>
+The oven GUI for the meter-cube could be started via:
+
+<pre>
+oven -M
+</pre>
+
+<p>
+For the ovend command only, an option "-nol" is provided, which disables logging data to files.
+
+<h3>Summary</h3>
+
+<pre>
+oven -o3 (Talk to non-existant oven number 3)
+oven -c1 (Talk to computer 1 on the main oven)
+oven -M  (Talk to the meter-cube -- identical to -o1)
+ovend -nol (tell ovend not to log data to files).
+</pre>
+
+</BODY>
+</HTML>

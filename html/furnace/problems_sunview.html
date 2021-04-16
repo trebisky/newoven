@@ -1,0 +1,124 @@
+<HTML>
+<HEAD>
+<TITLE> SOML oven documentation - mirror </TITLE>
+</HEAD>
+<BODY>
+<p>
+<h3>PROBLEMS (Feb92) &emsp; &emsp; &emsp; mirror</h3>
+
+<h3>NAME</h3>
+problems --- description of common problems with the oven screen
+
+<h3>DESCRIPTION</h3>
+<p>
+	This help file describes some of the most frequently encountered
+problems with the oven window system.  The recommended solutions are
+also given.  If any of these problems reoccur frequently, you may be doing
+something wrong.
+<p>
+<p>
+ cl dies
+<br>
+	If you accidently type control-X in a window, you will suspend
+that window's process and you will see the message:
+<p>
+<pre>
+Stopped.
+dorado% 
+</pre>
+<p>
+	If you type the Unix command <b>jobs</b> at this point, you
+will see your stopped job.  The correct response at this point is to
+give the command <b>fg</b> to bring the previous task back to the
+foreground. Your process will continue where it left off. 
+
+<p>
+<p>
+ window wrong size
+<br>
+	If you accidently resize one of the windows with the colored border,
+you should press function key R2 to restore it to its proper 34 line size.
+Window size can also be changed by pressing the "control" key and the middle
+mouse button simultaneously while the mouse is on the window border.
+
+<p>
+<p>
+ window dies
+<br>
+	If a window dies completely, move the mouse to the gray
+background area and press the right mouse button to get the Rootmenu.
+Select the window type that you wish to recreate.  Note that this does
+not RESET a window; it creates a new one.  Be sure that the old window
+is not still around; otherwise you could wind up with two copies of
+the same window, which is bad news.  Remember the window could be
+hidden or closed somewhere.
+<p>
+	The most frequent window to die is <b>imtool</b>, which cannot deal
+with talking to two tasks at once.  You therefore should be careful
+not to run <b>odisp</b> while a <b>ovenc</b> is running.
+<p>
+  To intentionally quit a window, move the mouse to the windows top
+border and hold down the right mouse button.  Select the frame submenu
+and select QUIT.
+
+<p>
+<p>
+ syntax errors
+<br>
+	If you start getting lots of syntax errors from an IRAF
+window, try giving the cl command <b>flpr</b>.  Otherwise, <b>log</b>
+out of IRAF, and exit the dorado shell.  Then restart the window as
+above.
+
+<p>
+<p>
+ frozen windows
+<br>
+	If a gterm window "freezes up", it could be because you hit
+256 characters without hitting a carriage return.  This usually occurs
+when you accidentally lean on the keyboard.  The window will just beep
+at you when you try to enter more characters. control-C fixes this
+problem.  Sometimes just using the <b>continue</b> item from the top menu
+will free up the window.
+
+<p>
+<p>
+ capital letters 
+<br>
+	If your gterm window starts giving you only capital letters,
+even when Caps Lock is off, you will probably find that the upper
+border of the window says "[CAPS]".  Function key "F1" toggles this
+function.
+
+<p>
+<p>
+ screwy cursor keys
+<br>
+	If you are using <b>ograph</b> or something else in the
+graphics section of a gterm window, and you quit the window while
+<b>=gcur</b> is active, then the cursor keys will not work in the text
+part of the gterm window unless you put on caps lock.  This can also
+occur if you control-C out of <b>=gcur</b>.  The solution is to go to the
+submenu at the top of the gterm window and say "Show graph".  Once the
+graph is rexposed, you can exit the <b>=gcur</b> normally with a "q"
+and everything will be back to normal.
+
+<p>
+<p>
+ mouse button initialization for imcur
+<br>
+	When pilot first logs in the mouse buttons are not initialized.
+This means that if you attempt to access imcur from the <b>oven</b> program
+to find an oven location, you cannot use the left mouse button to return.
+Use "t" or "l" or "w" or "b" to return from the imtool.
+	To initialize the mouse button, enter "=imcur" from the blue window.
+Then type "t" in the imtool to return.  Then enter "=imcur" again in the 
+blue window.  Then type <cntrl-left-mouse-button> twice.  Now clicking
+the left mouse button will return the relevant r-theta-z coordinates.
+
+<p>
+
+<h3>BUGS</h3>
+
+<h3>SEE ALSO</h3>
+"man gterm", "man imtool"

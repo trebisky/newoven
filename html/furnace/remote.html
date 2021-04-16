@@ -1,0 +1,127 @@
+COMMANDS FOR DISPLAYING OVEN IMAGES ON A REMOTE MACHINE
+						J. M. Hill 24MAR92
+<p>
+(This is the now obsolete set of commands used in the 1992 casting.)
+<p>
+IMAGES
+<p>
+First, be sure that an imtool is running on the remote machine.
+set node="pollux"	# or whatever the remote machine is
+<p>
+set stdimage=imt512	# normal
+set stdimage=imt1024	# if you plan to use magnification 2 to fill screen
+<p>
+display uparm$tlnow.imh frame=1
+<p>
+<p>
+<p>
+GRAPHS
+<p>
+delete stdvdm$		# delete old file
+ograph device=stdvdm	# generate a metacode file
+<p>
+erase frame=2		# clear the imtool frame
+imdkern stdvdm$ frame=2	# plot the metacode file on imtool
+<p>
+<p>
+set node=""		# when you are done
+<p>
+<p>
+(The actual cl script.)
+-------------------------------------------------------------------------------
+procedure pollux
+# Display oven stuff remotely on the pollux imtool
+# by JMH 01APR92
+<p>
+# you must run this script in the foreground the first time you use it
+#	in a window because IRAF networking will prompt you for the password.
+<p>
+# to define the task
+#	task $pollux = home$pollux.cl
+<p>
+# setup the remote imtool with the first two displays zoomed by two
+# first two displays color, third mono
+# blink frames 1,2,3 at 32 second intervals
+<p>
+begin
+	set (stdimage="imt1024")
+	set (node="pollux")
+<p>
+	while (0<1) {
+	    print ("Sending display to imt1024 on pollux.")
+<p>
+# odisp the lid ttmp map
+	    odisp (info="ttmp",asp="l",frame=1)
+#	    imdkern ("/u1d/pilot/l.mc", fr=1, color=203)
+#	    imdkern ("/u1d/pilot/angle.mc", fr=1, color=203)
+<p>
+# ograph the last 8 hours
+	    ovenw
+	    erase frame=2
+	    if (access("u1c/pilot/oshort.mc")) {
+		imdkern ("/u1c/pilot/oshort.mc", fr=2)
+	    }
+<p>
+# display a video image
+	    ovenw
+	    if (access("u1c/pilot/video/pollux1.imh")) {
+		display ("/u1c/pilot/video/pollux1.imh", fr=3)
+	    }
+<p>
+# odisp the wall ttmp map
+	    ovenw
+	    odisp (info="ttmp",asp="w",frame=1)
+#	    imdkern ("/u1d/pilot/w.mc", fr=1, color=203)
+#	    imdkern ("/u1d/pilot/wangle.mc", fr=1, color=203)
+<p>
+# ograph the current graph
+	    ovenw
+	    erase frame=2
+	    if (access("u1c/pilot/onow.mc")) {
+		imdkern ("/u1c/pilot/onow.mc", fr=2)
+	    }
+<p>
+# display a video image
+	    ovenw
+	    if (access("u1c/pilot/video/pollux2.imh")) {
+		display ("/u1c/pilot/video/pollux2.imh", fr=3)
+	    }
+<p>
+# odisp the base hpwr map
+	    ovenw
+	    odisp (info="hpwr",asp="b",frame=1) 
+<p>
+# ograph the last 1.5 days
+	    ovenw
+	    erase frame=2
+	    if (access("u1c/pilot/olong.mc")) {
+		imdkern ("/u1c/pilot/olong.mc", fr=2)
+	    }
+<p>
+# odisp the base ttmp map
+	    ovenw
+	    odisp (info="ttmp",asp="b",frame=1) 
+#	    imdkern ("/u1d/pilot/b.mc", fr=1, color=203)
+#	    imdkern ("/u1d/pilot/angle.mc", fr=1, color=203)
+<p>
+# ograph the aluminum zone
+	    ovenw
+	    erase frame=2
+	    if (access("u1c/pilot/oalum.mc")) {
+		imdkern ("/u1c/pilot/oalum.mc", fr=2)
+	    }
+<p>
+# display a video image
+	    ovenw
+	    if (access("u1c/pilot/video/pollux3.imh")) {
+		display ("/u1c/pilot/video/pollux3.imh", fr=3)
+	    }
+<p>
+# odisp the mold ttmp map
+	    ovenw
+	    odisp (info="ttmp",asp="m",frame=1) 
+#	    imdkern ("/u1d/pilot/m.mc", fr=1, color=203)
+#	    imdkern ("/u1d/pilot/angle.mc", fr=1, color=203)
+<p>
+	}
+end

@@ -1,0 +1,55 @@
+<HTML>
+<HEAD>
+<TITLE> SOML oven documentation - mirror </TITLE>
+</HEAD>
+<BODY>
+<p>
+<h3>OVEND (May91) &emsp; &emsp; &emsp; mirror</h3>
+
+<h3>NAME</h3>
+ovend -- Oven data gatherer and logger
+
+<h3>USAGE</h3>
+ovend
+
+<h3>PARAMETERS</h3>
+<p>
+ noven = 0
+<br>
+The oven number of the shared memory segment which should be attached.
+
+<p>
+ ncomp = 0
+<br>
+The computer number of the shared memory segment which should be attached.
+
+<p>
+ logdata = yes
+<br>
+If <i>logdata</i> is no, just place the data into the shared memory segment
+and do not write the data into the IRAF data files onto disk.
+
+<p>
+ period = 60
+<br>
+The period in seconds with which the data is polled.
+
+<p>
+ offset = 5
+<br>
+The number of seconds to wait after the period has expired.
+
+
+<h3>DESCRIPTION</h3>
+	Poll the V computer every period and place the oven data into
+the shared memory segment.  If enabled, write the data into the IRAF
+data files on disk.
+
+<h3>EXAMPLES</h3>
+	cl> ovend &
+
+<h3>BUGS</h3>
+
+<h3>SEE ALSO</h3>
+</BODY>
+</HTML>

@@ -1,0 +1,338 @@
+<HTML>
+<HEAD>
+<TITLE> SOML oven documentation - mirror </TITLE>
+</HEAD>
+<BODY>
+<p>
+<h3>OGRAPH (May91) &emsp; &emsp; &emsp; mirror</h3>
+
+<h3>NAME</h3>
+ograph -- graph time dependencies of oven data
+
+<h3>USAGE</h3>
+ograph
+
+<h3>PARAMETERS</h3>
+<p>
+ noven = 0
+<br>
+The oven number of the shared memory segment which should be attached.
+
+<p>
+ ncomp = 0
+<br>
+The computer number of the shared memory segment which should be attached.
+
+<p>
+ dateleft, dateright = INDEF
+<br>
+The dates corresponding to the left and right edges of the graph.
+This is entered as a single number in the format "yymmdd":  2 digits
+each for the year, month, and day of the month.  If the default
+INDEF is specified, then the date is today.  The date is ignored
+if the time origin is "now".
+
+<p>
+ timelorigin, timerorigin = ""
+<br>
+The origins for the time offset parameters for the left and right
+edges of the graph.  If the origin is "" (default), the time offsets
+are in the format "hhmm", and represent the time on the corresponding
+date.  If the origin is "now", the time offsets are signed and in the
+format "dhhmm", and they are with respect to the current
+time (the date parameter is ignored).
+
+<p>
+ timeloffset, timeroffset = INDEF
+<br>
+The beginning and ending times for the graph.  If the offset is
+INDEF (default), use the earliest or latest time available for the
+data.  If the origin
+is "", the time offset is just the time of day for the given
+date, in the format "hhmm":  2 digits each for the hours and minutes.
+24 hour time is used.
+If the origin is "now", the time offset is a signed offset from the current
+time.  In this case the format is "dhhmm":  0 or more digits for days,
+and 2 digits each for hours and minutes.
+
+<p>
+ yhiorigin, yloorigin = ""
+<br>
+Origin for y limits.  The origins may be "average",
+"mindata", "maxdata", "zero", or
+"".  "Zero" and "" are identical.  "Average" is the average of the
+minimum and maximum data values to be plotted.
+"Mindata" and "maxdata" refer to the
+values of minimum and maximum data values to be plotted.
+
+<p>
+ yhioffset, ylooffset = INDEF
+<br>
+The y-axis limits.  These offset values are added to their respective
+origin values to produce the limits for the y-axis.  INDEF values with the
+origin = "average", "mindata", or "maxdata" are taken as 0.  If the origin
+is "zero" or "", then INDEF for these offsets causes the minimum or maximum
+data values to be selected for the limit.
+
+<p>
+ info1, info2, info3, info4
+<br>
+The information to be plotted.  Up to four separate items any be
+specified.  These may be
+<pre>
+<p>
+<i>info</i>x    information                                location
+<p>
+jtmp     junction temperatures                      addr
+ttmp     time averaged thermocouple temperatures    r, th, z
+hpwr     heater powers                              r, th, z
+htmp     derived heater temperatures                r, th, z
+etmp     scheduled temperatures                     zone
+ztmp     average zone temperatures                  zone
+zsct     scatter of zone temperatures               zone
+xtmp     expected scheduled temperatures            zone
+<p>
+</pre>
+or one of various amperage analog readings:
+<pre>
+<p>
+fcPF0	fase current
+fvPF0	fase voltage
+pcP00	panel neutral current
+hvC00	computer housekeeping voltage
+<p>
+rCfva	rotation fase voltage A
+rCfvb	rotation fase voltage B
+rCfvc	rotation fase voltage C
+rCp12	rotation plus  12v power
+rCm12	rotation minus 12v power
+rCp24	rotation plus  24v power
+rCm24	rotation minus 24v power
+rCfld	rotation field voltage
+rCamp	rotation armature current
+rCerr	rotation error
+rCref	rotation reference
+rCfdbk	rotation feedback
+rCrpm	rotation speed
+<p>
+rClvdtN lvdt #N (0 <= N <= 15)
+<p>
+P = Panel number
+F = Fase number
+C = Computer number
+<p>
+</pre>
+In addition, <i>info</i>x may be specified to be "imcur" or "=imcur".
+In either of these cases the image cursor is displayed, and one may select a
+particular heater or thermocouple to plot by centering the image
+cursor on the location and pressing a key.  The following keys have these
+meanings:
+<pre>
+<p>
+If the images are in the standard display frames:
+<p>
+ frame   image
+<p>
+   1     lid
+   2     wall
+   3     base
+   4     mold
+<p>
+then one may simply select the information by these keys
+<p>
+  key     <i>info</i>x
+<p>
+   t      ttmp
+   h      htmp
+   p      hpwr
+<p>
+</pre>
+If the images are not in the standard display frames, one may specify the
+information and the location by the following keys:
+<pre>
+<p>
+  key      <i>info</i>x   location
+<p>
+   l       ttmp      lid
+   w       ttmp      wall
+   b       ttmp      base
+   m       ttmp      mold
+   L       hpwr      lid
+   W       hpwr      wall
+   B       hpwr      base
+   M       hpwr      mold
+<ctrl>L    htmp      lid
+<ctrl>W    htmp      wall
+<ctrl>B    htmp      base
+<ctrl>M    htmp      mold
+<p>
+</pre>
+The particular heater or thermocouple is identified from the cursor
+location selected.
+<p>
+The temperature and power specifications require additional location
+information as listed in the above table.  If no information should
+be plotted, use <i>info</i>x = "".
+
+<p>
+ r1, r2, r3, r4
+<br>
+Radius.  This specification is for information of type
+"ttmp", "hpwr", and "htmp".
+The units are inches.  The radius along with theta and z identifies
+the appropriate thermocouple or heater element whose information is
+to be plotted.  The element nearest the given coordinates is the one
+which is used.
+This may be selected interactively by specifying <i>info</i>x = "=imcur".
+
+<p>
+ th1, th2, th3, th4
+<br>
+Theta.  This specification is for information of type
+"ttmp", "hpwr", and "htmp".
+The units are degrees.  The angle theta along with radius and z identifies
+the appropriate thermocouple or heater element whose information is
+to be plotted.  The element nearest the given coordinates is the one
+which is used.
+This may be selected interactively by specifying <i>info</i>x = "=imcur".
+
+<p>
+ z1, z2, z3, z4
+<br>
+Z-distance.  This specification is for information of type
+"ttmp", "hpwr", and "htmp".
+The units are inches.  The z-distance along with radius and theta identifies
+the appropriate thermocouple or heater element whose information is
+to be plotted.  The element nearest the given coordinates is the one
+which is used.
+This may be selected interactively by specifying <i>info</i>x = "=imcur".
+
+<p>
+ zone1, zone2, zone3, zone4
+<br>
+Zone specifier.  The zone names are "z1", "z2", ..., "z20", and "r".
+Zone "r" is identical to "z20".  This specification is
+for information of type "etmp", "ztmp", "zsct", and "xtmp".
+
+<p>
+ addr1, addr2, addr3, addr4
+<br>
+Address specifier.  The DNTX address of the TIC.
+This specification is
+for information of type "jtmp".
+
+<p>
+ factor1, factor2, factor3, factor4 = 1.0
+<br>
+A multiplicative factor to scale the particular curve.  This serves to bring
+the various curves into the same range of values.  A scaled curve is
+indicated in the title of the graph by an asterisk ('*').
+
+<p>
+ subsample = 1
+<br>
+Plot every n-th data value, for <i>subsample</i> = n.
+This is useful for very long plots.
+
+<p>
+ timeunit = hours
+<br>
+Units for displaying time.  This can be "hours" for time of day in hours, or
+"days" for day of month.
+
+<p>
+ timezeropoint = INDEF
+<br>
+This specifies the beginning of the time label on the graph.  The default
+(INDEF) uses the times from the data files, and <i>dateleft</i> and the times
+for the left to determine the time label on the graph.  If the
+timezeropoint is 0, the data is selected from the  date and time parameters,
+then displayed from a time origin of zero.  The time origin can be set to
+a date (if <i>timeunit</i> = days) by giving the zero point in "yymmdd"
+format.  If <i>timeunit</i> = hours, the time origin can be set to a time
+by giving the zero point in "hhmm" format.
+
+<p>
+ searchdir = ""
+<br>
+List of directories to search after the current directory to find the input
+data files.  This may be a comma separated list, a template, and/or a list
+file.
+
+<p>
+ datadir = "uparm$"
+<br>
+Use this directory to hold temporary files.  If <i>datadir</i> = "",
+use the current directory.  This allows different users to operate in the 
+same directory, yet keep their work separate.
+
+<p>
+ append = no
+<br>
+Append to an existing plot.
+
+<p>
+ device = "stdgraph"
+<br>
+The output device.
+
+<p>
+ debug = no
+<br>
+Enabling <i>debug</i> causes a variety of diagnostic information to
+be written to STDERR.  If <i>debug</i> = "yes" then the temporary files are
+not deleted.
+
+
+<h3>DESCRIPTION</h3>
+Plot the time dependent behavior of oven information.  Up to four items
+may be graphed at one time.
+The four items are represented by a solid line, a dashed line,
+a dotted line, and a dash-dotted line.
+Time is indicated in hours, temperatures
+are shown in degrees C, power in power units, voltage in volts, amperage
+in amps, rotation in rpm, and others in units. 
+The graph title shows the date of the left edge of the graph and
+identifies the four plotted lines, along with an indication if
+the values have been scaled.
+
+<h3>EXAMPLES</h3>
+[1] Graph the scheduled temperature for zone 4, and the zone temperatures
+for zones 1, 2, and 3 for all of today.
+<p>
+	cl> ograph info1=e zone1=z4 info2=z zone2=z1 info3=z zone3=z2 info4=z zone4=z3
+<p>
+[2] Graph the heater powers for heaters at (r, theta, z) = (112, 0, 10) and
+(54, 27, 67) for March 10, 1988.
+<p>
+	cl> ograph datel=880310 dater=880310 info1=hp r1=112 th1=0 z1=10 info2=hp r2=54 th2=27 z2=67 info3="" info4=""
+<p>
+[3] Graph the amperage (fc000) and voltage (fv000) from 11:00 a.m. to now.
+Use directory "home$oven2/" for temporary files.
+<p>
+	cl> ograph info1=fc000 info2=fv000 info3="" info4="" timeloff=1100 datadir=home$oven2/
+<p>
+[4] Graph the information in example 3, but set the y limits above and below
+the minimum and maximum data values.
+<p>
+	cl> ograph info1=fc000 info2=fv000 info3="" info4="" timeloff=1100 datadir=home$oven2/ yhior=max yhioff=10 yloor=min ylooff=-10
+<p>
+[5] Graph the information in example 3 for the past 25 hours.
+<p>
+	cl> ograph info1=fc000 info2=fv000 info3="" info4="" timelor=now timeloff=-10100 datadir=home$oven2/ yhior=max yhioff=10 yloor=min ylooff=-10
+<p>
+
+<h3>TIME REQUIREMENTS</h3>
+
+<h3>BUGS</h3>
+Only four distinct line types can be displayed, thus limiting the
+number of identifiable pieces of information that can be graphed to four.
+<i>Append</i> = yes allows lines to be added to the graph, but there
+remains only four distinct line types.
+Only one y-axis label can be given.  If information of different types
+is graphed, the y-axis label will be appropriate only for the first
+line drawn.
+
+<h3>SEE ALSO</h3>
+</BODY>
+</HTML>

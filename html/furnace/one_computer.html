@@ -1,0 +1,50 @@
+DRAFT Procedure for switching the whole oven to one on-board computer.
+						JMH 14FEB92, 05AUG93
+<p>
+Step -1: Call for help.  If you are even thinking about changing to one
+computer during an actual casting, many engineers and programmers should
+be speeding toward the Mirror Lab.  Corollary:  These instructions are just
+to remind John and Patty what to do.
+<p>
+Step 0:  Be sure you have a serious reason for making the switchover.
+	- Many problems with one computer can be easily fixed.
+	- This change is complicated.
+	- The whole oven could go down if running on one computer.
+<p>
+Step 1:  Identify which VME computer you are going to use.  Most people
+would choose one that is still working.
+<p>
+Step 2:  Collect up the jumper cables that you will need
+	- One ribbon cable for each DCU. (4 total)
+	- One ribbon cable for each group of 3 power panels. (2 total)
+<p>
+The follow assumes that the whole oven will run on on-board computer "v1".
+<p>
+Step 3:  Save a copy of the old database. "copy database database.backup"
+<p>
+Step 4:  Restart daemons to talk to v1 instead of the default v0.  Kill the
+old daemons that were talking to v0.  See the "pilot_login" help file.
+<p>
+Step 5: In oven "miscellaneous" menu, assign rotation serial ports to
+v-computer 1.  Port addresses should not have to change.
+<p>
+Step 6:  Install rotation fiber serial cables into CP1.
+<p>
+Faster Option for steps 5,6:  Change to thumbwheels to control rotation speed.
+<p>
+Step 7: In oven "power panel" menu, assign power panels 0,1,2,6,7,8 to
+v-computer 1.  Power panels 4,5,6 are already assignedd to v1. Port
+addresses should not have to change.
+<p>
+Step 8:  Install FOSIO jumper ribbon cables into CP1 (power panel signals).
+<p>
+Step 9: Verify that all power panels are receiving signals.
+<p>
+Step 10: In oven "DCU" menu, assign DCU 0,1,4,5 to v-computer 1.  Port
+addresses should not have to change.
+<p>
+Step 11:  Install DCU jumper ribbon cables into CP1 (DCU signals).
+<p>
+Step 12: Verify that you are seeing fresh temperatures from all DCUs.
+<p>
+Step 13:  ADC ??

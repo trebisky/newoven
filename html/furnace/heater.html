@@ -1,0 +1,93 @@
+<HTML>
+<HEAD>
+<TITLE> SOML oven documentation - furnace </TITLE>
+</HEAD>
+<BODY>
+<p>
+<h3>HEATER (Apr97) &emsp; &emsp; &emsp; furnace</h3>
+
+<h3>NAME</h3>
+heater --- oven heater power algorithm
+<p>
+
+<h3>DESCRIPTION</h3>
+<p>
+Each of the heater circuits in the oven has its power output level
+controlled by a Proportional-Integral-Derivative servo algorithm.  The
+temperature derived from a group of assigned "neighboring"
+thermocouples is compared to the desired "scheduled" temperature and
+power is applied accordingly.
+<p>
+The oven heater power control system provides for computer control
+of the temperature via 9 power panels, each panel controlling
+30 heaters of 7800 watts.  The heaters from each power panel are
+evenly distributed throughout the oven's base, walls and lid.  The
+power is switched with Crydom solid-state relays (SSR) rated at 480
+volts, 50 amps which are mounted on forced air cooled heat sinks.
+<p>
+Each microprocessor controlled power panel communicates with a main
+on-board VME computer by ASCII serial data through fiber optic cables.
+The VME computer contains the PID algorithm and tells the control
+panels which heaters to turn on or off.  It then accepts the sense
+information if voltage is on to the heaters and if current is supplied
+both at the panel and at the heater.  The command status is updated
+four times per second for each of the 30 solid state relay circuits.
+Current and voltage status are readback after each command.  Each
+microcontroller is powered by the power source which supplies the
+heaters being controlled.
+<p>
+The current minute's power level for each heater element is broken
+into quarter second periods of full power or no power.  The on periods
+are distributed throughout the minute so as to even the total load on
+each circuit of ten heater elements.  Voltage and current sensors are
+used on each heater circuit to verify that the heater elements have
+indeed switched on or off at the moment commanded by the computer.
+Each of the power panel micros can turn any particular heater on or
+off every quarter second. Thus, the heaters have a dynamic range of
+240 within a minute.  To avoid surges of current use followed by the
+current being off for part of each minute, the power panel micro
+smooths the load so that a constant number of heaters (modulo 1) is on
+for each phase during the minute.  When several heaters are demanding
+power for only a fraction of a minute, these are interlaced or
+alternated according to the parameter "Fase Epsilson" which gives the
+typical timescale that a heater circuit should be on during the
+minute.
+<p>
+
+<h3>SERVO ALGORITHM</h3>
+<p>
+Once a minute, a power level for each heater element is calculated
+from a weighted average of its neighboring thermocouple temperatures,
+and the temperature called for at the current point in the schedule of
+temperature versus time.  A proportional, integral, derivative (PID)
+servo algorithm is used calculate the desired power level.  A one
+quadrant servo is used since losses through the insulation of the
+furnace provide a significant cooling loss.  There are separate
+temperature versus time schedules for each of several zones of heater
+elements.
+<p>
+The P-error (etmp - htmp) is multiplied by the P-coefficient to give
+the P-product in heater power units.  This power request is
+"proportional" to the present error in temperature compared to the
+schedule. The same is done to get the I-product by integrating over a
+specified number of lookback minutes, and the D-product by seeing how
+the error has changed since the previous minute.  If the sum of these
+three products is less than the Power Limit for that heater, this is
+the hpwr applied to the heater.  If the sum is greater, then the
+request is clipped to be no greater than the Power Limit.  If all the
+10 heaters on a single phase request more heat than can be accomodated
+by Fase Max Load, then the hpwr request is clipped even further to
+keep the load within the limit for than phase.  After all these
+calculations, the Requested Power (hpwr) reported is what actually got
+sent to the heater.
+<p>
+
+<h3>BUGS</h3>
+
+<h3>RELATED MIRROR HELP TASKS</h3>
+oven
+
+<h3>RELATED FURNACE HELP TASKS</h3>
+schedules, wait_states, zones, clocks, schedules, hardware, minutemap, menus
+</BODY>
+</HTML>

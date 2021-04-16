@@ -1,0 +1,159 @@
+<HTML>
+<HEAD>
+<TITLE> SOML oven documentation - furnace </TITLE>
+</HEAD>
+<BODY>
+<p>
+<h3>WAIT_STATES (Jul93) &emsp; &emsp; &emsp; furnace</h3>
+
+<h3>NAME</h3>
+wait_states --- oven schedule decision parameters
+<p>
+
+<h3>DESCRIPTION</h3>
+	Oven schedules consist of nodes which are composed of a
+GOALTIME and a GOALTEMP.  The node also has a LABEL and some wait
+conditions which allow the schedules of various zones to be
+syncronized.  The parameters and data for the current node of each
+active zone schedule are shown in the 'Oven Overview' menu.
+Additional details for the current node are shown in each of the
+'Zone' menus.  The full schedule for a particular zone is shown in the
+'Zone Schedule' menu.	Temperature schedules may be editted by the
+<b>oven</b> task in the 'Configuration and Status Menu'.
+<p>
+	When the V-computer is running a temperature schedule, the clock time
+is advanced once per minute and the desired or scheduled temperature for each
+control zone is calculated.  The "clock" will continue to advance minute by
+minute in real time unless it is "stop"ped by the pilot or the schedule
+encounters a wait condition.  If a zone clock arrives at the endpoint of a
+node with a wait flag, the clock will stop advancing until the wait condition
+has been satisfied or until the pilot "run"s the clock.  Wait flags can
+require any one or more of three possible conditions (T,D,W).  The clock will
+remain stopped until all of the specified conditions have been met.
+<p>
+The "T" flag indicates a wait for tolerance.  The zone clock will stop until
+the average zone temperature is within one degree C of the scheduled
+temperature at that node.  This condition is normally used to wait until high
+inertia parts of the oven or glass can catch up with the schedule.  Note that
+the PID algorithm usually holds the oven slightly below the scheduled
+temperature, so a zone controlling heaters might wait a very long time before
+reaching tolerance with itself.  Also remember that tolerance is 1 degree C
+and it doesn't care whether the schedule is going up or down.  So if the
+temperature has already passed the wait node, the clock will not run.
+<p>
+The "D" flag indicates a wait for deviation.  The zone clock will stop until
+the scatter among HTMPs in the zone is less than the scheduled deviation.
+This is normally used when you want the zone temperatures to equilibrate
+before beginning an annealing cycle.
+<p>
+The "W" flag indicates a wait for another zone(s) to reach a certain node in
+its schedule.  For example, zone R may wait until zone 0 reaches a certain
+temperature before starting rotation.  The "W" flag requires a zone label
+(Z0,Z1.....Z10,,R or A for all zones) and a node label (a-z).  The clocks
+will stop until the specified zone begins working on the specified node.
+<p>
+<p>
+
+<h3>RELATED SCHEDULE PARAMETERS</h3>
+<p>
+ Wait on Tolerance (Yes/No)
+<br>
+	Should the schedule wait until the average temperature of the zone
+is within 1 degree of the scheduled temperature?
+
+<p>
+ Wait on Deviation (Yes/No)
+<br>
+	Should the schedule wait until the scatter in the zone is less than
+the scheduled deviation?
+
+<p>
+ Wait on Zone/Node (Yes/No)
+<br>
+	Should the schedule wait until some other zone has reached a specified
+point?
+
+<p>
+ Wait on Zone ID (ID) (Z0-Z18,R,A)
+<br>
+	The name of the zone to wait on. (A to wait on all zones)
+
+<p>
+ Wait on Node Label (label) (a-z)
+<br>
+	The label of the node to wait on.  Labels are not automatically
+ assigned.  The pilot is responsible for keeeping them aligned in the schedule.
+
+<p>
+
+<h3>WAIT STATE STRATEGIES</h3>
+	The major trick to using wait states properly is to set them up
+so that all zones will have their clocks synchronized when the wait node
+is passed.  The strategy described here is the one we developed for the
+3.5 meter castings.  Suppose we want to ramp the oven to temperature and
+hold there for 6 hours after the mold has reached a certain temperature.
+<p>
+First we must put a wait for tolerance (T) in the mold schedule.  This
+temperature needs to be a little bit below the scheduled oven
+temperature.  This is because it would take between 12 and ~100 hours
+for the mold to come into equilibrium with the outside of the oven.
+<p>
+<p>
+ Mold Schedule (z4)
+<br>
+<pre>
+f    28.0   50.0  843.0 01:23:34   500.0 00:17:51
+g    28.0   50.0 1143.0 02:10:17   300.0 00:10:43 T
+h    28.0   50.0 1190.0 02:11:57    47.0 00:01:40
+i     0.0   50.0 1190.0 02:12:58     0.0 00:00:01 W A i
+j     0.0   50.0 1190.0 02:17:57     0.0 00:05:59
+</pre>
+
+<p>
+Now we want to have the oven (base in this example) stop and wait for
+Z4 after it reaches its scheduled temperature.  To do this we have all
+the control zones wait on the mold zone to reach the zone after its
+tolerance wait state.  (W Z4 h) This would mean that the mold has
+reached the proper temperature.
+<p>
+<p>
+ Base Schedule (z3)
+<br>
+<pre>
+f    28.0   50.0  843.0 01:23:34   500.0 00:17:51
+g    28.0   50.0 1143.0 02:10:17   300.0 00:10:43
+h    28.0   50.0 1190.0 02:11:57    47.0 00:01:40 W Z4 h
+i     0.0   50.0 1190.0 02:12:58     0.0 00:00:01 W A i
+j     0.0   50.0 1190.0 02:17:57     0.0 00:05:59
+</pre>
+
+<p>
+In the above example, the oven would start the next node "k" for the
+cool down 07:40 hours after the mold had reached 1143.
+<p>
+Now we would be done except that the Z4 clock might be anywhere between
+00:00 and 01:40 behind the other zones.  That would be fine until
+we get to the ramp down later in the schedule.  To correct this delay,
+we need to add a catch up node which waits on all other zones (W A i).
+The catch up node must have a duration of only 1 minute.
+Note that every zone must have the zone labelled "i" at the same
+clock time for this to work.
+<p>
+Now you're thinking: "How can it possibly take three schedule wait conditions
+to do this?"  Well, you are right.  It only takes two wait conditions, but
+it still takes three nodes.  The (W Z4 h) condition is redundant, but
+we still need that node to keep the ramps matched up.  The reason to
+keep the redundant wait condition is to make it obvious that we are
+waiting for Z4 (otherwise you have to read the schedule for all nodes to
+learn this).
+<p>
+
+<h3>BUGS</h3>
+
+<h3>RELATED MIRROR HELP TASKS</h3>
+oven
+
+<h3>RELATED FURNACE HELP TASKS</h3>
+schedules, clocks, zones, menus
+</BODY>
+</HTML>

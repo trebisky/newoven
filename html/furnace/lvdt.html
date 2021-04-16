@@ -1,0 +1,180 @@
+Instructions for LVDT positions:
+						J. M. Hill 06AUG93
+						revised 26MAR96
+						revised 10JAN97
+						revised 09SEP98
+<p>
+For the second 6.5m Prefire and later firings we have installed pairs
+of LVDTs at 4 azimuths on the oven to measure the aluminum and hearth
+radii.  We have also installed 2 pairs of LVDTs on the Inconel bands.
+In September 98 for the third 6.5m casting, we installed two more
+pairs of LVDTs on the Inconel bands.
+Viewing the results of these measurements is tricky for at
+least three reasons:
+<p>
+	1) We use the rotation A/D board in computer v0 to record the
+data each minute.  The oven menu software thinks these are rotation
+A/D voltages.  So to read the current values, look in the menu for
+Zone R.  They also don't display quite full precision on the menus.
+<p>
+	2) The LVDTs measure voltages with 12 bit resolution from -10
+VDC (0) to +10VDC (4096).  For the LVDTs with 2-inch travel, this
+corresponds to 1 volt = 0.1 inches.  Thus, the raw A/D readings must
+be multiplied by some scale factors. We normally want to convert this
+reading to radius of the hearth or to equivalent temperature of the
+aluminum plate or to length of the Inconel bands.  The hardwired
+scaling factors for the hearth and aluminum plate LVDTs are set to
+give readings in degreesC as an equivalent aluminum plate temperature.
+This assumes a plate radius of 198 inches and an expansion coefficient
+of 24.5e-6 per degree C (MIC 6 tooling plate).  The hardwired scaling
+factors for the Inconel band LVDTs give readings in degreesC as an
+equivalent band temperature. This assumes a pulley ratio of 0.3831, an
+angle of ~13 degrees from the band (for the 6.5m bands), a hot band
+length of ~492 inches, and an Inconel expansion coefficient of 11.5e-6
+per degreeC. The scaling factors from ADU to the readings on the
+screen are listed in mirror$src/oven/oven.h They are 412 and 1618
+degrees full scale.
+<p>
+	3) The LVDT readings have an arbitrary zeropoint offset which
+depends on how they were mounted at room temperature.  This cannot be
+removed by changing the normal ograph multiplication factors.  To get
+rid of this offset you must set the appropriate LVDT offset values in
+the Rotation Menu BEFORE the firing begins (before the data is
+collected).  If the zeropoint is screwed up, you may need to resort to
+the imarith tricks described in the older memo below. Especially the
+band LVDTs need to be mechanically set near the end of their +-10VDC
+travel before setting the software zeropoints.
+<p>
+To plot LVDT temperatures, use ograph and set info?="rClvdtN", where C
+is the computer number and N is the LVDT number.  So the first LVDT
+would be "r0lvdt0" and the last would be "r0lvdt15".  Premade scripts
+that work like ograph are available in the scopes.furnace package for
+plotting band and aluminum LVDT readings. (see below)
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+        Here's a way to get all the LVDT readings with full precision
+for a particular minute.  Only engineers would ever want to do this.
+<p>
+wtext rotv920219[17:32,1439] STDOUT head-
+<p>
+Obviously the number on the rotv image changes according to the date.
+The 1439 number is the number of the minute in the day (1-1440).
+ I.E. 1439 is 2 minutes before midnight.  STDOUT can be changed to the
+name of another file if you don't want to print to the screen.
+<p>
+------------------------------------------------------------------------------
+Now to subtract the zeropoint offsets, you must use imarith on the rotv.....
+data images.  Do not do this as "pilot" because there is a large risk that
+you will destroy the data altogether.
+<p>
+From your personal directory (not log'd in as pilot):
+<p>
+imarith /home/pilot/rotv920401 - /home/hill/rotvzero rotv920401
+<p>
+will make a zeropoint corrected rotv..... image.  You can now ograph this
+in the normal fashion.
+<p>
+-------------------------------------------------------------------------------
+Scripts from scopes.furnace$, glvdt.cl and gband.cl will overplot the
+LVDTs on the Z6, or Z3 temperatures.  To use them say "epar glvdt" or 
+"epar gband" after loading the scopes.furnace package.
+<p>
+Sample commands as used in these scripts look like:
+<p>
+ograph info1=ztmp zone1=z6 info2=etmp zone2=z6 \
+info3=ztmp zone3=z4 info4="" append=no
+<p>
+# LVDT readings scaled to aluminum temperatures.
+<p>
+# Hearth and Aluminum radius at 350 degrees
+ograph info1="" info2="r0lvdt0" info3="r0lvdt1" info4=""  # append=yes
+<p>
+# Hearth and Aluminum radius at 160 degrees
+ograph info1="" info2="r0lvdt2" info3="r0lvdt3" info4=""  # append=yes
+<p>
+# Hearth and Aluminum radius at 340 degrees
+ograph info1="" info2="r0lvdt4" info3="r0lvdt5" info4=""  # append=yes
+<p>
+# Hearth and Aluminum radius at 170 degrees
+ograph info1="" info2="r0lvdt6" info3="r0lvdt7" info4=""  # append=yes
+<p>
+-------------------------------------------------------------------------------
+# aluminum hearth plate LVDT scaling
+delta_T = delta_LVDT / radius_plate / alpha_plate
+	= delta_LVDT (in) * 206 (K/in)
+	/ 10 (V/in) =  20.6 (K/V)
+	/ 2048 (ADU/in) = 0.1007 (K/ADU)
+	
+full scale = 412 degrees
+<p>
+# Location on Furnace for Hearth/Aluminum LVDTs
+th=350  	#0 is hearth to Box 0-1,   #1 is aluminum to Box 0-2
+th=160  	#2 is hearth to Box 150-1, #3 is aluminum to Box 150-2
+th=340  	#4 is hearth to Box 270-1, #5 is aluminum to Box 270-2
+th=170  	#6 is hearth to Box 0-3,   #7 is aluminum to Box 0-4
+-------------------------------------------------------------------------------
+# Geometry of Inconel Band LVDTs
+<p>
+# Location on Furnace (both 6.5m and 8.4m)
+ #8		 #9		 #10		 #11            # computer
+th=130		th=160		th=320		th=340		# oven angle
+(1-7)           (2-7)           (3-7)           (4-7)           # wire label
+Box 150-3	Box 150-4	Box 270-3	Box 270-4	# driver box
+<p>
+# Measured 6.5m geometry (Hill & Lutz) 06AUG93
+# cable angle from band at room temp, add ~2 degrees for 1180C
+12.9 deg	11.8 deg	11.8 deg	12.1 deg	+- 0.3 deg
+# distance from pulley tangent to band at room temp
+31.75 in	33.25 in	34.13 in	33.5 in		+- 0.25 in
+<p>
+# average angle at 500 C ~= 13 degrees, cos(13) = 0.974
+# computer will assume they (angles) are all the same for now.
+<p>
+<p>
+# Measured 8.4m geometry 26MAR96
+# cable angle from band at room temp, add ~2 degrees for 1180C
+(nominally set for 0 degrees = parallel to bands)
+(8.4m bandseat was run with the 6.5m scale factors. MAR96)
+<p>
+# distance from pulley tangent to band at room temp
+(nominally 33 inches from the end of the band)
+<p>
+<p>
+# pulley ratio = 1.863 / 4.863 = 0.3831
+# hot length of band = total length - cold length = 510 in - 18 in ~= 492 in
+# Inconel expansion coefficient  11.5e-6 per degreeC
+<p>
+# correct for pulley ratio, cable angle and pulley wrap up.
+# pulley wrap-up ~= pulley_radius * delta_theta
+<p>
+delta_Band = delta_LVDT / 0.3831 / (0.974 - 0.0178) = delta_LVDT * 2.73 
+<p>
+# Did not correct for expansion of tub or expansion of furnace frame.
+# Did not correct for the inflection points in the Inconel expansion.
+<p>
+delta_T = delta_Band / Length_Band * 2 / alpha_band 
+delta_T = delta_LVDT (in) * 965 (K/in)
+	/ 10 (V/in) =  96.5 (K/V)
+	/ 2048 (ADU/in) = 0.471 (K/ADU)
+<p>
+# full scale = 1930 degrees       (probably good to +- 5%)
+<p>
+# 08SEP98  New Inconel Band LVDTs
+# Location on Furnace (both 6.5m and 8.4m)
+ #12		 #13		 #14		 #15            # computer
+th=50		th=70		th=260		th=280		# oven angle
+Box 60-1	Box 60-2	Box 60-3	Box 60-4	# driver box
+<p>
+Both the old and the new Inconel Band LVDTs are within a few degrees of
+being parallel to the bands.  Nonetheless, we are still running with
+the original 6.5m scale factors.  LVDTs 12-15 are scaled to be 50.8 (mm)
+full scale.  Multiply by 38 to get nominal degrees K.
+(In the future they should be scaled to 1930 to match the other
+band LVDTs.)
+<p>
+Be sure to set all the band LVDTs to a position corresponding
+to -9.8 VDC to assure that the have plenty of travel to
+accomodate band expansion.
+<p>
+---
+<p>

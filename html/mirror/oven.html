@@ -1,0 +1,66 @@
+<HTML>
+<HEAD>
+<TITLE> SOML oven documentation - mirror </TITLE>
+</HEAD>
+<BODY>
+<p>
+<h3>OVEN (May91) &emsp; &emsp; &emsp; mirror</h3>
+
+<h3>NAME</h3>
+oven -- Oven parameter editor
+
+<h3>USAGE</h3>
+oven
+
+<h3>PARAMETERS</h3>
+<p>
+ noven = 0
+<br>
+The oven number of the shared memory segment which should be attached.
+
+<p>
+ ncomp = 0
+<br>
+The computer number of the shared memory segment which should be attached.
+
+<p>
+ readonly = yes
+<br>
+If <i>readonly</i> is yes, do not attach the shared memory segment with
+write permission.  Use if you want to use the parameter editor for
+"just looking" at the parameters and data.  Non-owners of the shared
+memory segment must use this option.  If the environment variable "USER"
+is not "pilot", this parameter will be silently set to yes.
+
+<p>
+ remove = no
+<br>
+Remove the shared memory segment when you exit the parameter editor.
+
+<p>
+ period = 60
+<br>
+The period in seconds with which the parameter editor screen is auto
+refreshed.
+
+<p>
+ offset = 8
+<br>
+The number of seconds to wait after the period has expired.
+
+
+<h3>DESCRIPTION</h3>
+	The parameter editor displays data from the shared memory
+segment, and allows parameters in that segment to be changed and
+sent to the oven V computers.  A backup copy of the parameter
+database will be kept in the logical directory, <i>backup</i>,
+if defined in the environment.
+
+<h3>EXAMPLES</h3>
+	cl> oven
+
+<h3>BUGS</h3>
+
+<h3>SEE ALSO</h3>
+</BODY>
+</HTML>

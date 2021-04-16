@@ -1,0 +1,92 @@
+<HTML>
+<HEAD>
+<TITLE> SOML oven documentation - mirror </TITLE>
+</HEAD>
+<BODY>
+<p>
+<h3>XYTRAN (May91) &emsp; &emsp; &emsp; mirror</h3>
+
+<h3>NAME</h3>
+xytran -- transform oven display x-y coordinates to cylindrical coordinates.
+
+<h3>USAGE</h3>
+xytran x y
+
+<h3>PARAMETERS</h3>
+<p>
+ noven = 0
+<br>
+The oven number of the shared memory segment which should be attached.
+
+<p>
+ ncomp = 0
+<br>
+The computer number of the shared memory segment which should be attached.
+
+<p>
+ x
+<br>
+The x-coordinate reported by the oven display command <i>odisp</i>.
+
+<p>
+ y
+<br>
+The y-coordinate reported by the oven display command <i>odisp</i>.
+
+<p>
+ information = ttmp
+<br>
+The information which is shown by the oven display command.  This may
+be "ttmp" (time averaged thermocouple temperatures) or "hpwr" (heater
+powers).  "Hpwr" may not be selected if "mold" <i>aspect</i> is also
+selected.
+
+<p>
+ aspect = base
+<br>
+The part of the oven which is shown by the oven display command.  This may
+be "base", "lid", "wall", "alum", or "mold".  "Mold" may not be selected if
+"hpwr" <i>information</i> is also selected.
+
+<p>
+ debug = no
+<br>
+Enabling <i>debug</i> causes a variety of diagnostic information to be
+written to STDERR.
+
+
+<h3>DESCRIPTION</h3>
+The x-y coordinates from the oven display command <i>odisp</i> are
+transformed to cylindrical coordinates.  The nearest (in 3-dimensional
+space) thermocouple or heater (as appropriate) is identified by
+its cylindrical coordinates, and the corresponding x-y coordinates
+are printed.
+
+<h3>EXAMPLES</h3>
+[1]  Find the thermocouple near x = 19, y = 18 in the base.
+<p>
+	cl> xytran 19 18
+<pre>
+	cursor           xy=  19.00  18.00   rtz=  80 222  13
+	thermocouple     xy=  19.13  18.20   rtz=  79 223  13
+</pre>
+<p>
+The thermocouple is at radius 79, theta 223 degrees, and z 13.  
+Coordinate x = 19.13, y = 18.20 marks the thermocouple location.
+<p>
+[2]  Find the heater near x = 24, y = 4 in the wall.
+<p>
+	cl> xytran 24 4 info=h asp=w
+<pre>
+	cursor           xy=  24.00   4.00   rtz= 133  67  24
+	heater element   xy=  23.82   3.49   rtz= 133  67  23
+</pre>
+
+<h3>TIME REQUIREMENTS</h3>
+
+<h3>BUGS</h3>
+
+<h3>SEE ALSO</h3>
+odisp
+</BODY>
+</HTML>

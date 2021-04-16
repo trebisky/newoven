@@ -1,0 +1,214 @@
+<HTML>
+<HEAD>
+<TITLE> SOML oven documentation - furnace </TITLE>
+</HEAD>
+<BODY>
+<p>
+<h3>GENERATOR (May00) &emsp; &emsp; &emsp; furnace</h3>
+
+<h3>NAME</h3>
+generator --- backup generator start procedure
+<p>
+
+<h3>DESCRIPTION</h3>
+This is the procedure for starting the Empire/CAT diesel 400 kW
+generators to provide backup power to the oven.  This version was
+originally written by P. Esterline and J. Hill in 1992; revised by
+J. Hill and R. Lutz in 1996; revised by J. Hill and B. Phillips in
+1998.  These instructions are for Empire's special dual generator
+unit XQ400.
+<p>
+The generators should be started anytime there is a power failure or a serious
+threat of a power failure.  At least one of them will be running continuously
+while the oven is rotating at high temperature.
+<p>
+
+<h3>STARTUP PROCEDURE</h3>
+<p>
+<p>
+ A) Battery Power
+<br>
+Turn the generator battery power on with the switches in the generator
+compartment.  (The battery charger and (in winter) the engine block
+heaters should always be on during casting, so the batteries should
+already be switched on.)  The DC lights in the enclosure should come
+on if the switch at the door is on.  
+
+<p>
+<p>
+ B) Start Engine
+<br>
+To start the engine turn the ENGINE CONTROL switch from OFF/RESET to
+MANUAL START.  If it doesn't start, check for
+alarm indicators on the panel.  ("system not in auto" and "high
+voltage mode" are normally lit.) Do not crank the engine for more than
+30 seconds at a time (it has overcrank protection).
+
+<p>
+<p>
+ C) Warm-up
+<br>
+Run the generator for about 1 minute before applying load. The
+"generator available" light should come on almost immediately.  Check
+that the voltage (480 VAC) and frequency readings (60 Hz) are normal.
+Verify that the engine compartment baffles on the roof of the trailer
+have opened (The louver controls are normally set to "Auto".).
+
+<p>
+<p>
+ D) Set Tie Breaker
+<br>
+The TIE CB CONTROL switch should be set to TRIP/LOCKOUT.  For normal oven
+operation we never tie the two generators together, although this dual
+generator unit would allow us to do that. Leave both
+the SYNCHRONIZE switches in "on" position.
+
+<p>
+<p>
+ E) Close Breaker
+<br>
+  (as long as everything is ready inside the lab -- normally everthing is ready)
+<p>
+Turn the LEAD UNIT SELECT switch to either GEN1 or GEN2 according to
+which circuit breaker you are trying to close.
+<p>
+Turn the CB CONTROL switch for the appropriate generator from TRIP/LOCKOUT
+to CLOSE.  (You should hear the breaker close and see the red "closed" light
+illuminate.)  Release CB CONTROL switch; it should pop back to
+"straight up" AUTO position.  
+
+<p>
+<p>
+ F) Connect Oven Load
+<br>
+If the entire oven is to be run on
+generators only, be sure to set the software limit for FASE MAX LOAD
+before switching the breakers.  This limit is set globally to "3" for
+running the whole oven on generators, while it is "6" for running
+the whole oven on the mains.
+<p>
+Switch the main breakers and tie breakers inside the lab to connect
+the generators to the appropriate oven power circuits.  See "8 Meter
+Furnace Power Manual" for details.  
+
+<p>
+
+<h3>NOTES</h3>
+<p>
+<p>
+ Emergency Shut-off
+<br>
+The EMERGENCY STOP switch is the big red push button on the 
+generator control panel.  (There is a separate switch for each generator.)
+Another set of EMERGENCY STOP buttons can be found on the outside
+of the trailer near the hook-up lugs.
+
+<p>
+<p>
+ Maximum Power
+<br>
+These units are rated "400 kW Standby" so they are each capable of
+supplying 400 kW for a few hours at a time.  Note that in order
+to reliably supply more than 350 kW in hot weather, the rear and side doors
+of the trailer need to be open.  This ruins much of the sound
+suppression, so we would only use this mode during the portion
+of the oven schedule above 800 degrees.
+<p>
+The coolant temperature should not be more than 210 degF.  A pre-alarm
+trips at 208-214 degF and the units will shut down above 220-225 degF.
+<p>
+The oil pressure pre-alarm trips at 30 psi and the units will shut down
+below 5 psi.
+<p>
+The overspeed limit will shutdown the units above 2120 rpm.
+
+<p>
+<p>
+ Fuel 
+<br>
+Each generator has a 650 gallon tank.  Fuel consumption is
+about 24 gallons/hour at full load (30 gallons/hour max).  Watch fuel
+levels; If it runs out of fuel, a service call is required. If #2
+diesel fuel is needed, call Union Distributing @ 571-7600 extn 228
+(daytime) or @ 1-800-288-0760 (nights/weekends).
+
+<p>
+<p>
+ Problems
+<br>
+If service is needed, call Empire Power Systems Rental:
+<p>
+Tom Tomlinson, Commercial Service Dept. Supervisor
+696-3028x13 (direct) or 566-4682 (pager) or 240-6006 (cellular)
+<p>
+Laurie Schock (can find a technician anywhere) 
+566-0236 (pager) or 298-1906 (home)
+<p>
+Oscar Ahumada, Tucson Field Service Foreman
+566-0096 (pager) or 240-8284 (cellular)
+<p>
+Jess Hamilton, Service Technician
+566-0113 (pager) or 240-8286 (cellular)
+See the other sheet for the rotation of on-call emergency service techs.
+
+<p>
+<p>
+ Fase Max Load Table if generators can supply 320 kW each.
+<br>
+	0 generators, 2 mains		max load: 6
+<p>
+	2 generators, 0 mains		max load: 3
+<p>
+	0 generators, 1 main		max load: 3
+<p>
+	1 generator, 0 mains		max load: 1 +
+<p>
+	2 generators, 2 mains		max load: 6 for gen / 10 for mains
+<p>
+	1 generator, 2 mains		max load: 3 for gen / 10 for mains
+
+
+<h3>SHUTDOWN PROCEDURE</h3>
+<p>
+<p>
+ V) Remove Load
+<br>
+Remove the electrical load with the breakers inside the lab.
+Reconfigure the oven power breakers as needed.
+
+<p>
+<p>
+ W) Open Generator Breaker
+<br>
+Open the generator breaker by turning the CB CONTROL
+switch to TRIP/LOCKOUT.  The green "open" light should come on.
+
+<p>
+<p>
+ Y) Turn Off Engine
+<br>
+Turn the ENGINE CONTROL switch to OFF/RESET or to STOP/COOLDOWN.
+Press the ALARM SILENCE button to stop the beeping.
+
+<p>
+<p>
+ Z) Battery
+<br>
+Turn off the battery switch to reduce the risk of running the battery
+down while the generator is off (except when the AC battery chargers
+are turned on).  The normal state of affairs should have AC line
+power supplied to the battery chargers.
+
+<p>
+<p>
+
+<h3>BUGS</h3>
+<p>
+
+<h3>RELATED MIRROR HELP TASKS</h3>
+oven
+
+<h3>RELATED FURNACE HELP TASKS</h3>
+furnace, menus
+</BODY>
+</HTML>

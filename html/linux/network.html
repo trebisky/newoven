@@ -1,0 +1,51 @@
+<HTML>
+<HEAD>
+<TITLE> SOML control room software on linux</TITLE>
+</HEAD>
+<BODY>
+
+December 10, 2019
+
+<h3> SOML control room software - some network notes (linux version)</h3>
+
+As we transition to using linux machine(s) in the control room to replace the
+suns, some care needs to be taken about networking issues.
+
+<p>
+For most things, the IP number and hostname of the linux clients that communicate
+with the VxWorks machines on board the oven does not matter.
+However, in rare cases the oven machines may try to contact what it thinks are
+crater and/or dorado.  For this reason, when we fully commit ourselves to using
+linux machines to replace crater and dorado, they need to respond at the same
+IP numbers that were long ago assigned to these machines.
+
+<p>
+The reason for this is that VxWorks, at least in the oven VME machines,
+does not support DNS.  VxWorks uses a static table of host addresses.
+Other than the boot host, those are given by the following table, which
+is compiled into each on board machine:
+
+<pre>
+hostAdd ("oven0v0", "192.168.1.40");
+hostAdd ("oven0v1", "192.168.1.41");
+hostAdd ("oven0v2", "192.168.1.42");
+hostAdd ("oven1v0", "192.168.1.50");
+hostAdd ("crater", "192.168.1.11");
+hostAdd ("dorado", "192.168.1.10");
+hostAdd ("astro", "128.196.176.1");
+</pre>
+
+<h3>Booting</h3>
+
+Do the onboard machines need to access their "boot host" in order to boot?
+They boot from ROM, so they don't need the network to boot (and this is
+a design requirement of the oven).
+
+<h3>Network access</h3>
+
+The onboard machines support rlogin and telnet, but not ssh.
+They support user pilot only (unless other users are added to
+the startup.cmd file.
+
+</BODY>
+</HTML>

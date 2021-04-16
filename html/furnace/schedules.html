@@ -1,0 +1,304 @@
+<HTML>
+<HEAD>
+<TITLE> SOML oven documentation - furnace </TITLE>
+</HEAD>
+<BODY>
+<p>
+<h3>SCHEDULES (Aug93) &emsp; &emsp; &emsp; furnace</h3>
+
+<h3>NAME</h3>
+schedules --- oven schedule description and editing procedure
+<p>
+
+<h3>DESCRIPTION</h3>
+	Once a minute, a power level for each heater element is
+calculated from a weighted average of its neighboring thermocouple
+temperatures, and the temperature called for at the current point in
+the schedule of temperature versus time.  There are separate
+temperature versus time schedules for each of several zones of heater
+elements as well as the rotation speed.  These schedules can be
+interlocked so as to synchronize their progress according to real
+temperature data.
+<p>
+	Oven schedules consist of nodes which are composed of a
+GOALTIME and a GOALTEMP.  The node also has a LABEL and some wait
+conditions which allow the schedules of various zones to be
+syncronized.  The parameters and data for the current node of each
+active zone schedule are shown in the 'Oven Overview' menu.
+Additional details for the current node are shown in each of the
+'Zone' menus.  The full schedule for a particular zone is shown
+in the 'Zone Schedule' menu.
+<p>
+
+<h3>WARNING</h3>
+	Changing the schedule on the fly is very dangerous.  Do not
+attempt it unless you are very sure that you know what you are doing.
+<p>
+
+<h3>SCHEDULE EDITING</h3>
+	Temperature schedules may be editted by the <b>oven</b> task in
+the 'Configuration and Status Menu'.  Move to the 'Zone' menu, the
+press GOTO at the 'Zone ID' to get to the 'Zone Schedule' menu.  To
+edit a node, use the UP or DOWN keys to point the cursor at the node
+you wish to edit.  Then use 'P' to cache the parameters.  To change
+the GOALTEMP, press the 'e' key and enter a temperature at the prompt
+followed by return.  To delete the node, enter 'del' at the prompt.
+To insert a node above the one you are pointed at, enter 'ins' at the
+prompt.  To append a node, point the cursor at the first blank line
+beyond the end of the schedule, and use the insert function.
+<p>
+	To edit other node items use the GOTO key to the 'Node' menu
+page for the node you are editing.  Use the UP or DOWN keys to move
+to the value that you wish to edit; press 'e', type the new value, and
+press return to change the value.  When you change a parameter,
+other related parameters are automatically updated to reflect your change
+i.e. change GOALTEMP and RATE, GOAL CLOCK TIME, DELTA TEMP, and DELTA CLOCK
+TIME are all updated immediately. When you are done changing values,
+use the 'W' key to write the changes to the oven or discard them
+(press GOTO at the option you choose).  All affected nodes will THEN
+be updated and NOT before.  Schedule changes should be saved between
+30 and 45 seconds after the minute to avoid disrupting the schedule
+computation.
+<p>
+	These instructions apply to all the schedule parameters except
+the biparameters for clock time and clock status.  See <b>help
+clocks</b> for instructions on how to change the clocks. The clocks
+tend to get out of sync when the schedule is edited, so we need to
+check them after changes are made.  If you edit the current node, the
+schedule editor will display the appropriate time to set the clocks to at
+the top of the screen.
+(This applies to editing, not to copying schedules.)
+<p>
+
+<h3>SCHEDULE COPYING</h3>
+	While pointing at the schedule labels,
+<pre>
+"Lab  Rate  Dev  GTemp  Gtime  DTemp  Dtime  Wait"
+</pre>
+you may copy over a schedule from another zone, OVERWRITING the
+current schedule in this zone.  To do this, type 'e', type the
+zone address, and press return again.  Remember that zone addresses
+are: 
+<pre>
+Z0 Z1 Z2 Z3 Z4 Z5 Z6 Z7 Z8 Z9 Z10 ......... R
+</pre>
+<p>
+	Be careful not to confuse zone R with node label 'r'.  Node labels
+are optional for all nodes not involved with wait states.  Labels are highly
+recommended for clarity.  In the rotation zone, the parameters have special
+meanings:
+<pre>
+                Sch Temp = scheduled rotation speed (RPM)
+                Avg Temp = measured rotation speed (RPM)
+                Error    = Error (scheduled-measured)
+                Rate     = rate (RPM/hr)
+</pre>
+<p>
+
+<h3>SCHEDULE PARAMETERS</h3>
+<p>
+ Node Label
+<br>
+	A lowercase or uppercase letter to identify each node in the
+schedule.  For example 'b' or 'B'.  A '*' appearing next to the label
+indicates that this is the active node.  Note that labels need not be
+sequential.  You may edit them to appear in any order.
+
+<p>
+ Rate (C/hr)
+<br>
+	The rate of change of scheduled temperature for this node.
+Note that the units are (degrees per hour) not (degrees per minute).
+The scheduled temperature changes at this rate until reaching the goal
+temperature for the current node.
+
+<p>
+ Deviation  (degrees C)
+<br>
+	This is the permissible difference between the scheduled temperature
+and the computed heater temperature or zone average temperature.
+Deviation is also used as a parameter for one of the wait states.
+
+<p>
+ Tdeviation  (degrees C)
+<br>
+	This is the new deviation parameter used to identify discrepant
+thermocouples in reference to their neighbors.
+
+<p>
+ Goal  Temperature (degrees C)
+<br>
+	Goal temperature is where the schedule should be when it finishes
+a particular node.
+
+<p>
+ Goal  Clock Time (dd:hh:mm)
+<br>
+	Zone clock time at the end of the node.
+
+<p>
+ Delta Temperature (degrees C)
+<br>
+	Amount the temperature changes during this node.  This is
+redundant with Goal Temperature, Goal Time and Rate so the schedule
+editor calculates the other parameters hierarchically when you specify
+one of them.
+
+<p>
+ Delta Clock Time (dd:hh:mm)
+<br>
+	Amount the zone clock time changes during this node, or the
+length of the node not including wait states.
+
+<p>
+ Wait on Tolerance (Yes/No)
+<br>
+	Should the schedule wait until the average temperature of the zone
+is within 1 degree of the scheduled temperature?
+
+<p>
+ Wait on Deviation (Yes/No)
+<br>
+	Should the schedule wait until the scatter in the zone is less than
+the scheduled deviation?
+
+<p>
+ Wait on Zone/Node (Yes/No)
+<br>
+	Should the schedule wait until some other zone has reached a specified
+point?
+
+<p>
+ Wait on Zone ID (ID) (Z0-Z18,R,A)
+<br>
+	The name of the zone to wait on. (A to wait on all zones)
+
+<p>
+ Wait on Node Label (label) (a-z,A-Z)
+<br>
+	The label of the node to wait on.  Labels are not automatically
+ assigned.  The pilot is responsible for keeeping them aligned in the schedule.
+
+<p>
+ Proportional Coef. (power units per degree)
+<br>
+	If the heater temperature is less than the scheduled temperature by
+one degree, apply this many power units to the heater for the next minute.
+
+<p>
+ Integral Coef. (power units per degree)
+<br>
+	If the integrated heater temperature error is
+one degree, apply this many power units to the heater for the next minute.
+
+<p>
+ Derivative Coef. (power units per degree)
+<br>
+	If the heater temperature error (compared to the previous minute) 
+increases by one degree, apply this many power units to the heater for
+the next minute.
+
+<p>
+ Integral Depth (minutes)
+<br>
+	Depth of the leaky memory to integrate the heater temperature error.
+
+<p>
+ Power Limit (power units) (0-240)
+<br>
+	Maximum number of power units to apply to a heater in the next minute.
+180 units gives a 75% duty cycle to the heater.
+
+<p>
+
+<h3>EXAMPLE --- Zone Schedule Menu</h3>
+<pre>
+Zone Z0             7.6 00:01:12 S
+Lab  Rate    Dev  GTemp    Gtime   DTemp    Dtime Wait
+a     0.0   50.0    0.0 00:00:00     0.0 00:00:00
+b*    6.3   50.0   20.0 00:03:10    20.0 00:03:10
+c    25.0   50.0   95.0 00:06:10    75.0 00:03:00
+d    30.0   50.0 1190.0 01:18:40  1095.0 01:12:30
+e     0.0   50.0 1190.0 02:00:40     0.0 00:06:00
+f   -16.7   50.0  540.0 03:15:40  -650.0 01:15:00
+g   -10.0   50.0   20.0 05:19:40  -520.0 02:04:00
+<p>
+Lab Proportional   Integral       Derivative     depth  Plim
+a   2.000000e+00   5.000000e+00   1.000000e+00       8    60
+b*  2.000000e+00   5.000000e+00   1.000000e+00       8    90
+c   1.000000e+00   5.000000e+00   1.000000e+00       4    90
+d   4.000000e+00   1.000000e+01   3.000000e+00       8   120
+e   4.000000e+00   4.000000e+00   3.000000e+00       8   120
+f   5.000000e+00   1.000000e+01   3.000000e+00      12   180
+g   5.000000e+00   1.000000e+01   3.000000e+00      12   180
+</pre>
+<p>
+
+<h3>EXAMPLE --- Node Menu</h3>
+<pre>
+Zone Z0             7.6 00:01:12 S
+Node Label          b*
+Rate (C/hr)             6.3
+Deviation              50.0
+Goal  Temperature      20.0
+Goal  Clock Time    00:03:10
+Delta Temperature      20.0
+Delta Clock Time    00:03:10
+Wait on Tolerance   No
+Wait on Deviation   No
+Wait on Zone/Node   No
+Wait on Zone ID
+Wait on Node Label
+Proportional Coef.   2.000000e+00
+Integral     Coef.   5.000000e+00
+Derivative   Coef.   1.000000e+00
+Integral Depth        8
+Power Limit          90
+</pre>
+<p>
+
+<h3>SYNCHRONIZATION</h3>
+<p>
+This is an example of how the heated oven zones wait for the mold to
+reach a specified temperature and then resynchronize the clocks.
+First the mold zone stops and waits for tolerance (T, 1 degree error)
+at node d with T=475.  Meanwhile, the other zones continue ramping to
+T=500 where they stop and wait for zone 5 to finish node d.  If the
+other zones had stopped to wait at node d, then it would take an
+arbitrarily long time for the mold to reach T=475 in an oven at T=475.
+After the mold reaches T=475 and starts node e, the other zones begin
+node f (in this case, a hold).  Node f is made only 1 minute long so
+all zones wait there until zone 5 finishes node e and catches up to
+the same clock time.  The synchronization hold must be only 1 minute
+long so all zones begin and end the node on the same minute.
+<p>
+<pre>
+......mold zone 5 
+c     2.0   40.0   40.0  104.0 00:15:15    12.0 00:06:00          
+d     7.5   50.0   50.0  475.0 02:16:43   371.0 02:01:28 T        
+e    12.0   50.0   50.0  500.0 02:18:48    25.0 00:02:05   W Z5  e
+f     0.0   50.0   50.0  500.0 02:18:49     0.0 00:00:01   W A   f
+g     0.0   30.0   30.0  500.0 03:18:49     0.0 01:00:00          
+</pre>
+<p>
+<p>
+<pre>
+......all other zones
+c     2.0   40.0   40.0  104.0 00:15:15    12.0 00:06:00          
+d     7.5   50.0   50.0  475.0 02:16:43   371.0 02:01:28          
+e    12.0   50.0   50.0  500.0 02:18:48    25.0 00:02:05   W Z5  e
+f     0.0   50.0   50.0  500.0 02:18:49     0.0 00:00:01   W A   f
+g     0.0   30.0   30.0  500.0 03:18:49     0.0 01:00:00          
+</pre>
+<p>
+
+<h3>BUGS</h3>
+The schedule displays only show the rate to 1 decimal place.  Thus if
+the rate was entered as 0.125 degrees/hour, it shows as 0.1.  The schedule
+runs correctly at 0.125 even when the display says 0.1.
+<p>
+
+<h3>RELATED MIRROR HELP TASKS</h3>
+oven, clocks, wait_states, menus, ograph
+</BODY>
+</HTML>

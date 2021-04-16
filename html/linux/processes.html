@@ -1,0 +1,121 @@
+<HTML>
+<HEAD>
+<TITLE> SOML control room software on linux</TITLE>
+</HEAD>
+<BODY>
+
+December 4, 2019
+
+<h3> SOML control room software - processes and shared memory (linux version)</h3>
+
+The "ps" and "ipcs" commands yield somewhat different information under linux.
+Using the new standalone executables makes for lines in the
+"ps" output that are easier to understand.
+<br>
+An example using the ps command shows the following:
+
+<pre>
+[pilot@linuxpilot ~]$ ps -alx | grep oven
+0  1004  3740     1  20   0  11592  8828 -      S    ?          3:05 ovend -M
+0  1004  3927     1  20   0   4008  2280 -      S    ?          0:28 ovene -M
+0  1004 15963     1  20   0  11600  8724 -      S    ?          2:41 ovend
+</pre>
+
+Here we see an ovend and ovene background process talking to the meter-cube along
+with an ovend process talking to the main oven.
+
+<h3>Shared memory</h3>
+
+The "ipcs" command is used to check on shared memory, exactly as on the suns,
+but the output is substantially different:
+
+<pre>
+[pilot@linuxpilot ~]$ ipcs
+
+------ Message Queues --------
+key        msqid      owner      perms      used-bytes   messages
+
+------ Shared Memory Segments --------
+key        shmid      owner      perms      bytes      nattch     status
+0x00000000 163842     pilot      600        524288     2          dest
+0x00000000 163843     pilot      600        4194304    2          dest
+0x00000100 163867     pilot      644        263748     1
+0x00000110 98333      pilot      644        263748     2
+0x00000000 163874     pilot      600        524288     2          dest
+0x00000000 131107     pilot      600        524288     2          dest
+0x00000101 163876     pilot      644        263748     0
+0x00000102 163877     pilot      644        263748     0
+0x00000000 163878     pilot      600        524288     2          dest
+0x00000000 131111     pilot      600        524288     2          dest
+0x00000000 131118     pilot      600        16777216   2          dest
+0x00000000 131124     pilot      600        524288     2          dest
+0x00000000 131126     pilot      600        393216     2          dest
+0x00000000 131131     pilot      600        393216     2          dest
+0x00000000 131132     pilot      600        524288     2          dest
+
+------ Semaphore Arrays --------
+key        semid      owner      perms      nsems
+</pre>
+
+We are interested only in the shared memory segments.
+There are a bunch we don't care about.
+These are used by linux for things that don't matter to us.
+The trick is knowing which of these are relevant to the oven.
+At the present time, the thing to note is that the "key" value is non-zero
+for all of the oven segments.  (These also have a size of 263748 bytes,
+which is unlikely to change, but not an easy number to remember.
+
+<p>
+We can let grep filter out all these entries with zero keys as follows:
+
+<pre>
+ipcs | grep -v 0x00000000
+
+------ Message Queues --------
+key        msqid      owner      perms      used-bytes   messages
+
+------ Shared Memory Segments --------
+key        shmid      owner      perms      bytes      nattch     status
+0x00000100 163867     pilot      644        263748     1
+0x00000110 98333      pilot      644        263748     2
+0x00000101 163876     pilot      644        263748     0
+0x00000102 163877     pilot      644        263748     0
+
+------ Semaphore Arrays --------
+key        semid      owner      perms      nsems
+</pre>
+
+The segment with the key "110" is for the meter-cube.
+The three segments with the keys "100", "101" and "102" are for the main oven.
+
+<p>
+To delete a shared memory segment by hand, use the shmid in the following command.
+<br>
+This command would delete the segment for the meter-cube in the above example:
+
+<pre>
+ipcrm -m 98333
+</pre>
+
+<h3>What does the "key" means in the shm listings?</h3>
+
+This is displayed in hex, which actually turns out pretty handy.
+Every oven shm segment has 100 set.
+No information there other than this is an oven shm segment.
+The next digit is either 10 (for the M-cube) or 00 (for the real oven).
+The last digit is the computer number.
+
+<p>
+So there are only 4 cases that should ever be seen in our current world:
+
+<ul>
+<li> 100 - main furnace, computer 0
+<li> 101 - main furnace, computer 1
+<li> 102 - main furnace, computer 2
+<li> 110 - Meter Cube
+</ul>
+
+If there is ever a duplicate of a given key, something is wrong and needs to be cleaned up.
+
+</BODY>
+</HTML>

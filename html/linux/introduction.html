@@ -1,0 +1,39 @@
+<HTML>
+<HEAD>
+<TITLE> SOML control room software on linux</TITLE>
+</HEAD>
+<BODY>
+
+July 16, 2019
+
+<h3> SOML control room software on linux</h3>
+
+<p>
+Prior to the summer of 2019, the oven control room software ran only on a pair of SPARC based
+sun workstations (crater and dorado).  These were a remnant from nearly 20 years previously
+when such machines were ubiquitous around the observatory.  These machines, although amazingly
+reliable, were becoming increasingly difficult to support and maintain.  In essence, the mirror
+lab was running on borrowed time.
+
+<p>
+The control room software is a mixture of C code (mostly) and SPP code that runs as tasks
+within the IRAF software.  IRAF itself is showing its age and is no longer officially supported
+by NOAO -- it's future is somewhat uncertain, but it runs well on linux systems at this time.
+The mirror package was ported to run under x86 IRAF on linux.  The portions of the mirror
+package that are coded in C have been compiled as 32 bit packages.  This work is finished
+and these can be used in much the same way as on the old suns.  The main difference is the
+window system and other packages on linux.  There is no mailtool for example and the ability
+to launch a collection of windows on login differs significantly.
+
+<p>
+Those portions of the control room software that are written in C were also ported to be
+stand alone code that runs independent of IRAF.  These are now 64 bit executables.
+At this time, the only packages that require IRAF are odisp and ograph (which are written in SPP).
+The pseudo package "ovenc" (the cron script) is an IRAF cl script and depends on odisp and ograph.
+The new code now generates FITS files (as does IRAF by default).
+Any existing scripts written in the IRAF "cl" language should work fine.
+Most users will probably choose to use ximtool for image display, but DS9 could be used equally
+well for those who are familiar with it.
+
+</BODY>
+</HTML>

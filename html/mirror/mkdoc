@@ -1,0 +1,145 @@
+#!/bin/ruby
+
+$source = "/iraf/iraf/extern/mirror/doc"
+
+class Hline
+  def initialize ()
+    @pre_font = nil
+    @in_font = nil
+    @in_bold = nil
+    @in_italic = nil
+  end
+  def fix_line ( line )
+    rv = String.new
+    line.each_char { |x|
+      if @pre_font
+        if x == 'f'
+          @in_font = true
+        else
+          rv << x
+        end
+        @pre_font = false
+      elsif @in_font
+        if x == "I"
+          rv << "<i>"
+          @in_italic = true
+        elsif x == "B"
+          rv << "<b>"
+          @in_bold = true
+        elsif x == "R"
+          if @in_bold
+            rv << "</b>"
+            @in_bold = nil
+          elsif @in_italic
+            rv << "</i>"
+            @in_italic = nil
+          end
+        end
+        @in_font = nil
+      elsif x == "\\"
+        @pre_font = true
+      else
+        rv << x
+      end
+    }
+    return rv
+  end
+end
+
+
+#  .help pilot_login May00 furnace
+
+def do_help ( f, l, base )
+  #cap_name = base.upcase
+  stuff = l.split
+  cap_name = stuff[1].upcase
+  date = stuff[2]
+  section = stuff[3]
+
+  f.puts "<HTML>"
+  f.puts "<HEAD>"
+  f.puts "<TITLE> SOML oven documentation - #{section} </TITLE>"
+  #f.puts "<LINK rel="stylesheet" type="text/css" href="/css/oven.css">"
+  f.puts "</HEAD>"
+  f.puts "<BODY>"
+  f.puts "<p>"
+  f.puts "<h3>#{cap_name} (#{date}) &emsp; &emsp; &emsp; #{section}</h3>"
+end
+
+def do_finish ( f )
+  f.puts "</BODY>"
+  f.puts "</HTML>"
+end
+
+# Look for font changes to bold and back to "regular"
+#  like this: \fBmirror\fR
+def fix_line_OLD ( line )
+  line.gsub! "\\fB", "<b>"
+  line.gsub! "\\fR", "</b>"
+
+  line.gsub! "\\fI", "<i>"
+  line.gsub! "\\fR", "</i>"
+  return line
+end
+
+def to_html(f)
+        spath = $source + "/" + f
+
+        base = File.basename f, ".hlp"
+        outname = base + ".html"
+        puts outname
+        outf = open(outname, 'w')
+
+        head = false
+        fixer = Hline.new
+
+	# puts spath
+        File.readlines(spath).each { |line|
+          line = fixer.fix_line line
+          if head
+            outf.puts ""
+            outf.puts "<h3>" + line.chomp + "</h3>"
+            head = false
+          elsif line =~ /^$/
+            outf.puts "<p>"
+          elsif line =~ /^\.help/
+            do_help outf, line, base
+          elsif line =~ /^\.endhelp/
+            do_finish outf
+          elsif line =~ /^\.ih/
+            head = true
+          elsif line =~ /^\.nf/
+            outf.puts "<pre>"
+          elsif line =~ /^\.fi/
+            outf.puts "</pre>"
+          elsif line =~ /^\.le/
+            # end of a list element, do nothing.
+            outf.puts ""
+          elsif line =~ /^\.ls/
+            # something that goes in a list.
+            line.sub! "\.ls", ""
+            outf.puts "<p>"
+            outf.puts line
+            outf.puts "<br>"
+          else
+            outf.puts line
+          end
+          #puts line if line =~ /^\./
+        }
+
+        outf.close
+end
+
+def to_html_dir ( path )
+      Dir.foreach ( path ) { |f|
+        next unless f =~ /\.hlp$/
+        puts f
+        to_html f
+      }
+end
+
+# to_html "pilot_login.hlp"
+
+to_html_dir $source
+
+# THE END

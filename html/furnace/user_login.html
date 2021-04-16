@@ -1,0 +1,194 @@
+<HTML>
+<HEAD>
+<TITLE> SOML oven documentation - furnace </TITLE>
+</HEAD>
+<BODY>
+<p>
+<h3>USER_LOGIN (Jul93) &emsp; &emsp; &emsp; furnace</h3>
+
+<h3>NAME</h3>
+user_login --- procedure for user login for oven monitoring
+
+<h3>DESCRIPTION</h3>
+<p>
+This help file describes the USER STARTUP SEQUENCE FOR THE OVEN.
+<p>
+These instructions are for logging into crater or dorado remotely to
+monitor the oven without having pilot control capability.  If you need
+to startup the pilot programs, use <b>pilot_login</b> NOT this file.
+<p>
+These instructions assumes that crater (or dorado) is running and that the
+oven network is intact.  These instructions also assume that the
+on-board VME computers are running.  Defaults only work for <i>oven0</i>.
+<p>
+
+<h3>STEP 0: Connect to crater or dorado</h3>
+<p>
+<p>
+ From a PC on the network:
+<br>
+<pre>
+C: CD C:EM4010
+C: EM
+</pre>
+
+<p>
+<p>
+ From another xterm window:
+<br>
+<pre>
+cl> rlogin crater
+</pre>
+
+<p>
+<p>
+ From another computer:
+<br>
+% telnet crater
+
+<p>
+
+<h3>STEP 1: Login as yourself </h3>
+<p>
+The login starts with a blank screen that says:
+"crater login:" or "dorado login:"
+You must have an oven account.
+<p>
+After entering the username and password, this should give you a
+window running IRAF
+<p>
+To logoff, say <b>log</b>.
+<p>
+
+<h3>STEP 2: Load the external IRAF packages for the oven.</h3>
+<p>
+You will want to load the <b>mirror</b>
+package in each xterm window (or at least each one you plan to use).
+<p>
+<p>
+ Example
+<br>
+<pre>
+cl>
+cl> mirror
+mi>
+</pre>
+
+<p>
+The "mi>" prompt indicates that the <b>mirror</b> package is loaded.
+Type "?" for a list of the tasks in the active package.
+<p>
+ Example
+<br>
+<pre>
+mi> ?
+      odisp   oven    ovend   oveng   ovenw
+      ograph  ovenb   ovene   ovenp   tcmark 
+mi>
+</pre>
+
+<p>
+
+<h3>STEP 3: Check to see if shared memory segments exist. (optional)</h3>
+<p>
+Check these with "ipcs".  There should be 3 segments, one each for on-board
+computers v0, v1 and v2.
+<p>
+<p>
+ Example
+<br>
+<pre>
+mi> !ipcs
+IPC status from crater as of Thu Jun  6 18:25:12 1991
+T     ID     KEY        MODE       OWNER    GROUP
+Message Queues:
+Shared Memory:
+m    300 0x00000100 --rw-r--r--    pilot    other
+m    301 0x00000101 --rw-r--r--    pilot    other
+m    202 0x00000102 --rw-r--r--    pilot    other
+Semaphores:
+mi>
+</pre>
+
+<p>
+Shared memory segments must be created and initialized by pilot.
+If they don't exist, the oven isn't running.
+<p>
+
+<h3>STEP4:  Check for the data and error daemons. (optional)</h3>
+<p>
+If you only want to check for the oven daemons, you can say:
+<p>
+ Example
+<br>
+<pre>
+mi> !ps -aux | grep mirror		(shows all mirror tasks)
+mi>
+mi> !ps -ax | grep N			(shows all background tasks)
+mi>
+</pre>
+
+<p>
+For a brief description of the daemon's function type: <b>help ovend</b>
+In normal operation, there are 7 daemons running.
+Oven tasks appear as "/usr/iraf/mirror/bin.sparc/x_mirror.e"
+The <b>cl</b>s in your xterm windows appear as "/usr/iraf/bin.sparc/cl.e"
+Background tasks will have an "N" in the STAT column.  Note that each
+background daemon has an associated <b>cl</b>.
+<p>
+
+<h3>STEP5:  Run the oven program.</h3>
+<p>
+<p>
+ Example
+<br>
+<pre>
+mi> oven readonly=yes
+</pre>
+
+The blue window will now continue the oven program talking to
+the shared memory segment for v0.  If the v0 computer is functioning,
+and <b>ovend</b> is running,
+you should get fresh data each minute.
+<p>
+If an oven task crashes, use <b>flpr</b> to flush the process cache before
+restarting.  <b>unlearn</b> resets the default parameters for the task.
+<p>
+ Example
+<br>
+<pre>
+mi> unlearn oven
+mi> oven ncomp=0
+</pre>
+
+<p>
+
+<h3>STEP 6: Start the oven cron task. (if you have multiple windows)</h3>
+<p>
+Start the cron task in the purple window (border):
+<p>
+ Example
+<br>
+<pre>
+mi> ovenc &
+</pre>
+
+ograph and odisp should now display data at appropriate intervals.
+ 
+To stop the cron task or another daemon, use the IRAF kill
+command in the relevant window: <b>kill</b> x
+(where x is the job number [1-4])
+<p>
+
+<h3>BUGS</h3>
+
+<h3>RELATED MIRROR HELP TASKS</h3>
+oven, ovend, ovenw, ovenc, pilot_login
+
+<h3>RELATED IRAF HELP TASKS</h3>
+jobs, kill, spy, lpar, unlearn, flpr, prc, cursors
+
+<h3>RELATED UNIX MAN PAGES</h3>
+xterm, ps, grep, ipcs, w, X11, saoimage
+</BODY>
+</HTML>

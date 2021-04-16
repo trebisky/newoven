@@ -1,0 +1,34 @@
+Instructions for converting ztmp data from the oven into a
+ list of times and temperatures.
+						J. M. Hill 4APR92
+<p>
+This is used for making the time lapse videos of glass melting, but
+it may have other uses.
+<p>
+# Write a text file from the oven image data, row 1 is zone 0 (lid)
+ wtext /u1c/pilot/ztmp920402[1,*] STDOUT head- maxl=10 > april2.wtxt
+<p>
+# Edit the file to remove blank line at the beginning
+ edit april2.wtxt
+<p>
+# Run awk to add the time based on 1 data point per minute
+# (This might have a 1 minute ambiguity.)
+ ! awk -f awk.prg april2.wtxt > april2.temp
+<p>
+# This is the awk.prg file
+{ printf "%2d:%2d  %4d  %5.0f Cn", (NR-1)/60, (NR-1)%60, NR-1, $0 }
+<p>
+# The output file format is:
+hh:mm decmin  temp C
+<p>
+# For example:
+ 1:33    93    913 C
+ 1:34    94    913 C
+ 1:35    95    914 C
+ 1:36    96    914 C
+ 1:37    97    915 C
+ 1:38    98    915 C
+ 1:39    99    915 C
+<p>
+Finished files for 2/3 april 92 are in dorado!/u2d/hill/
+	april2.temp, april3.temp

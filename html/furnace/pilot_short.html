@@ -1,0 +1,75 @@
+<HTML>
+<HEAD>
+<TITLE> SOML oven documentation - furnace </TITLE>
+</HEAD>
+<BODY>
+<p>
+<h3>PILOT_SHORT (Nov96) &emsp; &emsp; &emsp; furnace</h3>
+
+<h3>NAME</h3>
+pilot_short --- terse procedure for pilot login and oven startup
+
+<h3>DESCRIPTION</h3>
+This help file describes the PILOT STARTUP SEQUENCE FOR THE OVEN.
+See <b>pilot_login</b> for more verbose and helpful instructions.
+<p>
+
+<h3>STEP 1: login to the console as pilot.</h3>
+
+<h3>STEP 2: Create shared memory segments if needed</h3>
+Run the oven task for all three computers as shown below.  Before you
+"exit" from each <b>oven</b>, use the "Database" menu to "Read
+parameters from disk".
+<p>
+ In the blue window:
+<br>
+<pre>
+mi> oven ncomp=0	(Exit)
+mi> oven ncomp=1	(Exit)
+mi> oven ncomp=2	(Exit)
+</pre>
+
+
+<h3>STEP 3:  Start the data and parameter daemons.</h3>
+But, don't start background jobs if they are already running!
+Check by using: "!ps -efc | grep pilot"
+<p>
+ In the blue window:
+<br>
+<pre>
+mi> ovenp &
+mi> ovenb &
+mi> ovend &
+mi> oven 
+</pre>
+
+
+<h3>STEP 4:	Start the error daemons.</h3>
+<p>
+ In the red window:
+<br>
+<pre>
+mi> ovene ncomp=0 offset=10 & 
+mi> ovene ncomp=1 offset=11 &
+mi> ovene ncomp=2 offset=12 &
+mi> oveng & 
+mi> oven offset=14
+</pre>
+
+
+<h3>STEP 5: Start the oven cron task.</h3>
+Start the cron task in the purple window (border): "ovenc &"
+
+<h3>RELATED MIRROR HELP TASKS</h3>
+oven, ovenb, ovenp, ovend, ovene, oveng, ovenw, ovenc, ovenr
+
+<h3>RELATED FURNACE HELP TASKS</h3>
+pilot_login, user_login, dead_sun
+
+<h3>RELATED IRAF HELP TASKS</h3>
+jobs, kill, spy, lpar, unlearn, flpr, prc, cursors
+
+<h3>RELATED UNIX MAN PAGES</h3>
+xterm, ps, grep, ipcs, ipcrm, openwin, kill, w, netstat, X11
+</BODY>
+</HTML>

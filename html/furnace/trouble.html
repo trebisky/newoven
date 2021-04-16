@@ -1,0 +1,93 @@
+<HTML>
+<HEAD>
+<TITLE> SOML oven documentation - 96 </TITLE>
+</HEAD>
+<BODY>
+<p>
+<h3>TROUBLE (Nov) &emsp; &emsp; &emsp; 96</h3>
+
+<h3>NAME</h3>
+trouble --- description of common problems with the oven screen
+
+<h3>DESCRIPTION</h3>
+<p>
+	This help file describes some of the most frequently encountered
+problems with the oven window system.  The recommended solutions are
+also given.  If any of these problems reoccur frequently, you may be doing
+something wrong.  The old name of this file was "problems".
+<p>
+<p>
+ window gone
+<br>
+	If a window dies completely, move the mouse to the blue
+background area and press the right mouse button to get the "rootmenu"
+called MENUS.  Slide over to select the USER menu and then the OVEN
+menu, then select the window type that you wish to recreate and
+release the button.  Note that this does not "reset" a window; it
+creates a new one.  Be sure that the old window is not still around;
+otherwise you could wind up with two copies of the same window, which
+is bad news.  Remember the old window could be hidden or closed (iconized)
+somewhere.  The mailtool, perfmeter and clock are not
+oven specific, so you get them from the SYSTEM - PROGRAMS menu.
+<p>
+	The most frequent window to die is <b>ximtool</b>, which
+cannot deal with talking to two tasks at once.  You therefore should
+be careful not to run <b>odisp</b> while a <b>ovenc</b> is running.
+<p>
+	To intentionally quit a window, move the mouse to the top
+border of the window and hold down the right mouse button.  Select
+QUIT.
+
+<p>
+<p>
+ syntax errors
+<br>
+	If you start getting lots of syntax errors from an IRAF
+window, try giving the cl command <b>flpr</b>.  <b>flpr</b> may be the
+most useful IRAF task you ever learn.  If <b>flpr</b> doesn't work,
+recheck the task parameters.  Otherwise, <b>log</b> out of IRAF, then
+restart the window as above.
+
+<p>
+<p>
+ frozen xgterm windows
+<br>
+	If a xgterm window "freezes up", it could be because
+you hit 256 characters without hitting a carriage return.  This
+usually occurs when you accidentally lean on the keyboard.  The window
+will just beep at you when you try to enter more characters. <cntrl-C>
+fixes this problem.
+
+<p>
+<p>
+ green boxes on your ximtool
+<br>
+	After accidentally creating a little green marker box with the
+mouse in ximtool, you can blow it (the box) away by simply moving the
+mouse pointer to within the marker box and pressing the DEL key on the
+keyboard.  
+
+<p>
+<p>
+ mouse button initialization for imcur
+<br>
+	Unlike in the "good ol' days", mouse buttons are not easily
+initialized for ximtool v0.5 under Solaris and X11 IRAF.
+This means that if you attempt to access imcur from the <b>oven</b> program
+to find an oven location, you cannot use the left mouse button to return.
+Hit "t", "l", "w", "b" or "a" to return from the ximtool imcur mode.
+
+<p>
+<p>
+ help for ximtool and xgterm
+<br>
+	There is not really much user documention for the IRAF xgterm and
+ximtool windows.  What there is can be found on the web at:
+http://astro.as.arizona.edu/www/r/iraf/local/doc/ in the files
+xgterm.info and ximtool.info.
+<p>
+
+<h3>BUGS</h3>
+These are the bugs, but not all of them.  Good luck in finding your own.
+
+<h3>SEE ALSO</h3>

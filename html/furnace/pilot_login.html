@@ -1,0 +1,405 @@
+<HTML>
+<HEAD>
+<TITLE> SOML oven documentation - furnace </TITLE>
+</HEAD>
+<BODY>
+<p>
+<h3>PILOT_LOGIN (May00) &emsp; &emsp; &emsp; furnace</h3>
+
+<h3>NAME</h3>
+pilot_login --- procedure for pilot login and oven startup from console
+
+<h3>DESCRIPTION</h3>
+<p>
+This help file describes the PILOT STARTUP SEQUENCE FOR THE OVEN.
+<p>
+These instructions assumes that crater (or dorado) is running and that
+the oven network is intact.  These instructions also assume that the
+on-board VME computers are running.  IRAF parameter defaults only work
+for <i>oven0v0</i>.
+<p>
+See <b>user_login</b> for information about non-pilot or remote logins.
+<p>
+
+<h3>WARNING NOTES</h3>
+<p>
+Do not panic and reboot or logout too hastily.  Rebooting normally
+takes about 10 minutes depending on
+the condition of the disk.  This login procedure will take at least 3
+minutes if you are practiced.  You might get into even more trouble
+than you already had.
+<p>
+Pilot (or Pilot2) should definitely not be running oven on the other
+workstation (crater or dorado) at the same time.  This is not
+impossible, but it is rather dangerous --- you could destroy the other
+database if you make a mistake.
+<p>
+
+<h3>STEP 1: login to the console as pilot (on crater) or pilot2 (on dorado).</h3>
+<p>
+The console login starts with a blank screen that says:
+"crater login:" or "dorado login:" along with a Solaris graphic.
+<p>
+After entering the username and password, this should give you an
+openwindows screen with:
+<pre>
+		- a console window
+		- purple xgterm window with IRAF
+		- green xgterm window with IRAF
+		- red xgterm window with IRAF
+		- blue xgterm window with IRAF
+		- ximtool (image display)
+		- a mailtool (for mail)
+		- a clock
+	(roughly in that order)
+</pre>
+It takes about 40 seconds for all the windows to start.
+<p>
+
+<h3>STEP 2: Load the external IRAF packages for the oven.</h3>
+<p>
+This step is no longer needed as the <b>mirror</b> tasks used to run
+the oven are loaded automatically when the pilot logs in.  (see loginuser.cl)
+<p>
+However, you may still load the <b>mirror</b>
+package in each xgterm window if you prefer.
+<p>
+<p>
+
+<br>
+<p>
+<p>
+ Example:
+<br>
+<pre>
+cl> mirror
+mi>
+</pre>
+
+<p>
+The "mi>" prompt indicates that the <b>mirror</b> package is loaded.
+Type "?" for a list of the tasks in the active package (the last one loaded
+from the command line).
+<p>
+<p>
+ Example:
+<br>
+<pre>
+mi> ?
+      odisp  oven    ovend   oveng   ovenr   tcmark  
+      ograph ovenb   ovene   ovenp   ovenw   
+mi> 
+</pre>
+
+<p>
+If you have not loaded the <b>mirror</b> package, you can still get a
+list of the tasks in the package by saying "help mirror" or "help
+mirror option=dir".
+<p>
+
+<p>
+<p>
+
+<h3>STEP 3: Create shared memory segments if needed</h3>
+<p>
+Shared memory segments must be created and initialized first. 
+Check these with "ipcs".  There should be 3 segments, one each for on-board
+computers oven0v0, oven0v1 and oven0v2.  And with Solaris 2.6 there are
+sometimes other segments.
+<p>
+<p>
+ Example (that's OK):
+<br>
+<pre>
+mi> !ipcs
+IPC status from <running system> as of Wed Sep  9 13:13:47 1998
+Message Queue facility not in system.
+T         ID      KEY        MODE        OWNER    GROUP
+Shared Memory:
+m          0   0x50000d40 --rw-r--r--     root     root
+m          1   00000000 --rw-rw-rw-  dwatson    other
+m          2   0x00000100 --rw-r--r--    pilot    other
+m          3   0x00000101 --rw-r--r--    pilot    other
+m          4   0x00000102 --rw-r--r--    pilot    other
+Semaphores:
+mi>
+</pre>
+
+<p>
+If shared memory segments do not exist, the <b>oven</b> task will create and
+initialize (fill with zeros) them.  The shared memory segments can
+only be created by the pilot.  Run the <b>oven</b> task for all three
+computers as shown below.  (use the blue window) Before you "exit"
+from each <b>oven</b>, use the "Database" menu to "Read parameters from
+disk".  If you know that you have "good" parameters in the
+v-computers, you could "Read parameters from oven" instead.  "Read
+parameters from disk" should always work, but could give you clock
+settings that are hours or even days old.
+<p>
+<p>
+ Example:
+<br>
+<pre>
+mi> oven ncomp=0	(Exit)
+mi> oven ncomp=1	(Exit)
+mi> oven ncomp=2	(Exit)
+mi>
+</pre>
+
+<p>
+<p>
+
+<br>
+If an <b>oven</b> task crashes, use <b>flpr</b> to flush the process cache before
+restarting.  
+<p>
+<b>unlearn oven</b> resets the default parameters for the task.
+<i>oven.readonly</i> must be "no" (which is not the default) to modify
+shared memory segments or the database file.  And <i>oven.remove</i>
+must be "no" to make a permanent shared memory segment.  If you leave
+<i>oven.readonly</i> as "yes", you will get the message "hoven error
+30".
+<p>
+<p>
+ Example:
+<br>
+<pre>
+mi> unlearn oven
+mi> oven.readonly=no
+mi> oven ncomp=0
+</pre>
+
+
+<p>
+
+<h3>STEP 4:  Kill any stray background data, parameter and error daemons.</h3>
+<p>
+<p>
+Check for all pilot tasks by using: 
+<p>
+ Example:
+<br>
+<pre>
+mi> !ps -efc | grep pilot 
+mi>
+</pre>
+
+Oven tasks appear as "/iraf/mirror/bin.ssun/x_mirror.e".  The
+<b>cl</b>s in your xgterm windows appear as "/iraf/iraf/bin.ssun/cl.e",
+while the xgterm itself appears as "xgterm -name ovenBlue .......".
+Note that each background daemon has an associated <b>cl</b> which
+appears as "/iraf/iraf/bin.ssun/cl.e -d /home/pilot/uparm/bkg553b".
+<p>
+If you only want to check for the oven tasks, you can say:
+<p>
+ Example:
+<br>
+<pre>
+mi> !ps -efc | grep mirror |sort	(shows all mirror tasks)
+mi>
+</pre>
+
+If you aren't sure, kill all pilot "mirror" tasks (and their parent
+PIDs) and start clean.  Killing a daemon may cause its associated
+<b>cl</b> task to go into a loop and use a lot of CPU time.
+<p>
+If you only want to check for the background tasks, you can say:
+<p>
+ Example:
+<br>
+<pre>
+mi> !ps -efc | grep bkg |sort	(shows all IRAF background tasks)
+mi>
+</pre>
+
+<p>
+<p>
+To kill tasks, use the Unix command:
+<p>
+ Example:
+<br>
+<pre>
+mi> !kill -9 xxxx
+</pre>
+
+Where xxxx is the PID number displayed by ps.
+PID in this case means Process IDentifcation,
+not Proportional, Integral, Derivative.
+<p>
+<p>
+
+<br>
+	Hint: Always use care when killing tasks.  It is particularly
+unproductive to kill the window you are working in.  It is also
+recommended that you kill or spawn tasks when the clock is between 30
+and 45 seconds after the minute.  This avoids starting or stopping
+tasks while they are communicating.  Try to use the IRAF <b>kill</b>
+command whenever possible.
+<p>
+Advanced users who are interested in a rapid kill may wish to try
+<b>scopes.furnace.killer</b> from J. Hill's <b>scopes</b> external IRAF
+package. It is fast, but dangerous.
+<p>
+<p>
+
+
+<h3>STEP 5:  Start the new data and parameter daemons.</h3>
+<p>
+Now you are ready to start the daemons in the blue window:
+<p>
+ Example:
+<br>
+<pre>
+mi> ovenp &
+mi> ovenb &
+	(if you are coldstarting, turn on the on-oven VME computers here)
+mi> ovend & 
+mi> oven readonly=no
+</pre>
+
+<p>
+<p>
+
+<br>
+The blue window will now continue the <b>oven</b> program talking to
+the shared memory segment for oven0v0.  If the oven0v0 computer is
+functioning, you should get fresh data each minute.
+<p>
+For a brief description of the daemon's function type: <b>help ovenp</b>
+<p>
+<p>
+	Hint: Beware of parameter database synchronization problems
+after wierd scenarios.  One possible problem occurs if the VME
+computers booted before the oven daemons were running.  Download
+parameters to the oven	(and double check clock parameters). 
+
+<p>
+<p>
+
+<br>
+	Hint: Don't start background jobs if they are already running!  
+The old daemons should have been killed off in the previous step.
+If there is a duplicate daemon already running, you will get an
+error message like: "poven error -3".
+
+<p>
+
+<h3>STEP 6:	Start the error daemons.</h3>
+<p>
+You are never really secure unless you have your error daemons running.
+<p>
+Start these four daemons in the red window:
+<p>
+ Example:
+<br>
+<pre>
+mi> ovene ncomp=0 offset=10 & 
+mi> ovene ncomp=1 offset=11 &
+mi> ovene ncomp=2 offset=12 &
+mi> oveng & 
+mi> oven offset=14
+</pre>
+
+Set the <b>oven</b> program in the red window to read the error log.
+<p>
+<p>
+
+<br>
+<p>
+To verify which background tasks are running in a particular xgterm
+window, use the IRAF <b>jobs</b> command.
+<p>
+ Example from the blue window:
+<br>
+<pre>
+mi> jobs
+    [1] 1473:50  Running   ovenb & 
+    [2] 1473:38  Running   ovenp & 
+    [3] 1407:02  Running   ovend & 
+mi>
+</pre>
+
+
+<p>
+
+<h3>STEP 7: Start the oven cron task.</h3>
+<p>
+Start the cron task in the purple window:
+<p>
+ Example:
+<br>
+<pre>
+mi> ovenc &
+</pre>
+
+ograph and odisp should now display data at appropriate intervals.
+<p>
+<p>
+
+<br>
+ 
+To stop the cron task or another daemon, use the IRAF <b>kill</b>
+command in the relevant window: <b>kill</b> x
+(where x is the job number [1-4])
+
+<p>
+
+<h3>STEP 8: Start the <b>ovenr</b> daemons.</h3>
+<p>
+Start the two <b>ovenr</b> daemons in the green window.  These are only needed
+during fast rotation --- they log the measured rotation speed in a
+file every 6 seconds.
+<p>
+<p>
+ Example:
+<br>
+<pre>
+mi> ovenr connection="oven0v0,5107" > rspeed.oven0v0 &
+mi> ovenr connection="oven0v2,5107" > rspeed.oven0v2 &
+mi>
+</pre>
+
+<p>
+If the rspeed file exists, you will have to change the > to a >> in order
+to append to a file.  Then to view the rspeed file on the green window
+screen, start a Unix tail task "!tail -f rspeed.oven0v0".  You may stop
+this tail task with a ^C without any interuption to the <b>ovenr</b> daemons.
+<p>
+
+<h3>Other useful commands:</h3>
+<p>
+To check the communication links, use "!netstat -f inet".
+<p>
+To remove a shared memory segment, use "!ipcrm -m xxx".
+<p>
+To check the available swap space, use "!swap -s".
+<p>
+To check the available disk space and to see which disks are
+mounted, use "!df".  To see the disk use in the current directory, use
+"!du".
+<p>
+To make a hardcopy of a window, use "!xwd |xpr -device ps |lp".
+If the window is white on black use "!xwd |xpr -device ps -rv |lp" to reverse
+it.  (These commands are usually aliased to "hc" and "hr".)
+<p>
+To logoff from the console, select "Exit" from the Rootmenu and then confirm
+your selection when prompted.
+(The oven pilot should never need to logoff, except for software changes
+or workstation failure.)
+<p>
+
+<h3>BUGS</h3>
+
+<h3>RELATED MIRROR HELP TASKS</h3>
+oven, ovenb, ovenp, ovend, ovene, oveng, ovenw, ovenc, ovenr
+
+<h3>RELATED FURNACE HELP TASKS</h3>
+user_login, pilot_short, simul_login, dead_sun
+
+<h3>RELATED IRAF HELP TASKS</h3>
+jobs, kill, spy, lpar, unlearn, flpr, prc, cursors, help, ximtool
+
+<h3>RELATED UNIX MAN PAGES</h3>
+ps, df, du, grep, ipcs, ipcrm, openwin, kill, swap, w, netstat, X11
+</BODY>
+</HTML>

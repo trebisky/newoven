@@ -1,0 +1,52 @@
+<HTML>
+<HEAD>
+<TITLE> SOML oven documentation - mirror </TITLE>
+</HEAD>
+<BODY>
+<p>
+<h3>OVENE (May91) &emsp; &emsp; &emsp; mirror</h3>
+
+<h3>NAME</h3>
+ovene -- Oven error gatherer and logger
+
+<h3>USAGE</h3>
+ovene
+
+<h3>PARAMETERS</h3>
+<p>
+ noven = 0
+<br>
+The oven number of the shared memory segment which should be attached.
+
+<p>
+ ncomp = 0
+<br>
+The computer number of the shared memory segment which should be attached.
+
+<p>
+ period = 60
+<br>
+The period in seconds with which the error database is polled.
+
+<p>
+ offset = 10
+<br>
+The number of seconds to wait after the period has expired.
+
+
+<h3>DESCRIPTION</h3>
+	Poll the V computer every period and place the oven error data into
+the shared memory segment. Then, write the errors into the error log on disk.
+
+<h3>EXAMPLES</h3>
+	cl> ovene ncomp=0 offset=10 &
+<p>
+	cl> ovene ncomp=1 offset=11 &
+<p>
+	cl> ovene ncomp=2 offset=12 &
+
+<h3>BUGS</h3>
+
+<h3>SEE ALSO</h3>
+</BODY>
+</HTML>

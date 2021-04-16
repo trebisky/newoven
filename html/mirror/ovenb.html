@@ -1,0 +1,42 @@
+<HTML>
+<HEAD>
+<TITLE> SOML oven documentation - mirror </TITLE>
+</HEAD>
+<BODY>
+<p>
+<h3>OVENB (May91) &emsp; &emsp; &emsp; mirror</h3>
+
+<h3>NAME</h3>
+ovenb -- Oven bi-parameter daemon
+
+<h3>USAGE</h3>
+ovenb
+
+<h3>PARAMETERS</h3>
+<p>
+ noven = 0
+<br>
+The oven number of the shared memory segment which should be attached.
+
+<p>
+ ncomp = 0
+<br>
+The computer number of the shared memory segment which should be attached.
+
+
+<h3>DESCRIPTION</h3>
+	The <i>noven</i> and <i>ncomp</i> parameters are ignored. 
+This task attaches
+all the oven shared memory segments that exist when the task starts up.
+This is for all ovens and all V computers.  The task listens for requests
+on a well-known TCP port and transmits the contents of the appropriate shared
+memory bi-parameter database to the requester.
+
+<h3>EXAMPLES</h3>
+	cl> ovenb &
+
+<h3>BUGS</h3>
+
+<h3>SEE ALSO</h3>
+</BODY>
+</HTML>

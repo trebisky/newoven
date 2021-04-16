@@ -1,0 +1,62 @@
+From skip@as.arizona.edu Fri Jun 14 15:14:05 1991
+Return-Path: <skip@as.arizona.edu>
+Received: from as.arizona.edu (astro.as.arizona.edu)
+	by dorado.as.arizona.edu (4.1/1.2)
+	id AA02891; Fri, 14 Jun 91 15:14:02 MST
+Received: by as.arizona.edu (4.1/1.2)
+	id AA11713; Fri, 14 Jun 91 15:13:57 MST
+Date: Fri, 14 Jun 91 15:13:57 MST
+From: skip@as.arizona.edu (Skip Schaller)
+Message-Id: <9106142213.AA11713@as.arizona.edu>
+To: jhill@as.arizona.edu, mhunten@as.arizona.edu, ovenlog@as.arizona.edu,
+        pilot@as.arizona.edu
+Subject: map of the minute
+Status: R
+<p>
+Map of the minute (6/14/91)
+<p>
+seconds 	action (normally)
+Control room
+5		get data from V computer
+8		refresh status screen
+10		get errors from V0
+11		get errors from V1
+12		get errors from V2
+13		get priority errors
+14		refresh error screen
+15		rerun ograph and odisp
+<p>
+Onboard
+cwork
+0		update zone clocks and calculate etmp
+		write to R computer
+42		check jtmps
+		read R computer and adc's
+		transmit adc data to other V computers
+48		check adc values
+54		calculate ztmp
+		calculate clock status
+<p>
+pwork
+0		calculate htmp and hpwr for panel 0
+6		calculate htmp and hpwr for panel 1
+		start of minute for applying the hpwr for panel 0
+12		calculate htmp and hpwr for panel 2
+		start of minute for applying the hpwr for panel 1
+18		calculate htmp and hpwr for panel 3
+		start of minute for applying the hpwr for panel 2
+24		calculate htmp and hpwr for panel 4
+		start of minute for applying the hpwr for panel 3
+30		calculate htmp and hpwr for panel 5
+		start of minute for applying the hpwr for panel 4
+36		calculate htmp and hpwr for panel 6
+		start of minute for applying the hpwr for panel 5
+42		calculate htmp and hpwr for panel 7
+		start of minute for applying the hpwr for panel 6
+48		calculate htmp and hpwr for panel 8
+		start of minute for applying the hpwr for panel 7
+54		calculate htmp and hpwr for panel 9
+		start of minute for applying the hpwr for panel 8
+<p>
+For low power levels most of the power will be applied near the end
+of the minute.  (like bewteen 0 and 6 for panel 0).

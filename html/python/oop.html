@@ -1,0 +1,290 @@
+<HTML>
+<HEAD>
+<TITLE> SOML oven documentation - python OOP </TITLE>
+</HEAD>
+<BODY>
+
+March 27, 2021
+
+<h3> Python object oriented programming</h3>
+
+I have programmed using objects in Ruby, Java, and other languages.
+My aim here is to write an "executive summary" for myself, which
+may of course be useful to others, describing basic OOP in python.
+There are lots of subtle, esoteric, and even powerful details that I
+am making no effort to describe here.
+
+<p>
+Python OO is not as succinct and pretty as Ruby.
+Java of course is wretched in every way and any comparison would be moot.
+
+<p>
+The following official description is very good and worth reading.
+Remember that everybody and every language has (apparently) different
+words for talking about the same concepts.  Be aware and be flexible.
+
+<ul>
+<li> <a href="https://docs.python.org/3/tutorial/classes.html">Python docs - classes</a>
+</ul>
+
+<h3>Basics: classes and instance variables</h3>
+
+<p>
+To get started here is a simple place holder for a class:
+
+<pre>
+class Fish:
+    pass
+</pre>
+
+The interesting thing here is the "pass" keyword which does nothing, but
+satisfies python syntax so this will compile.  This can actually be useful,
+serving much the same as a C "struct" with members being added on the fly.
+
+<p>
+Here is a class with an initializer (constructor method):
+
+<pre>
+class Dog:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+</pre>
+
+If we write this code, we create an object of this class:
+
+<pre>
+x = Dog ( "fido", 5 )
+</pre>
+
+This "Dog" object has instance variables (attributes) called name and age.
+We can introduce class variables (attributes) as follows:
+
+<pre>
+class Fish:
+    count = 0
+    def __init__(self, name):
+        self.name = name
+	Fish.count += 1
+</pre>
+
+Both instance and class variables are accessed the same way (via dot notation):
+
+<pre>
+x = Fish ( "Barnie" )
+print ( x.name )
+print ( x.count )
+</pre>
+
+Note that we can add instance variables "willy-nilly" at any time to a single object
+instance via a line like:
+
+<pre>
+x.abracadabra = "stop me if you can"
+</pre>
+
+There is some confusing (and I think broken) hokey pokey with accessing class versus instance variables.
+Inside the class self.count accesses the instance variable and Fish.count accesses the class variable.
+This is fine, and as it should be.
+If there is no "count" instance variable, accessing x.count outside the class yields the value of the
+class variable, which I find surprising.  Accessing Fish.count outside gives the class variable with
+no confusion as it should.  If we have both class and instance variables of the same name, accessing
+x.count gives the instance value (which makes sense), hiding the class variable.
+In this case we must use Fish.count to access the class variable.
+
+<p>
+My advice is to avoid this confusion and always use Fish.count to deal with class variables.
+
+<h3>Methods</h3>
+
+There is nothing particularly magic about instance methods except for the annoying need
+to inject "self" as the first argument.  So we can add a rename method to our Fish class
+like this:
+
+<pre>
+#!/bin/python3
+
+class Fish:
+    count = 0
+    def __init__(self, name):
+        self.name = name
+        self.count = 99
+        Fish.count += 1
+    def rename ( self, name ) :
+        self.name = name
+
+x = Fish ( "joe" )
+y = Fish ( "bob" )
+print ( y.count )
+print ( Fish.count )
+
+y.rename ( "sam" )
+print ( y.name )
+</pre>
+
+Note that the "self" vanishes outside the class when the method is called.
+It is magically injected as a first argument by python inside the class.
+
+<p>
+Along with instance methods, python also has class and static methods.
+
+<p>
+Class methods get a first argument magically injected by python, but it
+is "cls" rather than "self".  This allows a class method to access class
+variables (class state).  
+
+<p>
+Static methods don't get any magic first argument at all.
+So they can't access class variables, and of course they can't access
+instance variables.
+
+<p>
+Here is example code that would add a class and static method to our
+Fish class:
+
+<pre>
+    @classmethod
+    def show ( cls ) :
+        print ( f"cls: {cls.count}" )
+    @staticmethod
+    def pork ( arg ) :
+        print ( "static: " + arg )
+</pre>
+
+Note that the methods must be prefixed with a "decorator" that indicate that
+the method which follows is what it is.  Don't be tricked into thinking that
+this is a comment.  These two methods would be used in much the same way,
+as follows:
+
+<pre>
+Fish.show()
+Fish.pork( "xyz" )
+</pre>
+
+Note that the only real reason to have static methods is to group plain old
+ordinary functions as part of a class, which is namespace control along with
+some logical grouping and organization.
+
+<h3>Inheritance</h3>
+
+Some tutorials act as though this is the essence of OO programming.
+I find it to be something I essentially never (or only very rarely) use.
+Don't get out of balance and work up tangled collections of classes with
+zany inheritance hierarchies!
+
+<pre>
+class Cod ( Fish ) :
+    pass
+</pre>
+
+Here we have a "Cod" class with a parent class "Fish" that it inherits from.
+Enough said.
+
+<h3>Dunder methods</h3>
+
+These are methods with names that begin and end with "__" (you have already seen
+the __init__ method, which is one of these).  There are a bunch of these that you
+can read about.  Consider __str__.  What it does is specify code to be called when
+someone does something like this with an instance of a class.
+
+<pre>
+print ( x )
+</pre>
+
+We could add code like the following to our Fish class:
+
+<pre>
+def __str__ ( self ) :
+    return f"I am a fish, my name is {self.name}"
+</pre>
+
+We return a string that the print function will use.  The f"" syntax is one of the
+ways python gives for printing formatted strings, something you can read about elsewhere.
+
+<p>
+There are dunder methods that help in setting up interators or generators.
+
+<p>
+Other dunder methods can set up infix operators like == or != for your class,
+indexing operations like [] and the usual gang of prefix and infix operators
+used for arithmetic (if you want to make your class really fancy).
+
+<p>
+A lot of powerful stuff lurks here, but I won't get into details.
+
+<h3>private data</h3>
+
+Python has no facility for making variables in a class or instance private.
+The convention is to prefix such variables with an underscore, but this is
+a convention and nothing more.
+
+<p>
+Python does offer something stronger that was clearly added as a slapdash "patch"
+or afterthought.  If you use two underscores, python replaces the name (invisibly)
+with "_classname__var".
+This clearly avoids namespace collisions in certain cases, but doesn't yield privacy.
+
+<h3>Fancy stuff</h3>
+
+There are lots of details involving python modules, namespaces, and such that you can
+read about.  You can copy a method reference into a variable and then place parenthesis
+after it to invoke the variable as a function.  Like this:
+
+<pre>
+nu = Fish.show
+nu()
+</pre>
+
+These are just objects and we can pass method objects around and place them in new variables.
+We can place them in lists or into other instance variables or whatever.
+
+<p>
+Giving the name "self" to the first argument of an instance method is just a convention.
+But it is a good one if you want others (or even yourself) to understand your code.
+
+<h3>An example</h3>
+
+For what it is worth (which is not very much), here is the sample code I used to
+perform experiments when writing this page.  It does work, which is due diligence
+on my part to ensure I am really understanding what I am writing about.
+
+<pre>
+#!/bin/python3
+
+class Fish:
+    count = 0
+    def __init__(self, name):
+        self.name = name
+        self.count = 99
+        Fish.count += 1
+    def rename ( self, name ) :
+        self.name = name
+    def __str__ ( self ) :
+        return f"I am a fish, my name is {self.name}"
+
+    @classmethod
+    def show ( cls ) :
+        print ( f"cls: {cls.count}" )
+    @staticmethod
+    def pork ( arg ) :
+        print ( "static: " + arg )
+
+x = Fish ( "joe" )
+y = Fish ( "bob" )
+print ( y.count )
+print ( Fish.count )
+
+y.rename ( "sam" )
+print ( y.name )
+print ( y )
+
+Fish.pork( "xyz" )
+Fish.show()
+
+nu = Fish.show
+nu()
+</pre>
+
+
+</BODY>
+</HTML>

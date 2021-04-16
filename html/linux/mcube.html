@@ -1,0 +1,170 @@
+<HTML>
+<HEAD>
+<TITLE> SOML control room software on linux</TITLE>
+</HEAD>
+<BODY>
+
+July 2, 2020
+
+<h3> SOML control room software - Meter cube startup procedure (linux version)</h3>
+
+This is an outline of the steps needed to start the control room software on
+the linux machine in the control room.
+Since pilots with much more experience than I have may use and want to suggest
+corrections or additions to this procedure, I want to invite them to do so.
+Send email to tom@mmto.org
+
+<p>
+This assumes that the VME computer has already been booted.
+This is just a matter of turning it on, it still boots from the
+old Sun workstation "crater".
+
+<p>
+
+<ul>
+<li> Login as user pilot
+<li> Bring up a terminal window.
+<li> Type "start_mcube" before doing anything else.
+This will change to the MCUBE directory and bring up 2 terminal windows
+(Red and Blue).
+</ul>
+
+<p>The red window has traditionally been used to start "ovene".
+
+<p>The blue window has traditionally been used to start "ovend" and run "oven"
+
+<p>Whatever window you use to type "start_mcube" may be worth keeping around for
+various uses, or may be closed or minimized.
+
+<h3>Check for shared memory segments</h3>
+
+The "ipcs" command shows all shared memory segments.
+There are a lot of them on linux and most have nothing to do with the oven.
+For this reason, I set up a command "oven_ipcs" that screen out everything
+not having to do with the oven.
+
+<p>
+Running it, with a shared memory segment already in place for the
+meter cube yields the following:
+
+<pre>
+oven_ipcs
+0x00000110 59         pilot      644        263748     2
+</pre>
+
+If you don't see a line like the above with with the 0x00000110 value,
+you will need to create a shared memory segment.  Do this by starting the
+oven program as follows, then immediately exiting it.
+
+<pre>
+oven -M
+</pre>
+
+If you wanted to delete the above shared memory segment
+
+<pre>
+ipcrm -m 59
+</pre>
+
+Here the number "59" comes from the second column of the above display
+and will be different each and every time.
+
+<h3>Check for background processes</h3>
+
+You should also check for any daemon (background) processes.
+If you find them, you get to decide whether to use them as is,
+or to kill them and restart them as described below.
+What you do <b>not</b> want to do is to start duplicate background
+processes, particularly of the ovend process.
+
+<p>
+Use command:
+
+<pre>
+ps -alx | grep oven
+</pre>
+
+Doing this "right now", I see the following:
+
+<pre>
+ps -alx | grep oven
+0  1004  2246     1  20   0   3608  2244 -      S    pts/4      0:00 xgterm -name ovenRed -title Red IRAF XGterm (orig) -e cl
+0  1004  2247     1  20   0   3612  2244 -      S    pts/4      0:00 xgterm -name ovenGreen -title Green IRAF XGterm (orig) -e cl
+0  1004  2248     1  20   0   3652  2244 -      S    pts/4      0:00 xgterm -name ovenPurple -title Purple IRAF XGterm (orig) -e cl
+0  1004  2249     1  20   0   3836  2532 -      S    pts/4      0:00 xgterm -name ovenBlue -title Blue IRAF XGterm (orig) -e cl
+0  1004  3606     1  20   0  11608  8892 -      S    ?          0:24 ovend -M
+0  1010  8869  8818  20   0 215748   888 -      S+   pts/9      0:00 grep --color=auto oven
+</pre>
+
+This shows the ovend background process running with the -M option (hence for the meter cube) along with the various
+terminal windows being used by the oven pilot.  If you wanted to start clean from scratch, you would probably
+want to kill the ovend process using the command:
+
+<pre>
+kill -9 3606
+</pre>
+
+The number "3606" will be different each time.  It is the "PID" of the intended process to be killed and comes from
+the third column in the above display.
+
+<h3>Start the error daemons (Red window)</h3>
+
+In the red window, type the following commands:
+
+<pre>
+nohup ovene -M &
+oven
+</pre>
+
+Set the oven program in the red window to read the error log.
+
+<!--
+ ovene ncomp=0 offset=10 &
+mi> ovene ncomp=1 offset=11 &
+mi> ovene ncomp=2 offset=12 &
+mi> oveng &
+mi> oven offset=14
+-->
+
+<h3>Start the data daemon and GUI (Blue window)</h3>
+
+You don't want to start background jobs (daemons) if they are already running,
+see above on shared memory and background processes.
+
+<p>
+I don't believe you need the "P" and "B" daemons for the meter cube,
+but you can certainly start them should you care to:
+
+<pre>
+nohup ovenp -M &
+nohup ovenb -M &
+</pre>
+
+If you are going to run these, standard wisdom is that it is best to start them before booting the VME computer.
+
+<p>
+You definitely need to start the "D" daemon if it is not already running.
+Use one of the following commands.
+
+<pre>
+nohup ovend -M &
+nohup ovend -M -nol &
+</pre>
+
+The "-nol" switch says to <b>not</b> log information to FITS files, which may often be appropriate when
+the meter cube is being used.
+
+<p>
+Last, but not least,  you need to start the oven GUI via:
+
+<pre>
+oven -M
+</pre>
+
+The blue window will now run the oven program talking to the shared memory segment for oven1v0.
+You should get fresh data each minute.
+
+<h3> Good luck ! </h3>
+
+</BODY>
+</HTML>

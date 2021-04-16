@@ -1,0 +1,50 @@
+<HTML>
+<HEAD>
+<TITLE> SOML oven documentation - mirror </TITLE>
+</HEAD>
+<BODY>
+<p>
+<h3>OVENG (May91) &emsp; &emsp; &emsp; mirror</h3>
+
+<h3>NAME</h3>
+oveng -- Oven priority error gong.
+
+<h3>USAGE</h3>
+oveng
+
+<h3>PARAMETERS</h3>
+<p>
+ noven = 0
+<br>
+The oven number of the shared memory segment which should be attached.
+
+<p>
+ ncomp = 0
+<br>
+The computer number of the shared memory segment which should be attached.
+
+<p>
+ period = 60
+<br>
+The period in seconds with which the priority error database is polled.
+
+<p>
+ offset = 13
+<br>
+The number of seconds to wait after the period has expired.
+
+
+<h3>DESCRIPTION</h3>
+	Poll all the V computers every period and check the oven priority
+error database.
+Parameter <i>ncomp</i> is ignored.
+Ring the terminal bell once for each error.
+
+<h3>EXAMPLES</h3>
+	cl> oveng &
+
+<h3>BUGS</h3>
+
+<h3>SEE ALSO</h3>
+</BODY>
+</HTML>

@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+<TITLE> SOML oven documentation - mirror </TITLE>
+</HEAD>
+<BODY>
+<p>
+<h3>OVENR (Oct) &emsp; &emsp; &emsp; mirror</h3>
+
+<h3>NAME</h3>
+ovenr -- Oven rotation speed reader.
+
+<h3>USAGE</h3>
+ovenr
+
+<h3>PARAMETERS</h3>
+<p>
+ connection = oven0v0,5107
+<br>
+The host and port to connect to.
+
+<p>
+ lower = 0
+<br>
+The lower speed limit.
+
+<p>
+ upper = 0
+<br>
+The upper speed limit.
+
+
+<h3>DESCRIPTION</h3>
+	Connect to the oven V computer and print on STDOUT the rotation speed
+data.  Beep on STDERR if the speed is not between the limits.
+
+<h3>EXAMPLES</h3>
+	cl> ovenr connection="oven0v0,5107" > rspeed.oven0v0 &
+
+<h3>BUGS</h3>
+
+<h3>SEE ALSO</h3>
+</BODY>
+</HTML>

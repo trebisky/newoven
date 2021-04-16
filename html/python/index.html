@@ -1,0 +1,88 @@
+<HTML>
+<HEAD>
+<TITLE> SOML oven documentation - python and FITS files </TITLE>
+</HEAD>
+<BODY>
+
+March 17, 2021
+
+<h3> SOML oven software - python notes </h3>
+
+<ul>
+<li> <a href="oop.html">My highly condensed python object tutorial</a>
+<li> <a href="opencv">OpenCV</a>
+<li> <a href="pillow.html">PIL and Pillow</a>
+</ul>
+
+<h3>Python and FITS files</h3>
+
+It is a given that all work will be done using python3.
+
+<p>
+All of the current logged oven data is stored in FITS files
+(older oven data is stored in "old IRAF format" image files).
+Some of the really old oven data may have endian issues.
+It is stored big endian (as it was written on a SPARC machine),
+but truly old IRAF had no mechanism to manage endian issues.
+The data from the MMT casting may be from this era.
+This is nothing we intend to deal with here, but it worth mentioning
+in passing.  In fact from this point on, we will only discuss FITS
+files.  A final comment is that the recommendation was made to use
+IRAF running on a SPARC machine to convert any old image format files
+to FITS.  This would be a bit of a job and has not been tackled.
+Very likely by the time anyone is reading this, those machines will
+be long gone and some old files will be in hand someone wants to read.
+
+<p>
+Python has a number of packages to read FITS files.
+Something called "PyFITS" exists, probably written at Space Telescope.
+It is deprecated, being replaced by astropy.io.fits.
+There is also a package for python3 called "fitsio" that is
+available as a fedora package.  It is a perfectly good alternative.
+I am inclined to use astropy.io.fits because my expert advisor Tim
+says that it is what he has used without problems for over 10 years.
+The following gives an excellent discussion of how these various
+python FITS packages relate to each other:
+
+<ul>
+<li> <a href="https://docs.astropy.org/en/stable/io/fits/appendix/faq.html">astropy.io.fits FAQ</a>
+</ul>
+
+There is something called Astropython, but it is best ignored.
+It has been static for 5 years or so.
+Astropy is under active development.
+
+<h3>How to use astropy.io.fits</h3>
+
+<ul>
+<li> <a href="https://docs.astropy.org/en/stable/io/fits/">astropy.io.fits documentation</a>
+</ul>
+
+<h3>What about DS9, ximtool, XPA, and all that?</h3>
+
+<ul>
+<li> <a href="http://ds9.si.edu/doc/faq.html#XPA">DS9 FAQ and XPA</a>
+<li> <a href="http://ds9.si.edu/doc/story.html">History of DS9</a>
+</ul>
+
+There is a package "pyds9", but it is not part of the Fedora package set.
+I could install it using "pip", but I don't want to go down the road of multiple
+package managers, so I will just skip it entirely.
+
+<p>
+However, I can just use the command line "xpaset" to send things to ds9 via XPA.
+This takes data on stdin, making it easy to pipe to it.
+This solves my problem (but ximtool is clueless about XPA, so this locks
+things to DS9, which is not a bad thing necessarily.
+
+<p>
+XPA stands for "X public access".
+
+<ul>
+<li> <a href="http://hea-www.harvard.edu/saord/xpa/">XPA</a>
+<li> <a href="https://pirlwww.lpl.arizona.edu/resources/guide/software/SAOtng/about_xpa.html">about XPA</a>
+</ul>
+
+
+</BODY>
+</HTML>

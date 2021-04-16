@@ -1,0 +1,62 @@
+	autos --- oven script generator to drive ograph (advanced users)
+	auto_all --- generate a series of autos scripts (advanced users)
+	killer --- script to hunt down and kill background jobs (dangerous)
+	fdisplay --- convert a FITS image to IRAF format and display it
+	fimstat --- convert a FITS image to IRAF format and imstat
+	fhselect --- convert a FITS image to IRAF format and hselect
+	fimhead --- convert a FITS image to IRAF format and imhead
+	fimplot --- convert a FITS image to IRAF format and implot
+	fimhist --- convert a FITS image to IRAF format and imhist
+	fexport --- convert a FITS image to IRAF format and export to GIF
+	fproc --- assorted image processing customized for oven images.
+	calczpwr --- script to sum heater power over a control zone
+	gkimerge --- merge mutiple metacode plot files into one frame
+	level --- measure glass level on video frame
+	mygraph -?- plots glass level versus time
+	remote -?- display oven data remotely on an x-terminal
+	mkindex -?- makes index of oven images from header information
+	takepic --- take video image with on-board frame grabber
+	flkill --- deselect flashes for on-board frame grabber
+	tcs --- foreign task which sends video commands to oven0v1
+	videoc --- cron script to take and display video images w/darks
+	shortc --- cron script to take and display video images
+	bandcc --- cron script to take and display video images
+	mkgifc --- cron script to convert metacode plots to GIF images
+	psi2gif --- export psidump postscript plots to GIF images
+	-?- means this task is not yet implemented or tested
+
+	The following are useful help topics about furnace operation:
+		clocks		
+		config_mode	
+		dead_sun
+		duties
+		generator
+		hardware
+		heater
+		menus
+		minutemap
+		logbook		
+		lvdt
+		new_tcmark
+		one_computer		(advanced users)
+		pilot_login	
+		pilot_short		(advanced users)
+		remote
+		schedules
+		simul_login
+		spinning
+		time_temp		(advanced users)
+		trouble
+		user_login		(novice)
+		wait_states	
+		pfireoff		(checklist)
+		pfireon			(checklist)
+
+	The following scripts are available for plotting various oven data:
+	galumttmp    galumttmp4   gwallttmp    gz5ttmp
+	galumttmp1   gband        glidttmp     gz4ttmp      
+	galumttmp2   gconettmp    glvdt        gwhole
+	galumttmp3   gcenterttmp  gmoldttmp    gfcpp
+	gz4hpwr	     gz3hpwr	  gz2hpwr      gz1hpwr
+	gz0hpwr	     gz5hpwr      gfvpp        gcamera
+	spinplot

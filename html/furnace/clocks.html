@@ -1,0 +1,94 @@
+<HTML>
+<HEAD>
+<TITLE> SOML oven documentation - furnace </TITLE>
+</HEAD>
+<BODY>
+<p>
+<h3>CLOCKS (Jul93) &emsp; &emsp; &emsp; furnace</h3>
+
+<h3>NAME</h3>
+clocks --- oven schedule clocks
+<p>
+
+<h3>DESCRIPTION</h3>
+	Oven schedules consist of nodes which are composed of a
+GOALTIME and a GOALTEMP.  The node also has a LABEL and some wait
+conditions which allow the schedules of various zones to be
+syncronized.  The parameters and data for the current node of each
+active zone schedule are shown in the 'Oven Overview' menu.
+Additional details for the current node are shown in each of the
+'Zone' menus.  The full schedule for a particular zone is shown in the
+'Zone Schedule' menu.	Temperature schedules may be editted by the
+<b>oven</b> task in the 'Configuration and Status Menu'.
+<p>
+	When the V-computer is running a temperature schedule, the clock time
+is advanced once per minute and the desired or scheduled temperature for each
+control zone is calculated.  The "clock" will continue to advance minute by
+minute in real time unless it is "stop"ped by the pilot or the schedule
+encounters a wait condition.  If a zone clock arrives at the endpoint of a
+node with a wait flag, the clock will stop advancing until the wait condition
+has been satisfied or until the pilot "run"s the clock.  Wait flags can
+require any one or more of three possible conditions (T,D,W).  The clock will
+remain stopped until all of the specified conditions have been met.
+Or until the pilot starts the clock manually.
+<p>
+There are three significant clocks associated with the oven (video doesn't
+count).  These are the zone clocks that control the temperature schedule;
+the wall clock that tells you and the computers what the Mountain Standard
+Time is; and the minute clock which the computers use for synchronizing
+their tasks.  These instructions assume that you are familiar with
+Mountain Standard Time.  It is useful to know that the Sun workstations
+keep syncronized over ethernet and that the on-board computers are
+syncronized to the same clocks.
+<p>
+See the <b>minutemap</b> help file for a summary of how oven control
+tasks are distributed through the minute.  All of the control tasks
+see one minute the same as the next so they don't need to know about
+hours or days except for the task that computes the scheduled zone
+temperature.
+<p>
+
+<h3>WARNING</h3>
+	Changing the clocks on the fly is very dangerous.  Do not
+attempt it unless you are very sure that you know what you are doing.
+<p>
+
+<h3>SETTING THE ZONE CLOCKS</h3>
+	From the configuration and status menu, the oven pilot may set
+the day hour and minute of any zone clock.  The pilot may also start
+and stop the clocks to hold or advance the temperature schedule.
+<p>
+	To change a clock setting, move to the 'Zone' menu, move down
+1 line to the 'Clock Time'.  Then use 'P' to cache the parameters.
+Then use 'K' to cache the clock parameters.  Clocks are special
+parameters because they are updated at the beginning of each minute.
+To change the CLOCKTIME, press the 'e' key and enter a new time the
+prompt followed by return.  Both of the colons are required in the
+dd:hh:mm format. (ie, 0 or 6:40 are not valid entries.) To change the
+'Clock Status' from 'Running' to 'Stopped' or vice versa, go to the
+appropriate line and use the 'e' key to toggle the parameter. When you
+are done changing values, use the 'W' key to write the changes to the
+oven or discard them (press GOTO at the option you choose).  Schedule
+changes should be saved between 30 and 45 seconds after the minute to
+avoid disrupting the schedule computation.
+<p>
+	Much of the time, you will want to make changes to the clocks
+of all zones simultaneously.  To do this, go to the 'Global' menu under
+'Configuration and Status'.  The editing procedure is the same as described
+above.
+<p>
+	Remember that if you change the schedule or the zone time for
+a clock that is stopped, you must run the clock for at least one minute to
+update the scheduled temperature.  The corollary is that it isn't a bad idea
+to stop all the clocks before you start editting the schedule.
+<p>
+
+<h3>BUGS</h3>
+
+<h3>RELATED MIRROR HELP TASKS</h3>
+oven
+
+<h3>RELATED FURNACE HELP TASKS</h3>
+schedules, wait_states, zones, menus
+</BODY>
+</HTML>

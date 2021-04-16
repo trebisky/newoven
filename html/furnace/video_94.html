@@ -1,0 +1,266 @@
+<HTML>
+<HEAD>
+<TITLE> SOML oven documentation - furnace </TITLE>
+</HEAD>
+<BODY>
+<p>
+<h3>VIDEO (Jan94) &emsp; &emsp; &emsp; furnace</h3>
+<HTML>
+<HEAD>
+<TITLE> SOML oven documentation - furnace </TITLE>
+</HEAD>
+<BODY>
+<p>
+<h3>OPIC (Jan94) &emsp; &emsp; &emsp; furnace</h3>
+
+<h3>NAME</h3>
+video --- Dave Harvey's OPIC program for oven video acquisition
+<p>
+
+<h3>OVERVIEW</h3>
+	The OPIC program on the video PC controls the operation of the
+cameras and flashes and the collection of images with the framegrabbers.
+The images are stored on disk in FITS image format with names that identify
+the camera and the day/time.  The video PC contains three framegrabbers which
+can store and display images.
+<p>
+
+<h3>START-UP</h3>
+To start the oven video program on the Video PC:
+<pre>
+	C:
+	cd video
+	opic
+</pre>
+<p>
+When the OPIC program starts, the user has a choice of six menus:
+File, Show, Select, Image, Calibrate, Camera.  These menus can be navigated
+with the mouse or the arrow keys in combination with the return and escape
+keys (left mouse button is the same as return, right is the same as escape).
+<p>
+
+<h3>FILE --- Output File Management</h3>
+<p>
+<p>
+ Save Dis N
+<br>
+This item will save the acquired image in display N to a FITS file
+on disk.
+
+<p>
+<p>
+ Retrieve Dis N
+<br>
+This item will retrieve a FITS file which you select from a menu and show it
+on display N.
+
+<p>
+<p>
+ Shell
+<br>
+This item temporarily suspends OPIC to give you a DOS Shell.  Typing "exit"
+at the DOS prompt will return you to OPIC.
+
+<p>
+<p>
+ Quit
+<br>
+This item stops the OPIC program.
+
+<p>
+
+<h3>SHOW --- Select Display Image Plane</h3>
+<p>
+<p>
+ Live
+<br>
+This item shows the live video signal from the selected camera on Display 1.
+This is only useful for testing or looking at the infrared only view.
+
+<p>
+<p>
+ Acquired
+<br>
+This item shows the recently acquired images in the frame buffer on all three
+displays.
+
+<p>
+<p>
+ Retrieved
+<br>
+This item shows the images in the frame buffer which have been retrieved
+from disk on all three displays.
+
+<p>
+
+<h3>SELECT --- Select Camera / Strobes, Disk</h3>
+<p>
+<p>
+ Camera/Strobes
+<br>
+This starts an interactive window which allows the user to select the
+cameras and strobes which will be used for the next picture.  The
+camera are the circles and the strobes are the squares.  Select each
+one by clicking with the mouse.  Only one camera can be selected, but
+anywhere from zero to four strobes can be selected.  Hit the <ESC> key
+to exit this window.
+
+<p>
+<p>
+ Local Disk
+<br>
+This item toggles whether archived or retrieved images are put on the local
+PC disk (drive D:) or on the remote PC-NFS disk (drive E:).  When the little
+carat is present, that means the local disk is selected. (See below for
+information on how to change the disk paths.)
+
+<p>
+
+<h3>IMAGE --- Image Management</h3>
+<p>
+<p>
+ Acquire Disp N
+<br>
+The item starts the acquisition of an image with the currently selected cameras
+and flashes.  The image is stored (temporarily) in display N.
+
+<p>
+<p>
+ Auto
+<br>
+The item executes the automatic script to acquire images at predetermined
+intervals.  See below for the format of the auto script.  Manual images are
+still possible if the auto script allows suffcient deadtime.
+
+<p>
+
+<h3>CALIBRATE --- Strobe Testing and Calibration</h3>
+<p>
+<p>
+ Set Delay
+<br>
+Don't fool with this parameter.  It is used to synchronize the strobe with
+the frame grabber.
+
+<p>
+<p>
+ Flash N
+<br>
+Discharge Flash N (as soon as it charges up).
+
+<p>
+<p>
+ Reinitialize
+<br>
+The item does a software initialization of the 3 frame grabbers.
+
+<p>
+
+<h3>CAMERA --- Set Camera Parameters</h3>
+<p>
+<p>
+ Gain
+<br>
+Select gain for current camera with mouse. (0-3)  Gain of 0 makes the image
+brighter and gain of 3 makes the image fainter.  The scaling is non-linear.
+
+<p>
+<p>
+ Offset
+<br>
+Select offset for current camera with mouse. (0-255)  A smaller offset
+raises the level of the image toward white.
+
+<p>
+<p>
+ Shutter Speed
+<br>
+Select shutter speed for current camera from menu. Normal speed for
+flashing is 1/4000 sec.
+
+<p>
+
+<h3>AUTOMATIC SCRIPT</h3>
+<p>
+Here is the revised version of the auto script.  It takes about 5 minutes 
+to run, so the plan is to execute it with a 7 minute delay.
+I think we should plan to run this in a serious fashion from ~6AM on April 2
+until ~6AM on April 3.  With selected before and after data, ie every 90 min.
+<p>
+<pre>
+	Camera	Display	Flash	Shutter	Gain Offset	Disk
+	D	2	-	60	1	255	Remote
+	D	2	-	4000	1	255	Remote
+	D	2	BC	4000	1	255	Remote
+	C	3	AC	4000	1	255	Local
+	A	1	CD	4000	1	255	Local
+	D	2	-	4000	1	255	Remote
+	D	2	BC	4000	1	255	Remote
+	B	1	-	4000	1	255	Local
+	B	1	AC	4000	1	255	Local
+</pre>
+<pre>
+The actual script "auto.prm"
+4 0 2 2 0
+4 0 2 2 6
+4 6 2 2 6
+3 5 3 1 6
+1 12 1 1 6
+4 0 2 2 6
+4 6 2 2 6
+2 0 1 1 6
+2 5 1 1 6
+</pre>
+<p>
+<pre>
+The first column is the camera number: A=1 B=2 C=3 D=4
+The second column is the flash number: A=1 B=2 C=4 D=8 (summable)
+The third column is the display (framegrabber) number: 1,2,3
+The fourth column is the destination: 0=no save 1=local disk 2=remote disk
+The fifth column is the shutter: 0=1/60 ........6=1/4000, 7=1/10000
+</pre>
+<p>
+Gain and offset for each camera must be set manually.
+<p>
+In the C:VIDEO directory, GETAUTO.BAT will copy the file named 
+"auto.prm" from the remote disk E:.
+<p>
+
+<h3>DISK SPACE</h3>
+In terms of disk storage, I currently think we can use the following:
+    These two for immediate storage of incoming images.
+<pre>
+	crater!/u3/pilot/video		~750 MB
+	PC Drive D:			  80 MB
+	dorado!/u3/pilot/video		 ~50 MB
+	dorado!/u2/pilot/video		~500 MB
+</pre>
+<p>
+The remote disk on the Sun is mounted under PC-NFS.
+The path for this disk is set by C:NFSNFSCONF to something like
+"E:   crater   /u3/pilot/video".  This directory must also be "export"ed
+from SunOS before PC-NFS can mount it.
+<p>
+The places where OPIC stores images on the local and remote disks
+are controlled by the DOS variables OPIC_NET and OPIC_LOCAL.
+Paths are set in AUTOEXEC.BAT, so the user should not have to mess with them.
+<p>
+The FITS image file names are something like H1618403.FTS  This means this
+frame was taken on August (H=8) 16th at 18:40 with Camera C (C=3).
+<p>
+The video PC will ask for the pilot password when it boots and loads
+the NFS software.
+<p>
+
+<h3>BUGS</h3>
+Sometimes the frame grabbers get "grainy" looking.  The usual cure for this
+is to reboot the PC by cycling the power.  The power down apparently 
+fixes things that a soft reboot or reinitialization doesn't.
+This needs to be done about once a day.
+<p>
+If you are turning off the video PC for an extended period, be sure
+to turn off the flash power supplies.  This avoids leaving the
+flash capacitors in a charged state.
+<p>
+</BODY>
+</HTML>

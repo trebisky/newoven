@@ -1,0 +1,100 @@
+<HTML>
+<HEAD>
+<TITLE> SOML oven documentation - furnace </TITLE>
+</HEAD>
+<BODY>
+<p>
+<h3>CONFIG_MODE (Jul93) &emsp; &emsp; &emsp; furnace</h3>
+
+<h3>NAME</h3>
+config_mode --- oven configuration mode
+<p>
+
+<h3>DESCRIPTION</h3>
+The heaters in the oven are plugged into twistlock connectors on the
+I-beams below the oven.  This allows the top portions of the
+oven to be disconnected and removed.  It also allows a heater to
+be transferred from one control circuit to another.
+<p>
+Config mode is a special part of the on-board software that verifies
+that each heater is plugged into its proper twistlock connector after
+the oven has been reassembled.  This is accomplished by briefly
+energizing each heater and comparing the results of the remote current
+sensors which are wired independently of the twistlocks.
+<p>
+To use 'config' mode run the <b>oven</b> task and go to the
+'Miscellaneous' menu under the 'Configuration and Status' menu.  The
+following procedure assumes the v-computers and all the daemons are
+already running.
+<p>
+<p>
+ Procedure
+<br>
+<pre>
+	Turn on Power Panel micros.
+	Enable power panel sensor status.
+	Enable all voltage sensors.
+	Enable all local and remote current sensors.
+	Be sure clocks are set so oven is not calling for heat.
+	Turn on heavy power to power panels.
+	Turn on heater cicuit breakers.
+	Verify that no heaters are coming on.
+	Enable config mode.
+	Watch the blinking lights.
+</pre>
+
+<p>
+	The v-computers will sequentially turn on heaters for ~1/4 second 
+each and read back the sensors.  Any discrepancies will appear as
+errors in the red window.  No errors will appear if everything is wired
+correctly.  The heater turn-on sequence starts with 000
+and goes through heater 23 in panel 0, then does heaters 0 - 23 in each
+of the following panels.  Then heaters 24-29 are done for each panel.
+The sequence continues until config mode is disabled, resulting in a 6kW
+power input to the oven.
+<p>
+<p>
+ Procedure to stop config mode
+<br>
+<pre>
+	Disable config mode.
+	Turn off heavy power to power panels.
+	Turn off other things as necessary.
+</pre>
+
+<p>
+.sh
+SAMPLE OUTPUT
+<p>
+<pre>
+ Feb 10 16:44:10 0v0#000001@028 <he 125 314  94>06 Heater element failed on !!
+ Feb 10 16:44:10 0v0#000001@029 <he  80 272  94>06 Heater element failed on !!
+ Feb 10 16:44:10 0v0#000001@000 <he  80   2  94>07 Heater element failed off  
+ Feb 10 16:44:10 0v0#000001@001 <he 100  30  94>07 Heater element failed off  
+ Feb 10 16:44:10 0v0#000001@002 <he 145  23  82>07 Heater element failed off  
+ Feb 10 16:44:10 0v0#000001@003 <he 125  44  94>07 Heater element failed off  
+ Feb 10 16:44:10 0v0#000001@004 <he  96  45   0>07 Heater element failed off  
+</pre>
+<p>
+
+<h3>WARNING</h3>
+	Config mode interupts temperature control of the oven so it
+should only be initiated when the oven is near ambient, or when a brief
+interuption of power can be tolerated.
+<p>
+	Config mode is completely dependent on the remote current senors
+being wired correctly.
+<p>
+
+<h3>BUGS</h3>
+	The oven currently has some hardware problems that make it difficult
+for the remote current sensors to sense anneal heaters in the base.
+<p>
+
+<h3>RELATED MIRROR HELP TASKS</h3>
+oven
+
+<h3>RELATED FURNACE HELP TASKS</h3>
+menus
+</BODY>
+</HTML>

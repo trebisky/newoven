@@ -22,10 +22,20 @@ shm_load_oven ( "-c0" )
 shm_load_oven ( "-c1" )
 shm_load_oven ( "-c2" )
 
+# This is fine to run alongside crater
 os.system ( "ovend &" )
-os.system ( "ovene -c0 &" )
-os.system ( "ovene -c1 &" )
-os.system ( "ovene -c2 &" )
 
+# We do NOT want to run ovene processes on dorado while
+# crater is the main control room machine.
+# We will want to start these if there is a need to
+# change from crater to dorado to run the oven.
+#os.system ( "ovene -c0 &" )
+#os.system ( "ovene -c1 &" )
+#os.system ( "ovene -c2 &" )
+
+# These are the belt and suspenders processes to provide
+# database access in case onboard computers reboot.
+# They normally just sit there waiting for requests
+# that are never made.
 os.system ( "ovenp &" )
 os.system ( "ovenb &" )

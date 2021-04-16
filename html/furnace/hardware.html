@@ -1,0 +1,164 @@
+<HTML>
+<HEAD>
+<TITLE> SOML oven documentation - furnace </TITLE>
+</HEAD>
+<BODY>
+<p>
+<h3>HARDWARE (Aug93) &emsp; &emsp; &emsp; furnace</h3>
+
+<h3>NAME</h3>
+hardware --- Real Quick Overview of Oven Hardware
+<p>
+
+<h3>HARDWARE OVERVIEW</h3>
+	The Oven is about 9.5 m. or 384 in.  diameter, by about seven
+feet tall inside.  There are 252 heaters covering the interior which
+can deliver over 193 kW.  We can heat the Oven to 1200 C., and can
+hold its temperature constant to +- 0.5 C.  in the anneal range.  It
+can spin at 10 rpm for days on end.
+<p>
+
+<h3>NOMENCLATURE</h3>
+	The Oven is composed of several parts and subsystems, for
+which it is useful for us all to use the same names.  The heated
+interior cavity of the Oven is formed by installing the Shell,
+consisting of Lid, Cone, and Walls, upon the Hearth.  The Hearth is
+the floor of silicon carbide plates.  The cavity is heated by Heaters
+on all surfaces.  On the Shell, there are two heater Panels wired
+together in series to form each Heater circuit. In the Hearth, each
+Heater is a single coil of wound kanthal wire laying in grooves
+beneath the silicon carbide plates.  There are two sets of Heaters in
+the hearth, the Primary Heaters are larger, heavier, coils designed to
+deliver maximum power, to heat to high temperature.  The Anneal
+Heaters are smaller, more delicate coils that reside beneath the
+Primaries.  They are for low power slow cooling, to deliver smoother,
+more controlled heat.  Each Heater circuit is designated by its
+three-digit PFE number.  PFE stands for Power panel (0-9), Fase (sic)
+in its panel (0-2), and Element number (0-29).  Outside of the Shell,
+or under the Hearth, there is a Junction Box associated with each
+heater, with its PFE in big yellow numbers.  A thick black Twistlock
+Cable emerges from each Junction Box, and goes to the appropriate
+Twistlock Recepticle for each Heater.  Power to each Twistlock
+Receptical is switched by one Element in a Power Panel.  Each Element
+is composed of an solid state relay, or SSR, and its associated fuse
+and circuit breaker.  There is a Voltage Sensor (VS), a Local Current
+Sensor (LCS), and a Remote Current Sensor (RCS) associated with each
+Heater.  The VCSs and LCSs are checked to see that the SSRs are
+switching correctly, and the RCSs are checked to assure that the power
+is going to the correct Heater.  Power from the outside world is
+supplied to the nine Power Panels (PP0-8), through large Slip Rings,
+which allow juice to flow while the Oven is spinning.  This power
+comes from some combination of four sources, Main SwitchBoard 0
+(MSB0), Main SwitchBoard 1 (MSB1), Generator SwitchBoard 0 (GSB0), and
+Generator SwitchBoard 1 (GSB1).  MSB0 is a 750kVA line from TEP Co.,
+MSB1 is a 500kVA line, and GSB0 &1 are from two 500kVA generators.
+<p>
+	Scattered around the Oven are lots of Thermocouples, or TCs,
+which read temperature.  TCs are thin metal tubes with two special
+metal wires inside that are joined at the tip of the tube.  It is
+filled with an insulating powder.  Each TC has a color-coded connector
+on the end with three pins.  Our normal type-N TCs are orange.  Each
+TC is plugged into a special gold or orange TC Connector Cable which
+is designated by a four-digit DNTX number. DNTX stands for DCU (0-5),
+DCU card Number (0-5), TIC select number (0-3), and channel (X) on the
+TIC (0-4).  Not every possible DNTX (or PFE) number is currently in
+use.  The Connector Cable connects each TC to its Isothermal Junction
+Box, or IJB.  Each IJB is a copper block with ten TC junctions and two
+thermistors attached to it, thermally isolated in a foam-rubber filled
+box.  Each IJB is serviced by two TICs, whose DNT numbers are
+emblazoned on the cover of the box.  The TICs live in seven
+Temperature Instrumentation Panels, or TIPs.  Information from the
+TICs is directed through six Data Conversion Units, DCU 0-5, to the
+on-board computers.
+<p>
+	The Oven is propelled around by two independent Drive systems,
+Drive 1 and Drive 2.  Each Drive consists of a 40 horsepower motor,
+the electrical system to start and protect them, a gearbox, and pinion
+gear.  Both Drives are controlled by the Rotation Control Panel
+<p>
+	There are three computers which live aboard the oven to read
+and process temperature information, and to control the heaters.  They
+are CPU0, CPU1, and CPU2.  Besides sending instructions to the Power
+Panels to switch Heaters on and off, they also check to see what the
+Voltage (adcV), and Current draw (adcC), are for each Fase, and the
+current on the Neutral (adcN), of each Power Panel.  In addition, the
+CPU sisters communicate with the two Control Room Computers, Crater
+and Dorado, which store data and serve as interface with you, the Oven
+Pilot.
+<p>
+
+<h3>WHERE PARTS ARE</h3>
+	All points of interest on the oven are described by regular
+cylindrical coordinates R, radial distance in inches from the Oven's
+center of rotation, Theta (T), measured clockwise (when viewed from
+above) in degrees around the circle from 0 to 360, and Z, measured in
+inches above or below the Hearth, which is defined as Z=0.  The
+Heaters position is the approximate center of their areas, and a TCs
+position is the coordinates of its tip.  For example: Heater 108 is at
+(192,98,36). This puts it in the upper wall section of the Shell,
+about quarter way around from zero degrees. and three feet up from the
+Hearth.
+<p>
+	There are ports for four Video Cameras in the Cone at 70, 100,
+215, and 340 degrees (not all cameras may be installed at any given
+time).  Lights for the Video are mounted in the walls at 85, 175, 265,
+and 355 degrees.
+ 
+	Each of the Shells Heaters Twistlock cable drops from its
+Junction Box to one of the main beams where they plug into their
+assigned Twistlock receptacles. These are numbered for our
+convenience, so a Heater has a Beam and Twistlock number to describe
+where it plugs in.  For example: our friend Heater 108 has Beam 090,
+Twistlock 19 as a home.  In the Hearth, each Heater circuit may
+connect to either the Primary (PRI) heater coil, or the Anneal (ANL)
+coil.  This choice is made by changing the Twistlock cable which comes
+from the beam receptacle to one of two marked receptacles on the
+appropriate transition box.  These boxes are hung on unistrut rails
+between the beams.
+<p>
+	All of the information from the Shell IJBs and the Heater RCSs
+comes down the thick black cables with braided sheaths to plug into
+their appropriate transition boxes, and hence to the TICs and PPs.
+<p>
+	The Oven electronics are arrayed around the carousel at ground
+level (Z=-60), with the Power Panels from Theta = 40 to 160 degrees,
+the access door into the pedestal at 180 deg., Rotation Control Panel
+at 200 deg., Temperature Instrumentation Panels from Theta = 220 to
+310 deg., Interface Panel at 320 deg., CPU2 at 340 deg., CPU1 at 350
+deg., and CPU0 at 10 degrees.  All of these Panels shall be clearly
+marked.
+<p>
+	Inside the access door there is the Pedestal, upon which is
+borne the entire Oven structure.  There is a large crossed-roller
+bearing atop the Pedestal, the bottom race of which is toothed on the
+outside.  The Drives turn their Pinion Gears around this ring.
+Emerging from the floor outside the Pedestal are nine large conduits
+which carry the power through the Pedestal walls to the nine sets of
+Sliprings, which are stacked on a shaft along the Ovens rotation axis.
+Below the large Power Sliprings (deep in the pit) are two sets of much
+smaller sliprings which carry low voltage housekeeping power, and
+information.  At the bottom of the pit there is also a sump pump...
+just in case.
+<p>
+
+<h3>GUIDE TO MAPS</h3>
+	There exist a number of maps which show the location of every
+Heater, TC, IJB, Camera, and Light.  These are located in the control
+room, the electronics shop, and out on the wall near the Oven.  These
+are all subsets of a master AUTOCAD drawing called HEAT.DWG, copies of
+which reside on the Video Computer, and on floppy in the box nearby.
+This drawing has many layers which contain lots of obscure but useful
+information.  There are also drawings which show oven wiring in
+schematic representation. (need names and numbers here.. see Index to
+Oven Schematics below)
+   
+4/22/91   DMW
+<p>
+
+<h3>RELATED MIRROR HELP TASKS</h3>
+oven
+
+<h3>RELATED FURNACE HELP TASKS</h3>
+duties, clocks, schedules, wait_states, zones, menus, furnace
+</BODY>
+</HTML>

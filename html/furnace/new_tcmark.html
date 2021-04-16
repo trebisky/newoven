@@ -1,0 +1,57 @@
+From skip@as.arizona.edu Tue Sep 24 13:16:06 1991
+To: ovenlog@dorado
+Subject: r theta z
+<p>
+(expanded by JMH, 11AUG93; revised by JHM 17NOV96)
+<p>
+After changing r theta z of any tc or he on the oven, you should
+update all three shared memory databases using "read parameters from
+oven".  This makes certain that the menus display the same information
+as the V-computers are using.  It doesn't actually affect oven
+performance but life can become very confusing if you don't do this.
+<p>
+-----
+<p>
+You should also update the tc marks used by ovenc.cl to make the odisp screens.
+<p>
+# delete old TC lists
+delete tc.[lwbma] verify+
+<p>
+# generate new lists
+tcmark aspect=l > tc.l
+tcmark aspect=w > tc.w
+tcmark aspect=b > tc.b
+tcmark aspect=m > tc.m
+tcmark aspect=a > tc.a
+<p>
+# delete the old graphics metacode files
+delete [lwbma].mc verify+
+<p>
+# generate new metacode files to cover the 512x512 graphics window
+graph tc.l point+ box- mark=cross szm=0.01 wx1=1 wx2=64  wy1=1   wy2=64 >G l.mc
+graph tc.w point+ box- mark=cross szm=0.01 wx1=1 wx2=128 wy1=-47 wy2=80 >G w.mc
+graph tc.b point+ box- mark=cross szm=0.01 wx1=1 wx2=64  wy1=1   wy2=64 >G b.mc
+graph tc.m point+ box- mark=cross szm=0.01 wx1=1 wx2=64  wy1=1   wy2=64 >G m.mc
+graph tc.a point+ box- mark=cross szm=0.01 wx1=1 wx2=64  wy1=1   wy2=64 >G a.mc
+<p>
+The definitions of the various oven aspects are found in
+"mirror$src/odisp/tc_he_bounds.h".
+<p>
+-----
+# historic experimental metacode files for a mosaiced odisp display
+# puts tc marks only in a specified viewport rather than the whole image buffer
+# viewport is specified by vx1,vx2,vy1,vy2
+graph tc.l poi+ box- mark=cross szm=0.003 wx1=1 wx2=64  wy1=1   wy2=64 \
+vx1=0.34 vx2=0.66 vy1=0.68 vy2=1.00 >G l3x3.mc
+graph tc.w poi+ box- mark=cross szm=0.003 wx1=1 wx2=128 wy1=-47 wy2=80 \
+vx1=0.34 vx2=0.66 vy1=0.34 vy2=0.66 >G w3x3.mc
+graph tc.b poi+ box- mark=cross szm=0.003 wx1=1 wx2=64  wy1=1   wy2=64 \
+vx1=0.34 vx2=0.66 vy1=0.00 vy2=0.32 >G b3x3.mc
+graph tc.m poi+ box- mark=cross szm=0.003 wx1=1 wx2=64  wy1=1   wy2=64 \
+vx1=0.68 vx2=1.00 vy1=0.68 vy2=1.00 >G m3x3.mc
+graph tc.a poi+ box- mark=cross szm=0.003 wx1=1 wx2=64  wy1=1   wy2=64 \
+vx1=0.68 vx2=1.00 vy1=0.34 vy2=0.66 >G a3x3.mc
+# imdkern displays these files fairly slowly, so use furnace.gkimerge
+# to combine them all into one metacode file
+gkimerge ?3x3.mc out=big3x3.mc
+# see also ovenc9.cl which actually does the odisp mosaic.
