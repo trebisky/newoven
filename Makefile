@@ -36,7 +36,7 @@ all: $(TARGETS)
 install:	all
 	cp scripts/train.au /usr/local/bin
 	cp scripts/cleaner /usr/local/bin
-	ln -sf /usr/local/bin/cleaner /usr/local/bin/starter
+	#ln -sf /usr/local/bin/cleaner /usr/local/bin/starter
 	cp scripts/start_oven /usr/local/bin
 	cp scripts/start_mcube /usr/local/bin
 	cp scripts/start_dorado /usr/local/bin
