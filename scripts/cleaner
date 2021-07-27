@@ -14,6 +14,14 @@ import re
 
 from functools import partial
 
+# Some handy commands:
+#
+# ipcs shows shm segments (and more)
+# ipcs -m shows only shm segments
+#
+# oven -- starts oven GUI for main oven.
+# cd MCUBE ; oven -M  starts oven GUI for mcube
+
 test_mode = False
 #test_mode = True
 
