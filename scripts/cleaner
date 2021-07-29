@@ -142,10 +142,17 @@ class Cleaner:
         tk.mainloop()
 
     def launch_window ( self, color ) :
+        if which_oven == MAIN_OVEN :
+            oven_cmd = "oven"
+        else :
+            oven_cmd = "oven -M"
+
         if color == "blue" :
-            cmd = "gnome-terminal --title='Blue Oven terminal' --window-with-profile=Blue -- oven"
+            cmd = "gnome-terminal --title='Blue Oven terminal' --window-with-profile=Blue -- "
+            cmd += oven_cmd
         elif color == "red" :
-            cmd = "gnome-terminal --title='Red Oven terminal' --window-with-profile=Red -- oven"
+            cmd = "gnome-terminal --title='Red Oven terminal' --window-with-profile=Red -- "
+            cmd += oven_cmd
         elif color == "green" :
             cmd = "cd " + self.my_iraf_home + "; "
             cmd += "xgterm -fn 12x24 -fg green -bg white -tn 'Green Oven terminal' -e cl"
