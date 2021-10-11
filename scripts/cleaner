@@ -4,7 +4,6 @@
 #  (originally cleaner aka "starter")
 #
 # Tom Trebisky  12-2020
-# Tom Trebisky  7-27-2021
 
 import tkinter as tk
 import tkinter.font
@@ -14,14 +13,6 @@ import getpass
 import re
 
 from functools import partial
-
-# Some handy commands:
-#
-# ipcs shows shm segments (and more)
-# ipcs -m shows only shm segments
-#
-# oven -- starts oven GUI for main oven.
-# cd MCUBE ; oven -M  starts oven GUI for mcube
 
 test_mode = False
 #test_mode = True
@@ -61,7 +52,9 @@ class Cleaner:
         global which_oven
 
         self.user = getpass.getuser()
-        self.is_pilot = (self.user == "pilot" or self.user == "tom")
+        self.is_pilot = (self.user == "pilot" or
+                self.user == "pilot2" or
+                self.user == "tom" )
 
         self.mw = tk.Tk()
         self.mw.title('Oven Control Panel')
@@ -142,17 +135,14 @@ class Cleaner:
         tk.mainloop()
 
     def launch_window ( self, color ) :
-        if which_oven == MAIN_OVEN :
-            oven_cmd = "oven"
-        else :
-            oven_cmd = "oven -M"
-
         if color == "blue" :
-            cmd = "gnome-terminal --title='Blue Oven terminal' --window-with-profile=Blue -- "
-            cmd += oven_cmd
+            cmd = "gnome-terminal --title='Blue Oven terminal' --window-with-profile=Blue -- oven"
+            if which_oven == MCUBE :
+                cmd = "gnome-terminal --title='Blue Oven terminal' --window-with-profile=Blue -- oven -M"
         elif color == "red" :
-            cmd = "gnome-terminal --title='Red Oven terminal' --window-with-profile=Red -- "
-            cmd += oven_cmd
+            cmd = "gnome-terminal --title='Red Oven terminal' --window-with-profile=Red -- oven"
+            if which_oven == MCUBE :
+                cmd = "gnome-terminal --title='Red Oven terminal' --window-with-profile=Red -- oven -M"
         elif color == "green" :
             cmd = "cd " + self.my_iraf_home + "; "
             cmd += "xgterm -fn 12x24 -fg green -bg white -tn 'Green Oven terminal' -e cl"
@@ -179,6 +169,7 @@ class Cleaner:
             # os.system ( "xfce4-terminal --title='Blue Oven terminal' &" )
             # gnome terminal on the other hand is much more flexible
             self.launch_window ( "blue" )
+            self.launch_window ( "purple" )
 
     def change_dir ( self, path ) :
         if not os.path.exists ( path) :
@@ -446,6 +437,7 @@ class Cleaner:
         if which_oven == MCUBE :
             self.add_wbutton ( "new Red Window", "red" )
             self.add_wbutton ( "new Blue Window", "blue" )
+            self.add_wbutton ( "new Purple Window", "purple" )
 
             self.add_ping ( "oven1v0" )
         else :
