@@ -199,9 +199,12 @@ class Cleaner:
             else :
                 self.change_dir ( "/home/pilot" );
 
+        # Note: having the iraf cl start in the MCUBE directory
+        # requires a link there to ../login.cl
         if which_oven == MCUBE :
             path = os.path.expanduser ( "~/MCUBE" )
             self.change_dir ( path );
+            self.my_iraf_home += "/MCUBE"
             print ( "Changed to directory " + os.getcwd() )
             return
 
