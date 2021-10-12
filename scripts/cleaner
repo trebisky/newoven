@@ -14,6 +14,8 @@ import re
 
 from functools import partial
 
+pilots = [ "pilot", "pilot2", "vncpilot", "tom" ]
+
 test_mode = False
 #test_mode = True
 
@@ -52,9 +54,9 @@ class Cleaner:
         global which_oven
 
         self.user = getpass.getuser()
-        self.is_pilot = (self.user == "pilot" or
-                self.user == "pilot2" or
-                self.user == "tom" )
+        self.is_pilot = self.user in pilots
+        if not self.is_pilot :
+            print ( "You ain't no pilot" )
 
         self.mw = tk.Tk()
         self.mw.title('Oven Control Panel')
@@ -540,7 +542,7 @@ class Cleaner:
     # in general only pilot gets to start things,
     def st_start ( self, who ) :
         cmd = who + " &"
-        #if self.is_pilot or who.starswith("ovend") :
+        #if self.is_pilot or who.startswith("ovend") :
         if self.is_pilot :
             os.system ( cmd )
         else :
