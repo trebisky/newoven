@@ -34,7 +34,8 @@ PUBLISH = oven ovend oveng ovenb ovenp ovenr ovene oven_shm
 all: $(TARGETS)
 
 install:	all
-	cp scripts/train.au /usr/local/bin
+	#cp scripts/train.au /usr/local/bin
+	cp scripts/train.wav /usr/local/bin
 	cp scripts/cleaner /usr/local/bin
 	#ln -sf /usr/local/bin/cleaner /usr/local/bin/starter
 	cp scripts/start_oven /usr/local/bin
