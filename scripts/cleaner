@@ -136,6 +136,10 @@ class Cleaner:
 
         tk.mainloop()
 
+    def launch_ximtool ( self ) :
+        cmd = "ximtool"
+        os.system ( cmd + " &" )
+
     def launch_window ( self, color ) :
         if color == "blue" :
             cmd = "gnome-terminal --title='Blue Oven terminal' --window-with-profile=Blue -- oven"
@@ -395,6 +399,15 @@ class Cleaner:
         b = tk.Button( f, text=text, command=partial(self.launch_window,name) )
         b.pack(side='left')
 
+    def add_ximtool_button ( self, text ) :
+        f = tk.Frame ( self.f2, width=DEF_WIDTH )
+        #f.pack(side="top")
+        f.pack()
+        self.info.append ( f )
+
+        b = tk.Button( f, text=text, command=partial(self.launch_ximtool) )
+        b.pack(side='left')
+
     def run_ping ( self, host ) :
         ping_host = host
         #ping_host = "localhost"
@@ -450,6 +463,7 @@ class Cleaner:
             self.add_wbutton ( "new Blue Window", "blue" )
             self.add_wbutton ( "new Purple Window", "purple" )
             self.add_wbutton ( "new Green Window", "green" )
+            self.add_ximtool_button ( "start ximtool" )
 
             self.add_ping ( "oven0v0" )
             self.add_ping ( "oven0v1" )
