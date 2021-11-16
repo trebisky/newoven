@@ -3,6 +3,13 @@
 # tjt - renamed to ovenw 1-12-2021
 # now "cleaner" will start this automatically
 #
+# Note that "ovenw" conflicts with a hidden builtin that is part of the
+# IRAF oven software.  The IRAF thing does a "wait" rather than a "watch"
+# and has nothing to do with errors or blowing the whistle.
+# rather IRAF-ovenw is used in scripts like ovenc.cl to synchronize
+# actions in the script with oven timings.
+#
+# This used to be called watch.pl and was written by John Hill
 # watch -- watch the oven error log and make a noise when something is added
 #
 # call as a cgi script
@@ -24,7 +31,13 @@ $ARGV[0] =~ s/\\(.)/$1/g;
 $path = "./errors.log";
 $cmd = "/usr/bin/wc ";
 
-$sound = "/usr/local/bin/train.au";
+# When we got ready to use this 11-15-2021 we discovered that
+# aplay had changed and was no longer willing to play sparc audio files.
+# There may be some way to coerce it, but we never figured it out.
+# So we installed "sox" and used it to covert the sparc ".au" file to wav.
+# Probably "wav" file support won't vanish unexpectedly anytime soon.
+#$sound = "/usr/local/bin/train.au";
+$sound = "/usr/local/bin/train.wav";
 
 #print "Whistles when something appears in $path \n";
 
