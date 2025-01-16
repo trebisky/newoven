@@ -32,3 +32,6 @@ OLD
 ovenz
 errors.log
 Auto
+tags
+starter
+libncurses_ORIG.a

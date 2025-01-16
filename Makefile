@@ -29,7 +29,8 @@ CC = cc -Wold-style-definition -pedantic
 # ----
 
 TARGETS = oven ovend oveng ovenb ovenp ovenr ovene ovenz oven_shm
-PUBLISH = oven ovend oveng ovenb ovenp ovenr ovene oven_shm
+#PUBLISH = oven ovend oveng ovenb ovenp ovenr ovene oven_shm
+PUBLISH = ovend oveng ovenb ovenp ovenr ovene oven_shm
 
 all: $(TARGETS)
 
@@ -44,6 +45,13 @@ install:	all
 	#cp watch.pl /usr/local/bin/watch
 	cp scripts/ovenw /usr/local/bin
 	cp $(PUBLISH) /usr/local/bin
+	cp oven /usr/local/bin/xxxoven
+
+# While using local libcurses.a with color256 issue
+xxxinstall: oven
+	cp oven /usr/local/bin/xxxoven
+	cp zzzoven /usr/local/bin/oven
+	chmod a+x /usr/local/bin/oven
 
 .c.o:
 	$(CC) -o $@ -c $<
@@ -73,8 +81,11 @@ ovend: $(DOBJS)
 oven_shm: $(SHMOBJS)
 	cc -o oven_shm $(SHMOBJS) -lm
 
+#oven: $(OOBJS)
+#	cc -o oven $(OOBJS) -lm -lncurses
+
 oven: $(OOBJS)
-	cc -o oven $(OOBJS) -lm -lncurses
+	cc -o oven $(OOBJS) -lm libncurses.a
 
 init.o:	init.c
 domenus.o:	domenus.c

@@ -69,6 +69,101 @@ static int mkey(int autom, int period, int offset);
 /* in menusm/menus.c */
 MENUS	*menus ( void );
 
+#ifdef notdef
+typedef struct  {
+    PFI ntimes;     /* number of iterations (NULL => 1) */
+    int mtimes;     /* cached result of above       */
+    char    *text;      /* the text string  */
+    PFI gfunc;      /* go     function  */
+    PFI ofunc;      /* output function  */
+    PFI ifunc;      /* input  function  */
+    PFI tfunc;      /* toggle function  */
+    int text_start; /* text start column    */
+    int text_end;   /* text end   column    */
+    int func_start; /* func start column    */
+    int func_end;   /* func end   column    */
+} ITEM;
+
+typedef struct  {
+    char    *id;        /* menu id string   */
+    int mlines;     /* sum of above mtimes  */
+    int nitems;
+    ITEM    *item[MAX_ITEMS];
+} MENU;
+
+typedef struct  {
+    int nmenus;
+    MENU    *menu[MAX_MENUS];
+} MENUS;
+#endif
+
+extern int oven;
+
+/* Hack added by tjt 1-16-2025
+ */
+static void
+hack_menus ( MENUS *msp )
+{
+		MENU *mp;
+		ITEM *ip;
+		char *new;
+		char *ov;
+		char host[128];
+		int i;
+		char *p;
+
+		/* I see:
+		30 menus!
+		aa
+		Oven Main Menu
+		*/
+
+		// printf ( "%d menus!\n", msp->nmenus );
+		// for ( i=0; i<msp->nmenus; i++ ) {
+		// 	mp = msp->menu[i];
+		// 	printf ( "%s\n", mp->id );
+		// }
+		mp = msp->menu[0];
+		// printf ( "%s\n", mp->id );
+		if ( strcmp ( mp->id, "aa" ) != 0 )
+			return;
+
+		/* The first item should be the text for the title
+		 */
+		ip = mp->item[0];
+		if ( ! ip->text )
+			return;
+		if ( strncmp ( ip->text, "Oven", 4 ) != 0 )
+			return;
+		// printf ( "%s\n", ip->text );
+
+		if ( oven == 0 ) {
+			ov = "Main oven (oven0v0)";
+		} else if ( oven == 1 ) {
+			ov = "Meter cube (oven1v0)";
+		} else
+			ov = "unknown oven !! ??";
+
+		if ( gethostname ( host, sizeof(host) ) != 0 )
+			strcpy ( host, "anonymous" );
+
+		for ( p=host; *p; p++ ) {
+			if ( *p == '.' ) {
+				*p = '\0';
+				break;
+			}
+		}
+			
+		new = malloc ( 128 );
+		// ip->text = "The quick brown fox jumped over the dog";
+
+		sprintf ( new, "Oven Main Menu -- %s (running on %s)", ov, host );
+		ip->text = new;
+		ip->text_end = strlen(ip->text) - 1;
+
+		// printf ( "OK\n" );
+}
+
 int
 init_menus ( void )
 {
@@ -90,6 +185,9 @@ init_menus ( void )
 	    status = 0;
 	    break;
 	}
+
+	/* tjt */
+	hack_menus ( msp );
 
 	globalp->msp = msp;
 	return (status);
